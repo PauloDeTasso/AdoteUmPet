@@ -1,4 +1,4 @@
-/* Estilos para a página inicial do sistema */
+/* Estilo para a página inicial */
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
@@ -8,23 +8,38 @@ body {
 
 header {
     background-color: #4CAF50;
-    padding: 10px;
-    text-align: center;
     color: white;
+    padding: 15px 0;
+    text-align: center;
 }
 
-nav {
-    margin: 20px;
+header h1 {
+    margin: 0;
 }
 
 nav a {
-    background-color: #4CAF50;
     color: white;
-    padding: 10px 20px;
+    padding: 14px 20px;
     text-decoration: none;
-    margin: 5px;
+    font-weight: bold;
 }
 
 nav a:hover {
     background-color: #45a049;
+}
+
+.container {
+    width: 80%;
+    margin: auto;
+    overflow: hidden;
+}
+
+footer {
+    background-color: #4CAF50;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
 }

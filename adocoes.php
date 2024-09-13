@@ -1,41 +1,65 @@
 <?php
-include '../db/conexao_db.php';
+session_start();
+include('conexao_db.php');
 
-$stmt = $pdo->prepare("SELECT a.id, a.data_adocao, a.observacoes, u.nome AS usuario_nome, p.nome AS pet_nome 
-                       FROM Adocao a 
-                       JOIN Usuario u ON a.fk_Usuario_cpf = u.cpf 
-                       JOIN Pet p ON a.fk_Pet_id = p.id");
-$stmt->execute();
-$adocoes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// Verifica se o usuário está autenticado e tem permissão de administrador
+if (!isset($_SESSION['usuario']) || $_SESSION['usuario']['fk_Permissao_id'] != 1) {
+    header("Location: login.php");
+    exit();
+}
+
+// Consulta para obter todas as adoções
+$sql = "SELECT a.id, a.data_adocao, a.observacoes, p.nome AS pet_nome, u.nome AS usuario_nome
+        FROM Adocao a
+        JOIN Pet p ON a.fk_Pet_id = p.id
+        JOIN Usuario u ON a.fk_Usuario_cpf = u.cpf
+        ORDER BY a.data_adocao DESC";
+$stmt = $pdo->query($sql);
+$adoções = $stmt->fetchAll();
+
 ?>
 
-<h2>Lista de Adoções</h2>
-<table>
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Data Adoção</th>
-            <th>Observações</th>
-            <th>Usuário</th>
-            <th>Pet</th>
-            <th>Ações</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php foreach ($adocoes as $adocao): ?>
-        <tr>
-            <td><?php echo htmlspecialchars($adocao['id']); ?></td>
-            <td><?php echo htmlspecialchars($adocao['data_adocao']); ?></td>
-            <td><?php echo htmlspecialchars($adocao['observacoes']); ?></td>
-            <td><?php echo htmlspecialchars($adocao['usuario_nome']); ?></td>
-            <td><?php echo htmlspecialchars($adocao['pet_nome']); ?></td>
-            <td>
-                <a href="editar_adocao.php?id=<?php echo $adocao['id']; ?>">Editar</a>
-                <a href="remover_adocao.php?id=<?php echo $adocao['id']; ?>"
-                    onclick="return confirm('Deseja remover esta adoção?');">Remover</a>
-            </td>
-        </tr>
-        <?php endforeach; ?>
-    </tbody>
-</table>
-<a href="adocao_cadastrar.php">Cadastrar Nova Adoção</a>
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Adoções</title>
+    <link rel="stylesheet" href="css/adocao/adocoes.css">
+</head>
+
+<body>
+    <h1>Adoções</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Data de Adoção</th>
+                <th>Observações</th>
+                <th>Pet</th>
+                <th>Usuário</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($adoções as $adoção): ?>
+            <tr>
+                <td><?php echo htmlspecialchars($adoção['id']); ?></td>
+                <td><?php echo htmlspecialchars($adoção['data_adocao']); ?></td>
+                <td><?php echo htmlspecialchars($adoção['observacoes']); ?></td>
+                <td>
+                    <?php echo htmlspecialchars($adoção['pet_nome']); ?>
+                    <?php
+                        $imagemPet = "imagens/pet/pet" . str_pad($adoção['id'], 5, "0", STR_PAD_LEFT) . ".jpg";
+                        if (file_exists($imagemPet)): ?>
+                    <img src="<?php echo $imagemPet; ?>" alt="Imagem do Pet" width="100">
+                    <?php endif; ?>
+                </td>
+                <td><?php echo htmlspecialchars($adoção['usuario_nome']); ?></td>
+            </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+    <a href="home.php">Voltar para a Home</a>
+</body>
+
+</html>

@@ -1,30 +1,66 @@
 <?php
-include '../db/conexao_db.php';
+session_start();
+require 'conexao_db.php';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST')
-{
-    $dataAdocao = filter_input(INPUT_POST, 'data_adocao', FILTER_SANITIZE_STRING);
-    $observacoes = filter_input(INPUT_POST, 'observacoes', FILTER_SANITIZE_STRING);
-    $cpfUsuario = filter_input(INPUT_POST, 'cpf_usuario', FILTER_SANITIZE_STRING);
-    $idPet = filter_input(INPUT_POST, 'id_pet', FILTER_SANITIZE_NUMBER_INT);
-
-    $stmt = $pdo->prepare("INSERT INTO Adocao (data_adocao, observacoes, fk_Usuario_cpf, fk_Pet_id) 
-                           VALUES (:data_adocao, :observacoes, :fk_Usuario_cpf, :fk_Pet_id)");
-    $stmt->bindParam(':data_adocao', $dataAdocao);
-    $stmt->bindParam(':observacoes', $observacoes);
-    $stmt->bindParam(':fk_Usuario_cpf', $cpfUsuario);
-    $stmt->bindParam(':fk_Pet_id', $idPet);
-    $stmt->execute();
-
-    header("Location: adocoes.php");
+if (!isset($_SESSION['cpf']) || $_SESSION['tipo'] !== 'ADMINISTRADOR') {
+    header('Location: login.php');
     exit;
 }
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $usuario_cpf = $_POST['usuario_cpf'];
+    $pet_id = $_POST['pet_id'];
+    $observacoes = $_POST['observacoes'];
+
+    $pdo = conectar();
+    $sql = 'INSERT INTO Adocao (fk_Usuario_cpf, fk_Pet_id, observacoes) VALUES (?, ?, ?)';
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$usuario_cpf, $pet_id, $observacoes]);
+
+    header('Location: adocoes.php');
+    exit;
+}
+
+$pdo = conectar();
+$sql = 'SELECT * FROM Pet WHERE status = \'ADOTAVEL\'';
+$stmt = $pdo->query($sql);
+$pets = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$sql = 'SELECT * FROM Usuario';
+$stmt = $pdo->query($sql);
+$usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
-<form method="POST" action="cadastrar_adocao.php">
-    <input type="date" name="data_adocao" required>
-    <textarea name="observacoes" placeholder="Observações" required></textarea>
-    <input type="text" name="cpf_usuario" placeholder="CPF do Usuário" required>
-    <input type="number" name="id_pet" placeholder="ID do Pet" required>
-    <button type="submit">Cadastrar Adoção</button>
-</form>
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastrar Adoção</title>
+    <link rel="stylesheet" href="css/adocao/adocao_cadastrar.css">
+</head>
+
+<body>
+    <h2>Cadastrar Nova Adoção</h2>
+    <form method="POST">
+        <label for="usuario_cpf">Usuário:</label>
+        <select name="usuario_cpf" id="usuario_cpf" required>
+            <?php foreach ($usuarios as $usuario): ?>
+            <option value="<?= htmlspecialchars($usuario['cpf']) ?>"><?= htmlspecialchars($usuario['nome']) ?></option>
+            <?php endforeach; ?>
+        </select><br>
+        <label for="pet_id">Pet:</label>
+        <select name="pet_id" id="pet_id" required>
+            <?php foreach ($pets as $pet): ?>
+            <option value="<?= htmlspecialchars($pet['id']) ?>"><?= htmlspecialchars($pet['nome']) ?></option>
+            <?php endforeach; ?>
+        </select><br>
+        <label for="observacoes">Observações:</label>
+        <textarea name="observacoes" id="observacoes"></textarea><br>
+        <button type="submit">Cadastrar</button>
+    </form>
+    <p><a href="home.php">Voltar</a></p>
+</body>
+
+</html>

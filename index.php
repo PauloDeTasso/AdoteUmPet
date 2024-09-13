@@ -1,11 +1,20 @@
 <?php
 session_start();
+?>
 
-if (!isset($_SESSION['usuario_logado']))
-{
-    header('Location: /php/login/login.php');
-    exit();
-}
+<!DOCTYPE html>
+<html lang="pt-BR">
 
-header('Location: php/home.php');
-exit();
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bem-vindo ao Adote um Pet</title>
+    <link rel="stylesheet" href="css/home.css">
+</head>
+
+<body>
+    <h1>Bem-vindo ao Adote um Pet</h1>
+    <p><a href="login.php">Login</a></p>
+</body>
+
+</html>

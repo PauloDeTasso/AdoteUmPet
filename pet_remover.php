@@ -1,12 +1,19 @@
 <?php
-require '../db/conexao_db.php';
+session_start();
+require 'conexao_db.php';
 
-if (isset($_POST['id']))
-{
-    $id = $_POST['id'];
-
-    $stmt = $pdo->prepare("DELETE FROM Pet WHERE id = ?");
-    $stmt->execute([$id]);
-
-    header('Location: ../pet/pets.php');
+if (!isset($_SESSION['cpf']) || $_SESSION['tipo'] !== 'ADMINISTRADOR') {
+    header('Location: login.php');
+    exit;
 }
+
+$id = $_GET['id'] ?? '';
+
+$pdo = conectar();
+
+$sql = 'DELETE FROM Pet WHERE id = :id';
+$stmt = $pdo->prepare($sql);
+$stmt->execute([':id' => $id]);
+
+header('Location: pets.php');
+exit;

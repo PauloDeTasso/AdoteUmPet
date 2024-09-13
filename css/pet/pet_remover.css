@@ -1,27 +1,29 @@
-/* Estilos para a página de remoção de pet */
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f2f2f2;
-    padding: 20px;
+/* Estilo para a página de remoção de pets */
+h1 {
+    color: #4CAF50;
+    text-align: center;
+    margin-top: 20px;
 }
 
-.container {
-    max-width: 500px;
-    margin: 0 auto;
-    background: #fff;
+form {
+    width: 80%;
+    margin: 20px auto;
     padding: 20px;
-    box-shadow: 0px 0px 10px 0px #ccc;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-button {
+input[type="submit"] {
     background-color: #f44336;
     color: white;
-    padding: 10px;
+    padding: 15px 20px;
     border: none;
+    border-radius: 5px;
     cursor: pointer;
-    width: 100%;
+    font-size: 16px;
 }
 
-button:hover {
-    background-color: #e57373;
+input[type="submit"]:hover {
+    background-color: #e53935;
 }

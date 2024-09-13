@@ -1,28 +1,56 @@
-/* Estilos para o formulário de edição de adoção */
+/* adocao_editar.css */
+
 body {
     font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 80%;
+    margin: auto;
+    overflow: hidden;
+}
+
+header {
+    background: #333;
+    color: #fff;
+    padding-top: 30px;
+    min-height: 70px;
+    border-bottom: #ccc 3px solid;
+}
+
+header h1 {
+    text-align: center;
+    margin: 0;
 }
 
 form {
-    width: 300px;
-    margin: 0 auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-input, textarea {
+input[type="text"], input[type="date"], textarea {
     width: 100%;
     padding: 10px;
-    margin: 5px 0;
-    box-sizing: border-box;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
 }
 
-button {
-    background-color: #4CAF50;
-    color: white;
-    padding: 10px;
+input[type="submit"] {
+    background: #0275d8;
+    color: #fff;
     border: none;
+    padding: 10px 20px;
+    text-transform: uppercase;
+    border-radius: 5px;
     cursor: pointer;
 }
 
-button:hover {
-    background-color: #45a049;
+input[type="submit"]:hover {
+    background: #025aa5;
 }

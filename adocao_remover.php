@@ -1,11 +1,20 @@
 <?php
-include '../db/conexao_db.php';
+session_start();
+require 'conexao_db.php';
 
-$id = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
+if (!isset($_SESSION['cpf']) || $_SESSION['tipo'] !== 'ADMINISTRADOR') {
+    header('Location: login.php');
+    exit;
+}
 
-$stmt = $pdo->prepare("DELETE FROM Adocao WHERE id = :id");
-$stmt->bindParam(':id', $id);
-$stmt->execute();
+$id = $_GET['id'] ?? '';
 
-header("Location: adocoes.php");
+if ($id) {
+    $pdo = conectar();
+    $sql = 'DELETE FROM Adocao WHERE id = ?';
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$id]);
+}
+
+header('Location: adocoes.php');
 exit;
