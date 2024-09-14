@@ -1,15 +1,17 @@
-/* Estilo para a página inicial */
+/* Estilos gerais para o corpo da página */
 body {
     font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
     margin: 0;
     padding: 0;
+    background-color: #f4f4f4;
+    color: #333;
 }
 
+/* Estilos para o cabeçalho */
 header {
-    background-color: #4CAF50;
+    background-color: #3498db;
     color: white;
-    padding: 15px 0;
+    padding: 20px;
     text-align: center;
 }
 
@@ -17,29 +19,158 @@ header h1 {
     margin: 0;
 }
 
-nav a {
+/* Estilos para a seção de estatísticas */
+.estatisticas {
+    padding: 20px;
+    background-color: #fff;
+    margin: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.estatisticas h2 {
+    margin-bottom: 10px;
+}
+
+/* Estilos para o menu de ações */
+.acoes {
+    padding: 20px;
+}
+
+.acoes h2 {
+    margin-bottom: 15px;
+}
+
+/* Estilos para o menu principal */
+.acoes ul {
+    list-style-type: none;
+    padding: 0;
+    margin-bottom: 4px;
+}
+
+.acoes ul li {
+    margin-bottom: 10px;
+}
+
+/* Estilos para os títulos das categorias no menu */
+.acoes ul li > strong {
+    display: block;
+    padding: 12px;
+    background-color: #3498db;
     color: white;
-    padding: 14px 20px;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-nav a:hover {
-    background-color: #45a049;
-}
-
-.container {
-    width: 80%;
-    margin: auto;
-    overflow: hidden;
-}
-
-footer {
-    background-color: #4CAF50;
-    color: white;
+    border-radius: 5px;
     text-align: center;
-    padding: 10px 0;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    font-size: 1.1rem; 
+    margin-bottom: 4px;
+}
+
+.acoes ul li > strong:hover {
+    background-color: #2980b9;
+    color: #fff;
+}
+
+/* Estilos para o submenu */
+.acoes ul li ul {
+    list-style-type: none;
+    padding-left: 0;
+    margin: 0;
+    display: none; /* Submenu escondido por padrão */
+}
+
+.acoes ul li.active ul {
+    display: block; /* Exibir submenu ao clicar */
+}
+
+.acoes ul li ul li {
+    margin-bottom: 5px;
+    padding: 0;
+}
+
+/* Estilos para itens do submenu */
+.acoes ul li ul li {
+    margin-bottom: 5px;
+}
+
+.acoes ul li ul li a {
+    text-decoration: none;
+    color: #3498db;
+    padding: 12px;
+    display: block;
+    border-radius: 5px;
+    background-color: #fff;
+    transition: background-color 0.3s, color 0.3s, box-shadow 0.3s;
+    font-size: 1rem; /* Ajusta o tamanho da fonte */
+    border: 1px solid #ddd; /* Adiciona uma borda sutil */
+}
+
+.acoes ul li ul li a:hover {
+    background-color: #f4f4f4;
+    color: #2980b9;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Adiciona uma sombra ao passar o mouse */
+}
+
+/* Estilos para o rodapé */
+footer {
+    background-color: #3498db;
+    color: white;
+    padding: 10px;
+    text-align: center;
+}
+
+footer img {
+    max-width: 150px;
+    margin-bottom: 10px;
+}
+
+/* Estilos responsivos */
+@media (max-width: 1200px) {
+    .acoes {
+        padding: 15px;
+    }
+
+    .acoes ul li > strong {
+        font-size: 1rem; /* Ajusta o tamanho da fonte em telas médias */
+    }
+}
+
+@media (max-width: 768px) {
+    .estatisticas, .acoes {
+        margin: 10px;
+    }
+
+    .acoes {
+        padding: 10px;
+    }
+
+    .acoes ul li > strong {
+        font-size: 0.9rem; /* Ajusta o tamanho da fonte em telas pequenas */
+        padding: 10px;
+    }
+
+    .acoes ul li ul li a {
+        font-size: 0.9rem; /* Ajusta o tamanho da fonte em telas pequenas */
+        padding: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .estatisticas, .acoes {
+        padding: 10px;
+    }
+
+    .acoes ul li > strong {
+        font-size: 0.8rem; /* Ajusta o tamanho da fonte em telas muito pequenas */
+        padding: 8px;
+    }
+
+    .acoes ul li ul li a {
+        font-size: 0.8rem; /* Ajusta o tamanho da fonte em telas muito pequenas */
+        padding: 6px;
+    }
+
+    footer img {
+        max-width: 100px;
+    }
 }

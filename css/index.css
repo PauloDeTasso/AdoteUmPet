@@ -1,0 +1,161 @@
+/* Define o estilo para o corpo da página */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+/* Define o estilo para o cabeçalho */
+header {
+    background-color: #3498db;
+    color: white;
+    padding: 20px;
+    text-align: center;
+    border-bottom: 4px solid #2980b9; /* Adiciona uma borda inferior para destaque */
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2rem; /* Ajusta o tamanho da fonte do cabeçalho */
+}
+
+/* Define o estilo para a seção de estatísticas e notícias */
+.estatisticas, .noticias {
+    padding: 20px;
+    background-color: #fff; /* Adiciona fundo branco para destacar o conteúdo */
+    border-radius: 8px; /* Adiciona bordas arredondadas */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Adiciona sombra sutil */
+    margin: 20px 0; /* Adiciona margem vertical */
+}
+
+/* Define o estilo para os títulos das seções de estatísticas e notícias */
+.estatisticas h2, .noticias h2 {
+    color: #3498db;
+    margin-bottom: 15px;
+    font-size: 1.5rem; /* Ajusta o tamanho da fonte dos títulos */
+    border-bottom: 2px solid #3498db; /* Adiciona uma linha inferior para destaque */
+    padding-bottom: 5px;
+}
+
+/* Remove a lista padrão e define o estilo para os itens da lista */
+.estatisticas ul, .noticias ul {
+    list-style: none;
+    padding: 0;
+}
+
+.estatisticas ul li, .noticias ul li {
+    background-color: #fff;
+    margin: 10px 0;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px; /* Adiciona bordas arredondadas */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Adiciona sombra sutil */
+    transition: background-color 0.3s, box-shadow 0.3s; /* Adiciona transição suave */
+}
+
+.estatisticas ul li:hover, .noticias ul li:hover {
+    background-color: #f4f4f4;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Efeito de sombra ao passar o mouse */
+}
+
+/* Define o estilo para a seção de login e cadastro */
+.login-cadastro {
+    text-align: center;
+    padding: 20px;
+}
+
+/* Define o estilo para os botões */
+.btn {
+    background-color: #3498db;
+    color: white;
+    padding: 12px 24px; /* Ajusta o padding para botões maiores */
+    text-decoration: none;
+    border-radius: 5px;
+    margin: 0 10px;
+    font-size: 1rem; /* Ajusta o tamanho da fonte */
+    transition: background-color 0.3s, transform 0.3s; /* Adiciona transições suaves */
+}
+
+.btn:hover {
+    background-color: #2980b9;
+    transform: scale(1.05); /* Efeito de aumento ao passar o mouse */
+}
+
+/* Define o estilo para o rodapé */
+footer {
+    background-color: #2c3e50;
+    color: white;
+    padding: 20px;
+    text-align: center;
+    border-top: 4px solid #1a252f; /* Adiciona uma borda superior para destaque */
+}
+
+/* Define o estilo para a logo no rodapé */
+footer .logo img {
+    width: 60px; /* Ajusta o tamanho da logo */
+    height: 60px;
+    transition: transform 0.3s; /* Adiciona transição suave */
+}
+
+footer .logo img:hover {
+    transform: scale(1.1); /* Efeito de aumento ao passar o mouse */
+}
+
+footer .logo p {
+    margin: 10px 0 0;
+    font-size: 1rem; /* Ajusta o tamanho da fonte */
+}
+
+/* Media Queries para dispositivos móveis */
+@media (max-width: 768px) {
+    header {
+        padding: 15px;
+    }
+
+    .estatisticas, .noticias {
+        padding: 15px;
+    }
+
+    .estatisticas ul li, .noticias ul li {
+        margin: 8px 0;
+        padding: 12px;
+    }
+
+    .login-cadastro {
+        padding: 15px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        margin: 5px;
+    }
+
+    footer {
+        padding: 15px;
+    }
+
+    footer .logo img {
+        width: 50px;
+        height: 50px;
+    }
+}
+
+/* Media Queries para dispositivos menores */
+@media (max-width: 480px) {
+    .estatisticas ul li, .noticias ul li {
+        font-size: 14px;
+        padding: 8px;
+    }
+
+    .btn {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+
+    footer .logo img {
+        width: 40px;
+        height: 40px;
+    }
+}

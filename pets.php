@@ -2,50 +2,44 @@
 session_start();
 require 'conexao_db.php';
 
-$id = $_GET['id'] ?? '';
-
+// Conecta ao banco de dados
 $pdo = conectar();
 
-$sql = 'SELECT * FROM Pet WHERE id = :id';
+// Consulta todos os pets disponíveis para adoção
+$sql = 'SELECT * FROM Pet WHERE status = :status';
 $stmt = $pdo->prepare($sql);
-$stmt->execute([':id' => $id]);
-$pet = $stmt->fetch(PDO::FETCH_ASSOC);
-
-$sql = 'SELECT * FROM Imagem_Pet WHERE fk_Pet_id = :id';
-$stmt = $pdo->prepare($sql);
-$stmt->execute([':id' => $id]);
-$imagens_pet = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$stmt->execute([':status' => 'ADOTÁVEL']); // Verifique se o status é exatamente 'ADOTÁVEL'
+$pets = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
 <html lang="pt-BR">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visualizar Pet</title>
-    <link rel="stylesheet" href="css/pet/pets.css">
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Pets Disponíveis</title>
+        <link rel="stylesheet" href="css/pets.css">
+    </head>
 
-<body>
-    <h2>Visualizar Pet</h2>
-    <p><strong>Nome:</strong> <?= htmlspecialchars($pet['nome']) ?></p>
-    <p><strong>Brinco:</strong> <?= htmlspecialchars($pet['brinco']) ?></p>
-    <p><strong>Sexo:</strong> <?= htmlspecialchars($pet['sexo']) ?></p>
-    <p><strong>Idade:</strong> <?= htmlspecialchars($pet['idade']) ?></p>
-    <p><strong>Raça:</strong> <?= htmlspecialchars($pet['raca']) ?></p>
-    <p><strong>Pelagem:</strong> <?= htmlspecialchars($pet['pelagem']) ?></p>
-    <p><strong>Local do Resgate:</strong> <?= htmlspecialchars($pet['local_resgate']) ?></p>
-    <p><strong>Data do Resgate:</strong> <?= htmlspecialchars($pet['data_resgate']) ?></p>
-    <p><strong>Status:</strong> <?= htmlspecialchars($pet['status']) ?></p>
-    <p><strong>Informações:</strong> <?= htmlspecialchars($pet['informacoes']) ?></p>
+    <body>
+        <h2>Pets Disponíveis para Adoção</h2>
 
-    <h3>Imagens</h3>
-    <?php foreach ($imagens_pet as $imagem): ?>
-    <img src="<?= htmlspecialchars($imagem['url_imagem']) ?>" alt="Imagem do Pet" style="width: 150px;">
-    <?php endforeach; ?>
+        <?php if (count($pets) > 0): ?>
+        <ul>
+            <?php foreach ($pets as $pet): ?>
+            <li>
+                <h3><?= htmlspecialchars($pet['nome']); ?></h3>
+                <p><strong>Brinco:</strong> <?= htmlspecialchars($pet['brinco']); ?></p>
+                <p><a href="pet_selecionar.php?id=<?= htmlspecialchars($pet['id']); ?>">Ver Detalhes</a></p>
+            </li>
+            <?php endforeach; ?>
+        </ul>
+        <?php else: ?>
+        <p>Atualmente não há pets disponíveis para adoção. Por favor, volte mais tarde.</p>
+        <?php endif; ?>
 
-    <p><a href="pets.php">Voltar</a></p>
-</body>
+        <p><a href="home.php">Voltar</a></p>
+    </body>
 
 </html>
