@@ -1,7 +1,6 @@
 <?php
 session_start();
-require 'conexao_db.php'; // Certifique-se de que o arquivo de conexão está correto
-
+require 'conexao_db.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST')
 {
     // Pega os valores do formulário
@@ -83,35 +82,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
 <!DOCTYPE html>
 <html lang="pt-BR">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Login</title>
-        <link rel="stylesheet" href="css/login/login.css">
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="css/login/login.css">
+</head>
 
-    <body>
-        <div class="container">
-            <h2>Login</h2>
+<body>
+    <div class="container">
+        <h2>Login</h2>
 
-            <!-- Exibe mensagem de erro se houver -->
-            <?php if (isset($erro)): ?>
+        <!-- Exibe mensagem de erro se houver -->
+        <?php if (isset($erro)): ?>
             <p class="error"><?= htmlspecialchars($erro) ?></p>
-            <?php endif; ?>
+        <?php endif; ?>
 
-            <form method="POST">
-                <label for="cpf">CPF:</label>
-                <input type="text" name="cpf" id="cpf" required maxlength="11" pattern="\d{11}"
-                    title="Digite apenas números, 11 dígitos no total">
+        <form method="POST">
+            <label for="cpf">CPF:</label>
+            <input type="text" name="cpf" id="cpf" required maxlength="11" pattern="\d{11}"
+                title="Digite apenas números, 11 dígitos no total">
 
-                <label for="senha">Senha:</label>
-                <input type="password" name="senha" id="senha" required maxlength="255">
+            <label for="senha">Senha:</label>
+            <input type="password" name="senha" id="senha" required maxlength="255">
 
-                <button type="submit">Entrar</button>
-            </form>
+            <button type="submit">Entrar</button>
+        </form>
 
-            <p><a href="usuario_cadastrar.php">Cadastrar-se</a></p>
-        </div>
-    </body>
+        <p><a href="usuario_cadastrar_se.php">Cadastrar-se</a></p>
+    </div>
+</body>
 
 </html>

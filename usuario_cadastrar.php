@@ -1,206 +1,264 @@
 <?php
 session_start();
-require 'conexao_db.php';
+require 'conexao_db.php'; 
 
 // Função para validar o CPF
 function validarCPF($cpf)
 {
     $cpf = preg_replace('/\D/', '', $cpf);
+
     if (strlen($cpf) != 11 || preg_match('/(\d)\1{10}/', $cpf))
     {
         return false;
     }
-    $soma = 0;
-    for ($i = 0; $i < 9; $i++)
-    {
-        $soma += $cpf[$i] * (10 - $i);
-    }
-    $resto = $soma % 11;
-    $digito1 = ($resto < 2) ? 0 : 11 - $resto;
 
-    $soma = 0;
-    for ($i = 0; $i < 10; $i++)
+    for ($t = 9; $t < 11; $t++)
     {
-        $soma += $cpf[$i] * (11 - $i);
+        for ($d = 0, $c = 0; $c < $t; $c++)
+        {
+            $d += $cpf[$c] * (($t + 1) - $c);
+        }
+        $d = ((10 * $d) % 11) % 10;
+        if ($cpf[$c] != $d)
+        {
+            return false;
+        }
     }
-    $resto = $soma % 11;
-    $digito2 = ($resto < 2) ? 0 : 11 - $resto;
-
-    return $cpf[9] == $digito1 && $cpf[10] == $digito2;
+    return true;
 }
 
-// Função para validar o telefone
+// Função para validar telefone
 function validarTelefone($telefone)
 {
-    $telefone = preg_replace('/\D/', '', $telefone);
-    return strlen($telefone) >= 10 && strlen($telefone) <= 11;
+    return preg_match('/^\d{11}$/', $telefone);
 }
 
-// Verifica se o usuário está logado e se é administrador
-$isAdmin = isset($_SESSION['cpf']) && $_SESSION['tipo'] === 'ADMINISTRADOR';
-
-// Caso o usuário não esteja logado, redireciona para login
-if (!$isAdmin && !isset($_SESSION['cpf']))
-{
-    header('Location: login.php');
-    exit;
-}
-
+// Verifica se o formulário foi enviado
 if ($_SERVER['REQUEST_METHOD'] === 'POST')
 {
+    // Captura os dados do formulário
     $cpf = $_POST['cpf'];
     $nome = $_POST['nome'];
-    $data_nascimento = $_POST['data_nascimento'];
+    $dataNascimento = $_POST['data_nascimento'];
     $email = $_POST['email'];
     $telefone = $_POST['telefone'];
-    $status = $isAdmin ? $_POST['status'] : 'Adotante'; // Se for admin, usa o valor do POST, senão define como 'Adotante'
+    $status = $_POST['status'];
     $senha = $_POST['senha'];
-    $fk_Permissao_id = $isAdmin ? $_POST['fk_Permissao_id'] : 2; // 2 é a permissão padrão para 'Adotante'
+    $fkPermissaoId = $_POST['fk_Permissao_id'];
 
-    // Valida os campos
+    // Captura dados de endereço (opcional)
+    $rua = !empty($_POST['rua']) ? $_POST['rua'] : null;
+    $numero = !empty($_POST['numero']) ? $_POST['numero'] : null;
+    $bairro = !empty($_POST['bairro']) ? $_POST['bairro'] : null;
+    $cep = !empty($_POST['cep']) ? $_POST['cep'] : null;
+    $referencia = !empty($_POST['referencia']) ? $_POST['referencia'] : null;
+    $cidade = !empty($_POST['cidade']) ? $_POST['cidade'] : null;
+    $estado = !empty($_POST['estado']) ? $_POST['estado'] : null;
+
+    // Validação do CPF e Telefone
     if (!validarCPF($cpf))
     {
-        echo "<p>CPF inválido. Por favor, insira um CPF válido.</p>";
+        $_SESSION['erro'] = "CPF inválido!";
+        header('Location: usuario_cadastrar.php');
+        exit();
     }
-    elseif (!validarTelefone($telefone))
+
+    if (!validarTelefone($telefone))
     {
-        echo "<p>Telefone inválido. O telefone deve conter 10 ou 11 dígitos.</p>";
+        $_SESSION['erro'] = "Telefone inválido! Insira um número com 11 dígitos.";
+        header('Location: usuario_cadastrar.php');
+        exit();
     }
-    else
+
+    // Prepara e executa a inserção do usuário
+    try
     {
-        try
+        $conn->beginTransaction();
+
+        // Verifica se o usuário está autenticado e é um administrador
+        $usuarioAutenticado = $_SESSION['usuario_cpf'] ?? null;
+        $sqlPermissao = "SELECT fk_Permissao_id FROM Usuario WHERE cpf = :cpf";
+        $stmtPermissao = $conn->prepare($sqlPermissao);
+        $stmtPermissao->execute([':cpf' => $usuarioAutenticado]);
+        $permAutenticado = $stmtPermissao->fetchColumn();
+
+        if ($usuarioAutenticado && $permAutenticado == 1) // Considerando que o id 1 é para Administrador
         {
-            $pdo = conectar();
-            $sql = 'INSERT INTO Usuario (cpf, nome, data_nascimento, email, telefone, status, senha, fk_Permissao_id, data_cadastro) 
-                    VALUES (:cpf, :nome, :data_nascimento, :email, :telefone, :status, :senha, :fk_Permissao_id, CURRENT_DATE)';
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([
+            // Inserir o usuário com permissão escolhida
+            $sqlUsuario = "INSERT INTO Usuario (cpf, nome, data_nascimento, email, telefone, status, senha, fk_Permissao_id)
+                           VALUES (:cpf, :nome, :data_nascimento, :email, :telefone, :status, :senha, :fk_Permissao_id)";
+            $stmtUsuario = $conn->prepare($sqlUsuario);
+            $stmtUsuario->execute([
                 ':cpf' => $cpf,
                 ':nome' => $nome,
-                ':data_nascimento' => $data_nascimento,
+                ':data_nascimento' => $dataNascimento,
                 ':email' => $email,
                 ':telefone' => $telefone,
                 ':status' => $status,
-                ':senha' => $senha, // Sem hash para a senha
-                ':fk_Permissao_id' => $fk_Permissao_id
+                ':senha' => $senha,
+                ':fk_Permissao_id' => $fkPermissaoId
+            ]);
+        }
+        else
+        {
+            // Novo usuário: não pode escolher permissão
+            $sqlUsuario = "INSERT INTO Usuario (cpf, nome, data_nascimento, email, telefone, status, senha)
+                           VALUES (:cpf, :nome, :data_nascimento, :email, :telefone, :status, :senha)";
+            $stmtUsuario = $conn->prepare($sqlUsuario);
+            $stmtUsuario->execute([
+                ':cpf' => $cpf,
+                ':nome' => $nome,
+                ':data_nascimento' => $dataNascimento,
+                ':email' => $email,
+                ':telefone' => $telefone,
+                ':status' => $status,
+                ':senha' => $senha
+            ]);
+        }
+
+        // Inserir endereço, se foi fornecido
+        if ($rua && $bairro && $cidade && $estado)
+        {
+            $sqlEndereco = "INSERT INTO Endereco (rua, numero, bairro, cep, referencia, cidade, estado)
+                            VALUES (:rua, :numero, :bairro, :cep, :referencia, :cidade, :estado)";
+            $stmtEndereco = $conn->prepare($sqlEndereco);
+            $stmtEndereco->execute([
+                ':rua' => $rua,
+                ':numero' => $numero,
+                ':bairro' => $bairro,
+                ':cep' => $cep,
+                ':referencia' => $referencia,
+                ':cidade' => $cidade,
+                ':estado' => $estado
             ]);
 
-            // Redireciona para a lista de usuários após o cadastro
-            header('Location: usuarios.php');
-            exit;
+            // Pegar o ID do endereço recém-criado
+            $enderecoId = $conn->lastInsertId();
+
+            // Vincular o usuário ao endereço
+            $sqlEndUsuario = "INSERT INTO Enderecos_Usuarios (fk_Usuario_cpf, fk_Endereco_id)
+                              VALUES (:cpf, :endereco_id)";
+            $stmtEndUsuario = $conn->prepare($sqlEndUsuario);
+            $stmtEndUsuario->execute([
+                ':cpf' => $cpf,
+                ':endereco_id' => $enderecoId
+            ]);
         }
-        catch (PDOException $e)
-        {
-            die("Erro ao cadastrar o usuário: " . $e->getMessage());
-        }
+
+        $conn->commit();
+        $_SESSION['sucesso'] = "Usuário cadastrado com sucesso!";
+        header('Location: usuario_cadastrar.php');
+    }
+    catch (Exception $e)
+    {
+        $conn->rollBack();
+        $_SESSION['erro'] = "Erro ao cadastrar usuário: " . $e->getMessage();
+        header('Location: usuario_cadastrar.php');
     }
 }
 ?>
 
+<!-- HTML Formulário de Cadastro -->
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Adicionar Usuário</title>
-        <link rel="stylesheet" href="css/usuario/usuario_cadastrar.css">
+        <title>Cadastro de Usuário</title>
         <script>
-        // Função para validar CPF
-        function validarCPF(cpf) {
-            cpf = cpf.replace(/\D+/g, '');
-            if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) {
-                return false;
+        function verificarStatus() {
+            var status = document.getElementById('status').value;
+            var permDiv = document.getElementById('permissao_div');
+            if (status === 'administrador') {
+                permDiv.style.display = 'block';
+            } else {
+                permDiv.style.display = 'none';
+                document.getElementById('fk_Permissao_id').value = '';
             }
-            let soma = 0;
-            for (let i = 0; i < 9; i++) {
-                soma += cpf[i] * (10 - i);
-            }
-            let resto = (soma * 10) % 11;
-            if (resto === 10 || resto === 11) resto = 0;
-            if (resto !== parseInt(cpf[9])) return false;
-            soma = 0;
-            for (let i = 0; i < 10; i++) {
-                soma += cpf[i] * (11 - i);
-            }
-            resto = (soma * 10) % 11;
-            if (resto === 10 || resto === 11) resto = 0;
-            return resto === parseInt(cpf[10]);
-        }
-
-        // Função para validar telefone
-        function validarTelefone(telefone) {
-            telefone = telefone.replace(/\D+/g, '');
-            return telefone.length === 10 || telefone.length === 11;
-        }
-
-        // Função para validar o formulário
-        function validarFormulario() {
-            const cpf = document.getElementById('cpf').value;
-            const telefone = document.getElementById('telefone').value;
-
-            if (!validarCPF(cpf)) {
-                alert('CPF inválido. Por favor, insira um CPF válido.');
-                return false;
-            }
-
-            if (!validarTelefone(telefone)) {
-                alert('Telefone inválido. O telefone deve conter 10 ou 11 dígitos.');
-                return false;
-            }
-
-            return true;
-        }
-
-        // Função para formatar o telefone
-        function formatarTelefone(event) {
-            const input = event.target;
-            let valor = input.value.replace(/\D+/g, ''); // Remove caracteres não numéricos
-            if (valor.length > 11) {
-                valor = valor.slice(0, 11); // Limita a 11 dígitos
-            }
-            if (valor.length > 6) {
-                valor = valor.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3');
-            } else if (valor.length > 2) {
-                valor = valor.replace(/(\d{2})(\d{0,5})/, '($1) $2');
-            }
-            input.value = valor;
         }
         </script>
     </head>
 
     <body>
-        <h2><?= $isAdmin ? 'Adicionar Usuário' : 'Cadastrar-se' ?></h2>
-        <form method="POST" onsubmit="return validarFormulario()">
+
+        <h2>Cadastro de Usuário</h2>
+
+        <?php
+    if (isset($_SESSION['erro']))
+    {
+        echo '<p style="color:red;">' . $_SESSION['erro'] . '</p>';
+        unset($_SESSION['erro']);
+    }
+
+    if (isset($_SESSION['sucesso']))
+    {
+        echo '<p style="color:green;">' . $_SESSION['sucesso'] . '</p>';
+        unset($_SESSION['sucesso']);
+    }
+    ?>
+
+        <form action="usuario_cadastrar.php" method="POST">
             <label for="cpf">CPF:</label>
-            <input type="text" name="cpf" id="cpf" required maxlength="14" pattern="\(\d{2}\) \d{5}-\d{4}"
-                placeholder="(00) 00000-0000" oninput="formatarTelefone(event)"><br>
+            <input type="text" id="cpf" name="cpf" required maxlength="11"><br>
+
             <label for="nome">Nome:</label>
-            <input type="text" name="nome" id="nome" required maxlength="255"><br>
+            <input type="text" id="nome" name="nome" required><br>
+
             <label for="data_nascimento">Data de Nascimento:</label>
-            <input type="date" name="data_nascimento" id="data_nascimento" required><br>
-            <label for="email">E-mail:</label>
-            <input type="email" name="email" id="email" required maxlength="255"><br>
-            <label for="telefone">Telefone:</label>
-            <input type="text" name="telefone" id="telefone" required maxlength="15" pattern="\(\d{2}\) \d{5}-\d{4}"
-                placeholder="(00) 00000-0000" oninput="formatarTelefone(event)"><br>
-            <label for="senha">Senha:</label>
-            <input type="password" name="senha" id="senha" required maxlength="255"><br>
-            <?php if ($isAdmin): ?>
+            <input type="date" id="data_nascimento" name="data_nascimento" required><br>
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email"><br>
+
+            <label for="telefone">Telefone (com DDD):</label>
+            <input type="text" id="telefone" name="telefone" required maxlength="11"><br>
+
             <label for="status">Status:</label>
-            <select name="status" id="status">
-                <option value="Ativo">Ativo</option>
-                <option value="Inativo">Inativo</option>
+            <select id="status" name="status" onchange="verificarStatus()">
+                <option value="adotante" selected>Adotante</option>
+                <option value="administrador">Administrador</option>
             </select><br>
-            <label for="fk_Permissao_id">Permissão:</label>
-            <select name="fk_Permissao_id" id="fk_Permissao_id">
-                <option value="1">Administrador</option>
-                <option value="2">Adotante</option>
-            </select><br>
-            <?php endif; ?>
-            <button type="submit"><?= $isAdmin ? 'Adicionar' : 'Cadastrar' ?></button>
+
+            <div id="permissao_div" style="display:none;">
+                <label for="fk_Permissao_id">Permissão:</label>
+                <select id="fk_Permissao_id" name="fk_Permissao_id">
+                    <!-- Opções de permissões devem ser carregadas do banco de dados --> <?php $sqlPermissoes = "SELECT id, descricao FROM Permissao";
+                                                                                        $stmtPermissoes = $conn->prepare($sqlPermissoes);
+                                                                                        $stmtPermissoes->execute();
+                                                                                        while ($row = $stmtPermissoes->fetch(PDO::FETCH_ASSOC))
+                                                                                        {
+                                                                                            echo "<option value='{$row['id']}'>{$row['descricao']}</option>";
+                                                                                        } ?>
+                </select>
+            </div> <label for="senha">Senha:</label>
+            <input type="password" id="senha" name="senha" required><br>
+
+            <!-- Endereço (opcional) -->
+            <h3>Endereço (opcional)</h3>
+            <label for="rua">Rua:</label>
+            <input type="text" id="rua" name="rua"><br>
+
+            <label for="numero">Número:</label>
+            <input type="text" id="numero" name="numero"><br>
+
+            <label for="bairro">Bairro:</label>
+            <input type="text" id="bairro" name="bairro"><br>
+
+            <label for="cep">CEP:</label>
+            <input type="text" id="cep" name="cep"><br>
+
+            <label for="referencia">Referência:</label>
+            <input type="text" id="referencia" name="referencia"><br>
+
+            <label for="cidade">Cidade:</label>
+            <input type="text" id="cidade" name="cidade"><br>
+
+            <label for="estado">Estado:</label>
+            <input type="text" id="estado" name="estado"><br>
+
+            <input type="submit" value="Cadastrar">
         </form>
-        <p><a href="usuarios.php">Voltar</a></p>
     </body>
 
 </html>

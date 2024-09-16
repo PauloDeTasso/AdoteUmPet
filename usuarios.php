@@ -1,79 +1,72 @@
 <?php
-session_start();
-require 'conexao_db.php';
 
-if (!isset($_SESSION['cpf'])) {
-    header('Location: login.php');
+include 'conexao_db.php';
+
+
+$conn = conectar();
+
+try
+{
+    // Consulta SQL para buscar os adotantes e suas fotos
+    $query = "
+        SELECT u.cpf, u.nome, MAX(i.url_imagem) AS url_imagem 
+        FROM Usuario u
+        JOIN Permissao p ON u.fk_Permissao_id = p.id 
+        LEFT JOIN Imagem_Usuario i ON u.cpf = i.fk_Usuario_cpf
+        WHERE p.tipo = 'Adotante'
+        GROUP BY u.cpf, u.nome
+    ";
+    $stmt = $conn->prepare($query);
+    $stmt->execute();
+
+   
+    $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+catch (PDOException $e)
+{
+    echo "Erro ao buscar usuários: " . $e->getMessage();
     exit;
 }
-
-$tipoUsuario = $_SESSION['tipo']; // Pode ser 'ADMINISTRADOR' ou 'ADOTANTE'
-$cpf = $_GET['cpf'] ?? '';
-
-$pdo = conectar();
-
-// Verifica se o usuário logado é um administrador ou um adotante
-if ($tipoUsuario === 'ADMINISTRADOR') {
-    // Administradores podem ver qualquer usuário
-    $sql = 'SELECT * FROM Usuario WHERE cpf = :cpf';
-} else {
-    // Adotantes só podem ver seu próprio cadastro
-    if ($cpf !== $_SESSION['cpf']) {
-        header('Location: usuarios.php');
-        exit;
-    }
-    $sql = 'SELECT * FROM Usuario WHERE cpf = :cpf';
-}
-
-$stmt = $pdo->prepare($sql);
-$stmt->execute([':cpf' => $cpf]);
-$usuario = $stmt->fetch(PDO::FETCH_ASSOC);
-
-$sql = 'SELECT * FROM Imagem_Usuario WHERE fk_Usuario_cpf = :cpf';
-$stmt = $pdo->prepare($sql);
-$stmt->execute([':cpf' => $cpf]);
-$imagens_usuario = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
 <html lang="pt-BR">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visualizar Usuário</title>
-    <link rel="stylesheet" href="css/usuario/usuarios.css">
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Usuários Cadastrados</title>
+        <link rel="stylesheet" href="css/usuario/usuarios.css">
 
-<body>
-    <h2>Visualizar Usuário</h2>
-    <?php if ($usuario): ?>
-    <p><strong>Nome:</strong> <?= htmlspecialchars($usuario['nome']) ?></p>
-    <p><strong>Data de Nascimento:</strong> <?= htmlspecialchars($usuario['data_nascimento']) ?></p>
-    <p><strong>Email:</strong> <?= htmlspecialchars($usuario['email']) ?></p>
-    <p><strong>Telefone:</strong> <?= htmlspecialchars($usuario['telefone']) ?></p>
-    <p><strong>Status:</strong> <?= htmlspecialchars($usuario['status']) ?></p>
-    <p><strong>Permissão:</strong>
-        <?= htmlspecialchars($usuario['fk_Permissao_id'] == 1 ? 'ADMINISTRADOR' : 'ADOTANTE') ?></p>
+    </head>
 
-    <h3>Imagens</h3>
-    <?php if ($imagens_usuario): ?>
-    <?php foreach ($imagens_usuario as $imagem): ?>
-    <img src="<?= htmlspecialchars($imagem['url_imagem']) ?>" alt="Imagem do Usuário" style="width: 150px;">
-    <?php endforeach; ?>
-    <?php else: ?>
-    <p>Nenhuma imagem disponível.</p>
-    <?php endif; ?>
+    <body>
+        <h1>Usuários Cadastrados</h1>
 
-    <?php if ($tipoUsuario === 'ADMINISTRADOR'): ?>
-    <p><a href="usuario_editar.php?cpf=<?= htmlspecialchars($usuario['cpf']) ?>">Editar</a></p>
-    <p><a href="usuario_remover.php?cpf=<?= htmlspecialchars($usuario['cpf']) ?>">Remover</a></p>
-    <?php endif; ?>
-    <?php else: ?>
-    <p>Usuário não encontrado.</p>
-    <?php endif; ?>
+        <div class="usuarios-container">
+            <?php if (count($usuarios) > 0): ?>
+            <?php foreach ($usuarios as $usuario): ?>
+            <div class="usuario-card">
 
-    <p><a href="usuarios.php">Voltar</a></p>
-</body>
+                <!-- Verifica se há imagem associada ao usuário -->
+                <?php if (!empty($usuario['url_imagem'])): ?>
+                <!-- Usa a URL da imagem direto do banco de dados -->
+                <img src="<?= htmlspecialchars($usuario['url_imagem']); ?>"
+                    alt="Foto de <?= htmlspecialchars($usuario['nome']); ?>" class="usuario-foto">
+                <?php else: ?>
+                <!-- Exibe uma imagem padrão se não houver URL de imagem -->
+                <img src="imagens/usuarios/default.jpg" alt="Foto padrão" class="usuario-foto">
+                <?php endif; ?>
+
+                <p><?= htmlspecialchars($usuario['nome']); ?></p>
+                <a href="usuario_selecionar.php?cpf=<?= htmlspecialchars($usuario['cpf']); ?>"
+                    class="btn-ver-usuario">Ver Detalhes</a>
+            </div>
+            <?php endforeach; ?>
+            <?php else: ?>
+            <p>Nenhum usuário cadastrado no momento.</p>
+            <?php endif; ?>
+        </div>
+    </body>
 
 </html>
