@@ -1,161 +1,200 @@
-/* Define o estilo para o corpo da página */
-body {
-    font-family: Arial, sans-serif;
+/* Reset básico */
+* {
     margin: 0;
     padding: 0;
-    background-color: #f4f4f4;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+    text-align: center; /* Centraliza o conteúdo do corpo */
+}
+
+header {
+    background-color: #3498db;
+    padding: 20px;
+    color: white;
+    text-align: center; /* Centraliza o texto do cabeçalho */
+}
+
+h1 {
+    font-size: 2em;
+}
+
+h2 {
+    font-size: 1.8em;
+    margin-bottom: 20px;
     color: #333;
 }
 
-/* Define o estilo para o cabeçalho */
-header {
-    background-color: #3498db;
-    color: white;
-    padding: 20px;
-    text-align: center;
-    border-bottom: 4px solid #2980b9; /* Adiciona uma borda inferior para destaque */
+h3 {
+    font-size: 1.8em;
+    margin-bottom: 20px;
+    color: rgb(255, 174, 23);
 }
 
-header h1 {
-    margin: 0;
-    font-size: 2rem; /* Ajusta o tamanho da fonte do cabeçalho */
+p {
+    margin-top: 10px;
+    font-size: 1.2em;
 }
 
-/* Define o estilo para a seção de estatísticas e notícias */
-.estatisticas, .noticias {
-    padding: 20px;
-    background-color: #fff; /* Adiciona fundo branco para destacar o conteúdo */
-    border-radius: 8px; /* Adiciona bordas arredondadas */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Adiciona sombra sutil */
-    margin: 20px 0; /* Adiciona margem vertical */
-}
-
-/* Define o estilo para os títulos das seções de estatísticas e notícias */
-.estatisticas h2, .noticias h2 {
-    color: #3498db;
-    margin-bottom: 15px;
-    font-size: 1.5rem; /* Ajusta o tamanho da fonte dos títulos */
-    border-bottom: 2px solid #3498db; /* Adiciona uma linha inferior para destaque */
-    padding-bottom: 5px;
-}
-
-/* Remove a lista padrão e define o estilo para os itens da lista */
-.estatisticas ul, .noticias ul {
+.estatisticas ul {
     list-style: none;
     padding: 0;
+    margin-bottom: 20px;
 }
 
-.estatisticas ul li, .noticias ul li {
-    background-color: #fff;
-    margin: 10px 0;
-    padding: 15px;
-    border: 1px solid #ddd;
-    border-radius: 5px; /* Adiciona bordas arredondadas */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Adiciona sombra sutil */
-    transition: background-color 0.3s, box-shadow 0.3s; /* Adiciona transição suave */
+.estatisticas li {
+    font-size: 1.2em;
+    margin-bottom: 10px;
 }
 
-.estatisticas ul li:hover, .noticias ul li:hover {
-    background-color: #f4f4f4;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Efeito de sombra ao passar o mouse */
-}
-
-/* Define o estilo para a seção de login e cadastro */
-.login-cadastro {
+.paginacao {
+    margin: 20px 0;
     text-align: center;
-    padding: 20px;
 }
 
-/* Define o estilo para os botões */
+.paginacao .btn {
+    margin: 0 5px;
+}
+
+section.pets-disponiveis, 
+section.pets-adotados, 
+section.ultimas-adocoes {
+    margin: 20px auto;
+    max-width: 1200px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center; /* Centraliza o conteúdo da seção */
+}
+
+section.pets-disponiveis h2, 
+section.pets-adotados h2, 
+section.ultimas-adocoes h2 {
+    text-align: center; /* Centraliza os títulos das seções */
+}
+
+section.pets-disponiveis section,
+section.pets-adotados ul,
+section.ultimas-adocoes ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+/* Estilos dos cards de pets */
+section.pets-disponiveis div, 
+section.pets-adotados li,
+section.ultimas-adocoes li {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 15px;
+    max-width: 200px;
+    transition: transform 0.3s ease;
+}
+
+section.pets-disponiveis div:hover, 
+section.pets-adotados li:hover,
+section.ultimas-adocoes li:hover {
+    transform: scale(1.05);
+}
+
+section.pets-disponiveis img, 
+section.pets-adotados img,
+section.ultimas-adocoes img {
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+section.pets-disponiveis img {
+    width: 100%;
+    height: auto;
+    max-height: 200px;
+}
+
+section.pets-adotados img {
+    width: 100%;
+    height: auto;
+    max-height: 200px;
+}
+
+section.ultimas-adocoes img {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 10px;
+}
+
+section.ultimas-adocoes li img:nth-child(2) {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-top: 10px;
+}
+
+/* Botões */
 .btn {
     background-color: #3498db;
     color: white;
-    padding: 12px 24px; /* Ajusta o padding para botões maiores */
+    padding: 10px 20px;
     text-decoration: none;
     border-radius: 5px;
-    margin: 0 10px;
-    font-size: 1rem; /* Ajusta o tamanho da fonte */
-    transition: background-color 0.3s, transform 0.3s; /* Adiciona transições suaves */
+    transition: background-color 0.3s ease;
+    display: inline-block;
+    margin: 10px; /* Adiciona margem ao redor dos botões */
 }
 
 .btn:hover {
-    background-color: #2980b9;
-    transform: scale(1.05); /* Efeito de aumento ao passar o mouse */
+    background-color: #7e7e7e;
 }
 
-/* Define o estilo para o rodapé */
+.btn-container {
+    display: flex;
+    justify-content: center; /* Centraliza os botões */
+    align-items: center;
+}
+
+/* Estilos do rodapé */
 footer {
-    background-color: #2c3e50;
+    background-color: #333;
     color: white;
     padding: 20px;
     text-align: center;
-    border-top: 4px solid #1a252f; /* Adiciona uma borda superior para destaque */
+    margin-top: 30px;
 }
 
-/* Define o estilo para a logo no rodapé */
-footer .logo img {
-    width: 60px; /* Ajusta o tamanho da logo */
-    height: 60px;
-    transition: transform 0.3s; /* Adiciona transição suave */
+footer .logo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
 }
 
-footer .logo img:hover {
-    transform: scale(1.1); /* Efeito de aumento ao passar o mouse */
+footer img {
+    width: 50px;
+    height: auto;
+    border-radius: 50%;
 }
 
-footer .logo p {
-    margin: 10px 0 0;
-    font-size: 1rem; /* Ajusta o tamanho da fonte */
-}
-
-/* Media Queries para dispositivos móveis */
+/* Responsividade */
 @media (max-width: 768px) {
-    header {
-        padding: 15px;
+    section.pets-disponiveis div, 
+    section.pets-adotados li,
+    section.ultimas-adocoes li {
+        max-width: 100%;
     }
 
-    .estatisticas, .noticias {
-        padding: 15px;
-    }
-
-    .estatisticas ul li, .noticias ul li {
-        margin: 8px 0;
-        padding: 12px;
-    }
-
-    .login-cadastro {
-        padding: 15px;
-    }
-
-    .btn {
-        padding: 10px 20px;
-        margin: 5px;
-    }
-
-    footer {
-        padding: 15px;
-    }
-
-    footer .logo img {
-        width: 50px;
-        height: 50px;
-    }
-}
-
-/* Media Queries para dispositivos menores */
-@media (max-width: 480px) {
-    .estatisticas ul li, .noticias ul li {
-        font-size: 14px;
-        padding: 8px;
-    }
-
-    .btn {
-        padding: 8px 16px;
-        font-size: 14px;
-    }
-
-    footer .logo img {
-        width: 40px;
-        height: 40px;
+    section.pets-disponiveis section,
+    section.pets-adotados ul,
+    section.ultimas-adocoes ul {
+        flex-direction: column;
     }
 }

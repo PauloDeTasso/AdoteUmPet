@@ -19,7 +19,7 @@ try
     $stmt = $conn->prepare($query);
     $stmt->execute();
 
-   
+
     $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 catch (PDOException $e)
@@ -47,7 +47,6 @@ catch (PDOException $e)
             <?php if (count($usuarios) > 0): ?>
             <?php foreach ($usuarios as $usuario): ?>
             <div class="usuario-card">
-
                 <!-- Verifica se há imagem associada ao usuário -->
                 <?php if (!empty($usuario['url_imagem'])): ?>
                 <!-- Usa a URL da imagem direto do banco de dados -->

@@ -163,26 +163,27 @@ catch (PDOException $e)
 <!DOCTYPE html>
 <html lang="pt-BR">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detalhes do Usuário</title>
-    <link rel="stylesheet" href="css/usuario/usuario_selecionar.css">
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Detalhes do Usuário</title>
+        <link rel="stylesheet" href="css/usuario/usuario_selecionar.css">
+    </head>
 
-<body>
-    <h1>Detalhes do Usuário</h1>
+    <body>
+        <h1>Detalhes do Usuário</h1>
 
-    <div class="usuario-detalhes">
-        <!-- Ajusta o caminho da imagem -->
-        <?php if (!empty($usuario['url_imagem'])): ?>
+        <div class="usuario-detalhes">
+            <!-- Ajusta o caminho da imagem -->
+
+            <?php if (!empty($usuario['url_imagem'])): ?>
             <img src="<?= htmlspecialchars($usuario['url_imagem']); ?>"
                 alt="Foto de <?= htmlspecialchars($usuario['nome']); ?>" class="usuario-foto-grande">
-        <?php else: ?>
+            <?php else: ?>
             <img src="imagens/usuarios/default.png" alt="Foto padrão" class="usuario-foto-grande">
-        <?php endif; ?>
+            <?php endif; ?>
 
-        <?php if ($editMode): ?>
+            <?php if ($editMode): ?>
             <form method="POST" enctype="multipart/form-data">
                 <fieldset>
                     <legend>Editar Dados</legend>
@@ -224,7 +225,7 @@ catch (PDOException $e)
                     <button type="submit">Atualizar</button>
                 </fieldset>
             </form>
-        <?php else: ?>
+            <?php else: ?>
             <p><strong>Nome:</strong> <?= htmlspecialchars($usuario['nome']); ?></p>
             <p><strong>Email:</strong> <?= htmlspecialchars($usuario['email']); ?></p>
             <p><strong>Telefone:</strong> <?= htmlspecialchars($usuario['telefone']); ?></p>
@@ -238,8 +239,8 @@ catch (PDOException $e)
                     class="btn-remover">Remover</a>
             </p>
 
-        <?php endif; ?>
-    </div>
-</body>
+            <?php endif; ?>
+        </div>
+    </body>
 
 </html>

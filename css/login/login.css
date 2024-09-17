@@ -1,17 +1,47 @@
-/* Estilo para a página de login */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
-    display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
     margin: 0;
 }
 
-.container {
+header {
+    background-color: #3498db;
+    padding: 20px;
+    color: white;
+    text-align: center; /* Centraliza o texto do cabeçalho */
+}
+
+.container {    
+    display: flex;
+    flex-direction: column;
     width: 100%;
-    max-width: 400px;
+    justify-content: baseline;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    box-sizing: border-box;
+}
+
+.container2 {    
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    justify-content: baseline;
+    align-items: center;
+    margin: 0;
     background-color: #ffffff;
     border-radius: 10px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);

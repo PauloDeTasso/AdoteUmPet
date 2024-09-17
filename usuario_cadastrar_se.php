@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
         // Move o arquivo para o diretório correto
         if (move_uploaded_file($_FILES['imagem']['tmp_name'], $imagemPath))
         {
-            $imagemUrl = $imagemPath; 
+            $imagemUrl = $imagemPath;
         }
         else
         {
@@ -116,10 +116,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
         }
 
         header {
-            background-color: #333;
-            color: #fff;
-            padding: 10px;
+            background-color: #3498db;
+            padding: 20px;
+            color: white;
             text-align: center;
+            /* Centraliza o texto do cabeçalho */
         }
 
         main {
@@ -165,11 +166,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
         }
 
         button {
-            background-color: #28a745;
+            background-color: #3498db;
             color: #fff;
             border: none;
             cursor: pointer;
             font-size: 16px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
         }
 
         button:disabled {
@@ -178,7 +180,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
         }
 
         button:hover {
-            background-color: #218838;
+            background-color: #407091;
+            transform: scale(1.05);
+        }
+
+        /* Estiliza todos os botões do tipo reset */
+        button[type='reset'] {
+            background-color: #8a8a8a;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        /* Botão ao passar o mouse */
+        .btn:hover,
+        button[type='reset']:hover {
+            background-color: rgb(179, 179, 179);
+            /* Altera a cor de fundo ao passar o mouse */
+            transform: scale(1.05);
+            /* Aumenta ligeiramente o tamanho do botão */
+        }
+
+        /* Botão ao receber foco */
+        .btn:focus,
+        button[type='reset']:focus {
+            outline: none;
+            /* Remove o contorno padrão de foco */
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+            /* Adiciona uma sombra ao redor do botão */
         }
 
         .endereco {
@@ -203,6 +233,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
 
     <body>
         <header>
+            <h1>Adote um Pet</h1>
+            <p>Cuidados e adoção de pets pela Vigilância Sanitária</p>
+            <p>PREFEITURA MUNICIPAL DE IMACULADA - PB</p>
+            <hr><br>
             <h1>Cadastro de Novo Usuário</h1>
         </header>
 

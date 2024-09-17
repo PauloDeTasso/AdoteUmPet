@@ -82,35 +82,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
 <!DOCTYPE html>
 <html lang="pt-BR">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link rel="stylesheet" href="css/login/login.css">
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Login</title>
+        <link rel="stylesheet" href="css/login/login.css">
+    </head>
 
-<body>
-    <div class="container">
-        <h2>Login</h2>
+    <body>
 
-        <!-- Exibe mensagem de erro se houver -->
-        <?php if (isset($erro)): ?>
-            <p class="error"><?= htmlspecialchars($erro) ?></p>
-        <?php endif; ?>
+        <header>
+            <h1>Adote um Pet</h1>
+            <p>Cuidados e adoção de pets pela Vigilância Sanitária</p>
+            <p>PREFEITURA MUNICIPAL DE IMACULADA - PB</p>
+        </header>
+        <div class="container">
+            <div class="container2">
+                <h2>Login</h2>
 
-        <form method="POST">
-            <label for="cpf">CPF:</label>
-            <input type="text" name="cpf" id="cpf" required maxlength="11" pattern="\d{11}"
-                title="Digite apenas números, 11 dígitos no total">
+                <!-- Exibe mensagem de erro se houver -->
+                <?php if (isset($erro)): ?>
+                <p class="error"><?= htmlspecialchars($erro) ?></p>
+                <?php endif; ?>
 
-            <label for="senha">Senha:</label>
-            <input type="password" name="senha" id="senha" required maxlength="255">
+                <form method="POST">
+                    <label for="cpf">CPF:</label>
+                    <input type="text" name="cpf" id="cpf" required maxlength="11" pattern="\d{11}"
+                        title="Digite apenas números, 11 dígitos no total">
 
-            <button type="submit">Entrar</button>
-        </form>
+                    <label for="senha">Senha:</label>
+                    <input type="password" name="senha" id="senha" required maxlength="255">
 
-        <p><a href="usuario_cadastrar_se.php">Cadastrar-se</a></p>
-    </div>
-</body>
+                    <button type="submit">Entrar</button>
+                </form>
+
+                <p><a href="usuario_cadastrar_se.php">Cadastrar-se</a></p>
+            </div>
+        </div>
+    </body>
 
 </html>
