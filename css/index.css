@@ -1,4 +1,4 @@
-/* Reset básico */
+
 * {
     margin: 0;
     padding: 0;
@@ -9,14 +9,7 @@ body {
     font-family: Arial, sans-serif;
     background-color: #f5f5f5;
     color: #333;
-    text-align: center; /* Centraliza o conteúdo do corpo */
-}
-
-header {
-    background-color: #3498db;
-    padding: 20px;
-    color: white;
-    text-align: center; /* Centraliza o texto do cabeçalho */
+    text-align: center;
 }
 
 h1 {
@@ -164,7 +157,7 @@ section.ultimas-adocoes li img:nth-child(2) {
 
 /* Estilos do rodapé */
 footer {
-    background-color: #333;
+    background-color: #3498db;
     color: white;
     padding: 20px;
     text-align: center;
@@ -173,15 +166,16 @@ footer {
 
 footer .logo {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     gap: 15px;
 }
 
-footer img {
-    width: 50px;
-    height: auto;
-    border-radius: 50%;
+.logoprefeitura
+{
+    width: 300px;
+    border-radius: 4%;
 }
 
 /* Responsividade */
