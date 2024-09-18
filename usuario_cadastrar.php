@@ -1,264 +1,221 @@
 <?php
-session_start();
-require 'conexao_db.php'; 
 
-// Função para validar o CPF
-function validarCPF($cpf)
-{
-    $cpf = preg_replace('/\D/', '', $cpf);
+include 'conexao_db.php';
 
-    if (strlen($cpf) != 11 || preg_match('/(\d)\1{10}/', $cpf))
-    {
-        return false;
-    }
-
-    for ($t = 9; $t < 11; $t++)
-    {
-        for ($d = 0, $c = 0; $c < $t; $c++)
-        {
-            $d += $cpf[$c] * (($t + 1) - $c);
-        }
-        $d = ((10 * $d) % 11) % 10;
-        if ($cpf[$c] != $d)
-        {
-            return false;
-        }
-    }
-    return true;
-}
-
-// Função para validar telefone
-function validarTelefone($telefone)
-{
-    return preg_match('/^\d{11}$/', $telefone);
-}
-
-// Verifica se o formulário foi enviado
 if ($_SERVER['REQUEST_METHOD'] === 'POST')
 {
-    // Captura os dados do formulário
+    $conn = conectar();
+
     $cpf = $_POST['cpf'];
     $nome = $_POST['nome'];
     $dataNascimento = $_POST['data_nascimento'];
     $email = $_POST['email'];
     $telefone = $_POST['telefone'];
-    $status = $_POST['status'];
     $senha = $_POST['senha'];
-    $fkPermissaoId = $_POST['fk_Permissao_id'];
+    $rua = $_POST['rua'];
+    $numero = $_POST['numero'];
+    $bairro = $_POST['bairro'];
+    $cep = $_POST['cep'];
+    $referencia = $_POST['referencia'];
+    $cidade = $_POST['cidade'];
+    $estado = $_POST['estado'];
 
-    // Captura dados de endereço (opcional)
-    $rua = !empty($_POST['rua']) ? $_POST['rua'] : null;
-    $numero = !empty($_POST['numero']) ? $_POST['numero'] : null;
-    $bairro = !empty($_POST['bairro']) ? $_POST['bairro'] : null;
-    $cep = !empty($_POST['cep']) ? $_POST['cep'] : null;
-    $referencia = !empty($_POST['referencia']) ? $_POST['referencia'] : null;
-    $cidade = !empty($_POST['cidade']) ? $_POST['cidade'] : null;
-    $estado = !empty($_POST['estado']) ? $_POST['estado'] : null;
-
-    // Validação do CPF e Telefone
-    if (!validarCPF($cpf))
+    // Verifica se o arquivo de imagem foi enviado
+    if (isset($_FILES['imagem']) && $_FILES['imagem']['error'] === UPLOAD_ERR_OK)
     {
-        $_SESSION['erro'] = "CPF inválido!";
-        header('Location: usuario_cadastrar.php');
-        exit();
-    }
+        // Caminho completo para salvar a imagem
+        $imagemNome = uniqid() . '-' . basename($_FILES['imagem']['name']);
+        $imagemPath = 'imagens/usuarios/' . $imagemNome;
 
-    if (!validarTelefone($telefone))
-    {
-        $_SESSION['erro'] = "Telefone inválido! Insira um número com 11 dígitos.";
-        header('Location: usuario_cadastrar.php');
-        exit();
-    }
-
-    // Prepara e executa a inserção do usuário
-    try
-    {
-        $conn->beginTransaction();
-
-        // Verifica se o usuário está autenticado e é um administrador
-        $usuarioAutenticado = $_SESSION['usuario_cpf'] ?? null;
-        $sqlPermissao = "SELECT fk_Permissao_id FROM Usuario WHERE cpf = :cpf";
-        $stmtPermissao = $conn->prepare($sqlPermissao);
-        $stmtPermissao->execute([':cpf' => $usuarioAutenticado]);
-        $permAutenticado = $stmtPermissao->fetchColumn();
-
-        if ($usuarioAutenticado && $permAutenticado == 1) // Considerando que o id 1 é para Administrador
+        // Move o arquivo para o diretório correto
+        if (move_uploaded_file($_FILES['imagem']['tmp_name'], $imagemPath))
         {
-            // Inserir o usuário com permissão escolhida
-            $sqlUsuario = "INSERT INTO Usuario (cpf, nome, data_nascimento, email, telefone, status, senha, fk_Permissao_id)
-                           VALUES (:cpf, :nome, :data_nascimento, :email, :telefone, :status, :senha, :fk_Permissao_id)";
-            $stmtUsuario = $conn->prepare($sqlUsuario);
-            $stmtUsuario->execute([
-                ':cpf' => $cpf,
-                ':nome' => $nome,
-                ':data_nascimento' => $dataNascimento,
-                ':email' => $email,
-                ':telefone' => $telefone,
-                ':status' => $status,
-                ':senha' => $senha,
-                ':fk_Permissao_id' => $fkPermissaoId
-            ]);
+            $imagemUrl = $imagemPath;
         }
         else
         {
-            // Novo usuário: não pode escolher permissão
-            $sqlUsuario = "INSERT INTO Usuario (cpf, nome, data_nascimento, email, telefone, status, senha)
-                           VALUES (:cpf, :nome, :data_nascimento, :email, :telefone, :status, :senha)";
-            $stmtUsuario = $conn->prepare($sqlUsuario);
-            $stmtUsuario->execute([
-                ':cpf' => $cpf,
-                ':nome' => $nome,
-                ':data_nascimento' => $dataNascimento,
-                ':email' => $email,
-                ':telefone' => $telefone,
-                ':status' => $status,
-                ':senha' => $senha
-            ]);
+            echo "Erro ao mover o arquivo para o diretório.";
         }
-
-        // Inserir endereço, se foi fornecido
-        if ($rua && $bairro && $cidade && $estado)
-        {
-            $sqlEndereco = "INSERT INTO Endereco (rua, numero, bairro, cep, referencia, cidade, estado)
-                            VALUES (:rua, :numero, :bairro, :cep, :referencia, :cidade, :estado)";
-            $stmtEndereco = $conn->prepare($sqlEndereco);
-            $stmtEndereco->execute([
-                ':rua' => $rua,
-                ':numero' => $numero,
-                ':bairro' => $bairro,
-                ':cep' => $cep,
-                ':referencia' => $referencia,
-                ':cidade' => $cidade,
-                ':estado' => $estado
-            ]);
-
-            // Pegar o ID do endereço recém-criado
-            $enderecoId = $conn->lastInsertId();
-
-            // Vincular o usuário ao endereço
-            $sqlEndUsuario = "INSERT INTO Enderecos_Usuarios (fk_Usuario_cpf, fk_Endereco_id)
-                              VALUES (:cpf, :endereco_id)";
-            $stmtEndUsuario = $conn->prepare($sqlEndUsuario);
-            $stmtEndUsuario->execute([
-                ':cpf' => $cpf,
-                ':endereco_id' => $enderecoId
-            ]);
-        }
-
-        $conn->commit();
-        $_SESSION['sucesso'] = "Usuário cadastrado com sucesso!";
-        header('Location: usuario_cadastrar.php');
     }
-    catch (Exception $e)
+    else
     {
-        $conn->rollBack();
-        $_SESSION['erro'] = "Erro ao cadastrar usuário: " . $e->getMessage();
-        header('Location: usuario_cadastrar.php');
+        echo "Erro no envio do arquivo de imagem.";
+        $imagemUrl = null;
     }
+
+
+    // Insere o usuário
+    $sql = "INSERT INTO Usuario (cpf, nome, data_nascimento, email, telefone, status, senha) VALUES (:cpf, :nome, :data_nascimento, :email, :telefone, 'ATIVO', :senha)";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute([
+        ':cpf' => $cpf,
+        ':nome' => $nome,
+        ':data_nascimento' => $dataNascimento,
+        ':email' => $email,
+        ':telefone' => $telefone,
+        ':senha' => $senha
+    ]);
+
+    // Insere o endereço se fornecido
+    if ($rua && $bairro && $cep && $cidade && $estado)
+    {
+        $sqlEndereco = "INSERT INTO Endereco (rua, numero, bairro, cep, referencia, cidade, estado) VALUES (:rua, :numero, :bairro, :cep, :referencia, :cidade, :estado)";
+        $stmtEndereco = $conn->prepare($sqlEndereco);
+        $stmtEndereco->execute([
+            ':rua' => $rua,
+            ':numero' => $numero,
+            ':bairro' => $bairro,
+            ':cep' => $cep,
+            ':referencia' => $referencia,
+            ':cidade' => $cidade,
+            ':estado' => $estado
+        ]);
+
+        $enderecoId = $conn->lastInsertId();
+
+        $sqlEnderecosUsuarios = "INSERT INTO Enderecos_Usuarios (fk_Usuario_cpf, fk_Endereco_id) VALUES (:cpf, :endereco_id)";
+        $stmtEnderecosUsuarios = $conn->prepare($sqlEnderecosUsuarios);
+        $stmtEnderecosUsuarios->execute([
+            ':cpf' => $cpf,
+            ':endereco_id' => $enderecoId
+        ]);
+    }
+
+    // Insere a imagem do usuário, se houver
+    if ($imagemUrl)
+    {
+        $sqlImagem = "INSERT INTO Imagem_Usuario (url_imagem, fk_Usuario_cpf) VALUES (:imagem_url, :cpf)";
+        $stmtImagem = $conn->prepare($sqlImagem);
+        $stmtImagem->execute([
+            ':imagem_url' => $imagemUrl,
+            ':cpf' => $cpf
+        ]);
+    }
+
+    $conn = null;
+
+    echo "<script>alert('Cadastro realizado com sucesso!'); window.location.href = window.location.href;</script>";
 }
 ?>
 
-<!-- HTML Formulário de Cadastro -->
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Cadastro de Usuário</title>
-        <script>
-        function verificarStatus() {
-            var status = document.getElementById('status').value;
-            var permDiv = document.getElementById('permissao_div');
-            if (status === 'administrador') {
-                permDiv.style.display = 'block';
-            } else {
-                permDiv.style.display = 'none';
-                document.getElementById('fk_Permissao_id').value = '';
-            }
-        }
-        </script>
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Novo Usuário</title>
+    <link rel="stylesheet" href="css/usuario/usuario_cadastrar_se.css">
+</head>
 
-    <body>
+<body>
+    <?php include 'cabecalho.php'; ?>
 
-        <h2>Cadastro de Usuário</h2>
+    <main>
+        <form method="post" enctype="multipart/form-data" onsubmit="return validarFormulario()">
+            <label for="cpf" class="required">CPF:</label>
+            <input type="text" id="cpf" name="cpf" required pattern="\d{11}" maxlength="11"
+                placeholder="Digite apenas números">
 
-        <?php
-    if (isset($_SESSION['erro']))
-    {
-        echo '<p style="color:red;">' . $_SESSION['erro'] . '</p>';
-        unset($_SESSION['erro']);
-    }
+            <label for="nome" class="required">Nome:</label>
+            <input type="text" id="nome" name="nome" required maxlength="255">
 
-    if (isset($_SESSION['sucesso']))
-    {
-        echo '<p style="color:green;">' . $_SESSION['sucesso'] . '</p>';
-        unset($_SESSION['sucesso']);
-    }
-    ?>
+            <label for="data_nascimento" class="required">Data de Nascimento:</label>
+            <input type="date" id="data_nascimento" name="data_nascimento" required>
 
-        <form action="usuario_cadastrar.php" method="POST">
-            <label for="cpf">CPF:</label>
-            <input type="text" id="cpf" name="cpf" required maxlength="11"><br>
+            <label for="email" class="optional">Email:</label>
+            <input type="email" id="email" name="email" maxlength="255">
 
-            <label for="nome">Nome:</label>
-            <input type="text" id="nome" name="nome" required><br>
+            <label for="telefone" class="required">Telefone:</label>
+            <input type="tel" id="telefone" name="telefone" required pattern="\d{11}" maxlength="11"
+                placeholder="Digite apenas números">
 
-            <label for="data_nascimento">Data de Nascimento:</label>
-            <input type="date" id="data_nascimento" name="data_nascimento" required><br>
+            <label for="senha" class="required">Senha:</label>
+            <input type="password" id="senha" name="senha" required maxlength="255">
 
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email"><br>
+            <label for="imagem">Foto do Perfil:</label>
+            <input type="file" id="imagem" name="imagem" accept="image/*">
 
-            <label for="telefone">Telefone (com DDD):</label>
-            <input type="text" id="telefone" name="telefone" required maxlength="11"><br>
+            <button type="button" onclick="toggleEndereco()">Adicionar Endereço</button>
 
-            <label for="status">Status:</label>
-            <select id="status" name="status" onchange="verificarStatus()">
-                <option value="adotante" selected>Adotante</option>
-                <option value="administrador">Administrador</option>
-            </select><br>
+            <div class="endereco hidden" id="endereco">
+                <h2>Endereço</h2>
 
-            <div id="permissao_div" style="display:none;">
-                <label for="fk_Permissao_id">Permissão:</label>
-                <select id="fk_Permissao_id" name="fk_Permissao_id">
-                    <!-- Opções de permissões devem ser carregadas do banco de dados --> <?php $sqlPermissoes = "SELECT id, descricao FROM Permissao";
-                                                                                        $stmtPermissoes = $conn->prepare($sqlPermissoes);
-                                                                                        $stmtPermissoes->execute();
-                                                                                        while ($row = $stmtPermissoes->fetch(PDO::FETCH_ASSOC))
-                                                                                        {
-                                                                                            echo "<option value='{$row['id']}'>{$row['descricao']}</option>";
-                                                                                        } ?>
-                </select>
-            </div> <label for="senha">Senha:</label>
-            <input type="password" id="senha" name="senha" required><br>
+                <label for="rua" class="required">Rua:</label>
+                <input type="text" id="rua" name="rua" maxlength="255">
 
-            <!-- Endereço (opcional) -->
-            <h3>Endereço (opcional)</h3>
-            <label for="rua">Rua:</label>
-            <input type="text" id="rua" name="rua"><br>
+                <label for="numero">Número:</label>
+                <input type="text" id="numero" name="numero" maxlength="10">
 
-            <label for="numero">Número:</label>
-            <input type="text" id="numero" name="numero"><br>
+                <label for="bairro" class="required">Bairro:</label>
+                <input type="text" id="bairro" name="bairro" maxlength="255">
 
-            <label for="bairro">Bairro:</label>
-            <input type="text" id="bairro" name="bairro"><br>
+                <label for="cep" class="required">CEP:</label>
+                <input type="text" id="cep" name="cep" maxlength="10">
 
-            <label for="cep">CEP:</label>
-            <input type="text" id="cep" name="cep"><br>
+                <label for="referencia">Referência:</label>
+                <input type="text" id="referencia" name="referencia" maxlength="255">
 
-            <label for="referencia">Referência:</label>
-            <input type="text" id="referencia" name="referencia"><br>
+                <label for="cidade" class="required">Cidade:</label>
+                <input type="text" id="cidade" name="cidade" maxlength="255">
 
-            <label for="cidade">Cidade:</label>
-            <input type="text" id="cidade" name="cidade"><br>
+                <label for="estado" class="required">Estado:</label>
+                <input type="text" id="estado" name="estado" maxlength="2">
+            </div>
 
-            <label for="estado">Estado:</label>
-            <input type="text" id="estado" name="estado"><br>
-
-            <input type="submit" value="Cadastrar">
+            <hr>
+            <button type="reset">Limpar Formulário</button>
+            <button type="submit">Cadastrar</button>
         </form>
-    </body>
+    </main>
+
+    <script>
+        // Função para validar o formulário
+        function validarFormulario() {
+            const cpf = document.getElementById('cpf').value;
+            const telefone = document.getElementById('telefone').value;
+            const senha = document.getElementById('senha').value;
+            const rua = document.getElementById('rua');
+            const bairro = document.getElementById('bairro');
+            const cep = document.getElementById('cep');
+            const cidade = document.getElementById('cidade');
+            const estado = document.getElementById('estado');
+
+            // Valida CPF (11 dígitos)
+            if (cpf.length !== 11) {
+                alert('O CPF deve ter 11 dígitos.');
+                return false;
+            }
+
+            // Valida telefone (11 dígitos)
+            if (telefone.length !== 11) {
+                alert('O telefone deve ter 11 dígitos.');
+                return false;
+            }
+
+            // Valida senha
+            if (senha.length < 6) {
+                alert('A senha deve ter pelo menos 6 caracteres.');
+                return false;
+            }
+
+            // Valida endereço se algum campo estiver preenchido
+            if (rua.value || bairro.value || cep.value || cidade.value || estado.value) {
+                if (!rua.value || !bairro.value || !cep.value || !cidade.value || !estado.value) {
+                    alert('Todos os campos de endereço são obrigatórios.');
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        // Função para alternar a visibilidade dos campos de endereço
+        function toggleEndereco() {
+            const enderecoDiv = document.getElementById('endereco');
+            enderecoDiv.classList.toggle('hidden');
+        }
+    </script>
+</body>
 
 </html>

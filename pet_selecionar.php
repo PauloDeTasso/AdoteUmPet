@@ -1,120 +1,115 @@
 <?php
 session_start();
-require 'conexao_db.php';
+require_once 'conexao_db.php';
 
-// Captura o ID do pet da URL
-$id = $_GET['id'] ?? '';
-
-// Validação do ID
-if (!is_numeric($id) || $id <= 0)
+// Verifica se o usuário está logado
+if (!isset($_SESSION['cpf']))
 {
-    $pet = null;
+    header('Location: login.php');
+    exit();
 }
-else
+
+$pdo = conectar();
+
+// Obtém o brinco do pet selecionado
+$brinco = $_GET['brinco'] ?? null;
+
+if ($brinco)
 {
-    $pdo = conectar();
-
-    // Consulta os detalhes do pet apenas se o status for 'ADOTÁVEL'
-    $sql = 'SELECT * FROM Pet WHERE id = :id AND status = \'ADOTÁVEL\'';
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([':id' => $id]);
-    $pet = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    // Consulta as imagens do pet, se o pet existir
-    if ($pet)
+    // Função para obter os dados do pet selecionado
+    function obterPetPorBrinco($pdo, $brinco)
     {
-        $sql = 'SELECT * FROM Imagem_Pet WHERE fk_Pet_id = :id';
+        $sql = "SELECT p.brinco, p.nome, p.sexo, p.idade, p.raca, p.pelagem, p.local_resgate, 
+                       p.data_resgate, p.data_cadastro, p.status, p.informacoes, i.url_imagem
+                FROM Pet p
+                LEFT JOIN Imagem_Pet i ON p.brinco = i.fk_Pet_brinco
+                WHERE p.brinco = :brinco";
         $stmt = $pdo->prepare($sql);
-        $stmt->execute([':id' => $id]);
-        $imagens_pet = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        // Consulta para obter informações do usuário
-        $usuario_cpf = $_GET['usuario_cpf'] ?? ''; // ou outro método para obter o CPF
-        $sql_usuario = 'SELECT * FROM Usuario WHERE cpf = :cpf';
-        $stmt_usuario = $pdo->prepare($sql_usuario);
-        $stmt_usuario->execute([':cpf' => $usuario_cpf]);
-        $usuario = $stmt_usuario->fetch(PDO::FETCH_ASSOC);
-
-        // Consulta as imagens do usuário, se o usuário existir
-        if ($usuario)
-        {
-            $sql = 'SELECT * FROM Imagem_Usuario WHERE fk_Usuario_cpf = :cpf';
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([':cpf' => $usuario_cpf]);
-            $imagens_usuario = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        }
+        $stmt->bindParam(':brinco', $brinco, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
+    $pet = obterPetPorBrinco($pdo, $brinco);
+}
+
+if (!$pet)
+{
+    echo "Pet não encontrado.";
+    exit();
 }
 ?>
 
 <!DOCTYPE html>
 <html lang="pt-BR">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Detalhes do Pet</title>
-        <link rel="stylesheet" href="css/pet_selecionar.css">
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?= htmlspecialchars($pet['nome']) ?></title>
+    <link rel="stylesheet" href="css/pet/pet_selecionar.css">
+    <script>
+        function habilitarEdicao() {
+            // Habilita os campos para edição
+            document.querySelectorAll('.editavel').forEach(campo => campo.disabled = false);
 
-    <body>
-        <h2>Detalhes do Pet</h2>
+            // Troca o botão de "Editar" para "Atualizar"
+            document.getElementById('editarBtn').style.display = 'none';
+            document.getElementById('atualizarBtn').style.display = 'inline-block';
+        }
+    </script>
+</head>
 
-        <?php if ($pet): ?>
-        <p><strong>Nome:</strong> <?= htmlspecialchars($pet['nome']); ?></p>
-        <p><strong>Brinco:</strong> <?= htmlspecialchars($pet['brinco']); ?></p>
-        <p><strong>Sexo:</strong> <?= htmlspecialchars($pet['sexo']); ?></p>
-        <p><strong>Idade:</strong> <?= htmlspecialchars($pet['idade']); ?></p>
-        <p><strong>Raça:</strong> <?= htmlspecialchars($pet['raca']); ?></p>
-        <p><strong>Pelagem:</strong> <?= htmlspecialchars($pet['pelagem']); ?></p>
-        <p><strong>Local do Resgate:</strong> <?= htmlspecialchars($pet['local_resgate']); ?></p>
-        <p><strong>Data do Resgate:</strong> <?= htmlspecialchars($pet['data_resgate']); ?></p>
-        <p><strong>Status:</strong> <?= htmlspecialchars($pet['status']); ?></p>
-        <p><strong>Informações:</strong> <?= htmlspecialchars($pet['informacoes']); ?></p>
+<body>
+    <?php include 'cabecalho.php'; ?>
 
-        <h3>Imagens</h3>
-        <?php if (!empty($imagens_pet)): ?>
-        <?php foreach ($imagens_pet as $imagem): ?>
-        <img src="<?= htmlspecialchars($imagem['url_imagem']); ?>" alt="Imagem do Pet" style="width: 150px;">
-        <?php endforeach; ?>
-        <?php else: ?>
-        <p>Este pet não possui imagens cadastradas.</p>
-        <?php endif; ?>
+    <div class="container">
+        <div class="pet-detalhes">
+            <form action="pet_atualizar.php" method="POST">
+                <div class="pet-imagem">
+                    <img src="<?= htmlspecialchars($pet['url_imagem']) ?>"
+                        alt="Imagem de <?= htmlspecialchars($pet['nome']) ?>">
+                </div>
 
-        <p>
-            <!-- Exibe o botão de adoção apenas se o pet estiver disponível (ADOTÁVEL) -->
-            <a href="adocao_cadastrar.php?pet_id=<?= htmlspecialchars($pet['id']); ?>">Adotar</a> |
-            <a href="curtir.php?id=<?= htmlspecialchars($pet['id']); ?>">Curtir</a> |
-            <a href="comentar.php?id=<?= htmlspecialchars($pet['id']); ?>">Comentar</a> |
-            <a href="compartilhar.php?id=<?= htmlspecialchars($pet['id']); ?>">Compartilhar</a>
-        </p>
+                <div class="pet-info">
+                    <h1><input type="text" name="nome" value="<?= htmlspecialchars($pet['nome']) ?>"
+                            class="editavel" disabled></h1>
+                    <p><strong>Raça:</strong> <input type="text" name="raca"
+                            value="<?= htmlspecialchars($pet['raca']) ?>" class="editavel" disabled></p>
+                    <p><strong>Idade:</strong> <input type="number" name="idade"
+                            value="<?= htmlspecialchars($pet['idade']) ?>" class="editavel" disabled></p>
+                    <p><strong>Pelagem:</strong> <input type="text" name="pelagem"
+                            value="<?= htmlspecialchars($pet['pelagem']) ?>" class="editavel" disabled></p>
 
-        <?php if ($usuario): ?>
-        <h3>Detalhes do Usuário</h3>
-        <p><strong>Nome:</strong> <?= htmlspecialchars($usuario['nome']); ?></p>
-        <p><strong>Telefone:</strong> <?= htmlspecialchars($usuario['telefone']); ?></p>
-        <p><strong>Email:</strong> <?= htmlspecialchars($usuario['email']); ?></p>
-        <p><strong>Cidade:</strong> <?= htmlspecialchars($usuario['cidade']); ?></p>
-        <p><strong>Estado:</strong> <?= htmlspecialchars($usuario['estado']); ?></p>
+                    <!-- Sexo com cor diferenciada -->
+                    <p><strong>Sexo:</strong>
+                        <select name="sexo" class="editavel" disabled>
+                            <option value="M" <?= htmlspecialchars($pet['sexo']) === 'M' ? 'selected' : '' ?>>Macho
+                            </option>
+                            <option value="F" <?= htmlspecialchars($pet['sexo']) === 'F' ? 'selected' : '' ?>>Fêmea
+                            </option>
+                        </select>
+                    </p>
 
-        <h4>Imagens do Usuário</h4>
-        <?php if (!empty($imagens_usuario)): ?>
-        <?php foreach ($imagens_usuario as $imagem): ?>
-        <img src="<?= htmlspecialchars($imagem['url_imagem']); ?>" alt="Imagem do Usuário" style="width: 150px;">
-        <?php endforeach; ?>
-        <?php else: ?>
-        <p>Este usuário não possui imagens cadastradas.</p>
-        <?php endif; ?>
+                    <p><strong>Local de Resgate:</strong> <input type="text" name="local_resgate"
+                            value="<?= htmlspecialchars($pet['local_resgate']) ?>" class="editavel" disabled></p>
+                    <p><strong>Data de Resgate:</strong> <input type="date" name="data_resgate"
+                            value="<?= htmlspecialchars($pet['data_resgate']) ?>" class="editavel" disabled></p>
+                    <p><strong>Informações Adicionais:</strong> <textarea name="informacoes" class="editavel"
+                            disabled><?= htmlspecialchars($pet['informacoes']) ?></textarea></p>
 
-        <?php else: ?>
-        <p>Usuário não encontrado.</p>
-        <?php endif; ?>
+                    <input type="hidden" name="brinco" value="<?= htmlspecialchars($pet['brinco']) ?>">
 
-        <?php else: ?>
-        <p>Pet não encontrado ou não disponível para adoção.</p>
-        <?php endif; ?>
-
-        <p><a href="pets.php">Voltar</a></p>
-    </body>
+                    <?php if ($_SESSION['tipo'] === 'Administrador'): ?>
+                        <button type="button" id="editarBtn" class="btn" onclick="habilitarEdicao()">Editar</button>
+                        <button type="submit" id="atualizarBtn" class="btn" style="display: none;">Atualizar</button>
+                        <a href="pet_remover.php?brinco=<?= $pet['brinco'] ?>" class="btn"
+                            onclick="return confirm('Tem certeza que deseja remover este pet?');">Remover</a>
+                    <?php endif; ?>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
 
 </html>

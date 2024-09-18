@@ -2,7 +2,8 @@
 
 include 'conexao_db.php';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST')
+{
     $conn = conectar();
 
     $cpf = $_POST['cpf'];
@@ -20,18 +21,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $estado = $_POST['estado'];
 
     // Verifica se o arquivo de imagem foi enviado
-    if (isset($_FILES['imagem']) && $_FILES['imagem']['error'] === UPLOAD_ERR_OK) {
+    if (isset($_FILES['imagem']) && $_FILES['imagem']['error'] === UPLOAD_ERR_OK)
+    {
         // Caminho completo para salvar a imagem
         $imagemNome = uniqid() . '-' . basename($_FILES['imagem']['name']);
         $imagemPath = 'imagens/usuarios/' . $imagemNome;
 
         // Move o arquivo para o diretório correto
-        if (move_uploaded_file($_FILES['imagem']['tmp_name'], $imagemPath)) {
+        if (move_uploaded_file($_FILES['imagem']['tmp_name'], $imagemPath))
+        {
             $imagemUrl = $imagemPath;
-        } else {
+        }
+        else
+        {
             echo "Erro ao mover o arquivo para o diretório.";
         }
-    } else {
+    }
+    else
+    {
         echo "Erro no envio do arquivo de imagem.";
         $imagemUrl = null;
     }
@@ -50,7 +57,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ]);
 
     // Insere o endereço se fornecido
-    if ($rua && $bairro && $cep && $cidade && $estado) {
+    if ($rua && $bairro && $cep && $cidade && $estado)
+    {
         $sqlEndereco = "INSERT INTO Endereco (rua, numero, bairro, cep, referencia, cidade, estado) VALUES (:rua, :numero, :bairro, :cep, :referencia, :cidade, :estado)";
         $stmtEndereco = $conn->prepare($sqlEndereco);
         $stmtEndereco->execute([
@@ -74,7 +82,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Insere a imagem do usuário, se houver
-    if ($imagemUrl) {
+    if ($imagemUrl)
+    {
         $sqlImagem = "INSERT INTO Imagem_Usuario (url_imagem, fk_Usuario_cpf) VALUES (:imagem_url, :cpf)";
         $stmtImagem = $conn->prepare($sqlImagem);
         $stmtImagem->execute([
@@ -161,51 +170,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </main>
 
     <script>
-    // Função para validar o formulário
-    function validarFormulario() {
-        const cpf = document.getElementById('cpf').value;
-        const telefone = document.getElementById('telefone').value;
-        const senha = document.getElementById('senha').value;
-        const rua = document.getElementById('rua');
-        const bairro = document.getElementById('bairro');
-        const cep = document.getElementById('cep');
-        const cidade = document.getElementById('cidade');
-        const estado = document.getElementById('estado');
+        // Função para validar o formulário
+        function validarFormulario() {
+            const cpf = document.getElementById('cpf').value;
+            const telefone = document.getElementById('telefone').value;
+            const senha = document.getElementById('senha').value;
+            const rua = document.getElementById('rua');
+            const bairro = document.getElementById('bairro');
+            const cep = document.getElementById('cep');
+            const cidade = document.getElementById('cidade');
+            const estado = document.getElementById('estado');
 
-        // Valida CPF (11 dígitos)
-        if (cpf.length !== 11) {
-            alert('O CPF deve ter 11 dígitos.');
-            return false;
-        }
-
-        // Valida telefone (11 dígitos)
-        if (telefone.length !== 11) {
-            alert('O telefone deve ter 11 dígitos.');
-            return false;
-        }
-
-        // Valida senha
-        if (senha.length < 6) {
-            alert('A senha deve ter pelo menos 6 caracteres.');
-            return false;
-        }
-
-        // Valida endereço se algum campo estiver preenchido
-        if (rua.value || bairro.value || cep.value || cidade.value || estado.value) {
-            if (!rua.value || !bairro.value || !cep.value || !cidade.value || !estado.value) {
-                alert('Todos os campos de endereço são obrigatórios.');
+            // Valida CPF (11 dígitos)
+            if (cpf.length !== 11) {
+                alert('O CPF deve ter 11 dígitos.');
                 return false;
             }
+
+            // Valida telefone (11 dígitos)
+            if (telefone.length !== 11) {
+                alert('O telefone deve ter 11 dígitos.');
+                return false;
+            }
+
+            // Valida senha
+            if (senha.length < 6) {
+                alert('A senha deve ter pelo menos 6 caracteres.');
+                return false;
+            }
+
+            // Valida endereço se algum campo estiver preenchido
+            if (rua.value || bairro.value || cep.value || cidade.value || estado.value) {
+                if (!rua.value || !bairro.value || !cep.value || !cidade.value || !estado.value) {
+                    alert('Todos os campos de endereço são obrigatórios.');
+                    return false;
+                }
+            }
+
+            return true;
         }
 
-        return true;
-    }
-
-    // Função para alternar a visibilidade dos campos de endereço
-    function toggleEndereco() {
-        const enderecoDiv = document.getElementById('endereco');
-        enderecoDiv.classList.toggle('hidden');
-    }
+        // Função para alternar a visibilidade dos campos de endereço
+        function toggleEndereco() {
+            const enderecoDiv = document.getElementById('endereco');
+            enderecoDiv.classList.toggle('hidden');
+        }
     </script>
 </body>
 

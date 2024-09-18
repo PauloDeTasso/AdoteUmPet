@@ -8,45 +8,51 @@ body {
     font-family: Arial, sans-serif;
     background-color: #f5f5f5;
     color: #333;
-    justify-content: center;
-    align-items: center;
     text-align: center;
     width: 100%;
 }
 
 .cabecalho {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: center;
-    align-items: center;   
-    text-align: center;
+    align-items: center;
     background-color: #3498db;
     color: white;
     padding: 20px;
 }
 
-nav{
-    display: flex;
-    justify-content: end;
-    align-items: end;
-    margin-left: 20px;
+nav {
+    margin-top: 10px;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    padding: 10px;
+    background-color: #2980b9;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+nav a:hover {
+    background-color: #1f6fa5;
 }
 
 .secaoPrincipal {
-    display: block;
+    display: flex;
     flex-direction: column;
-    justify-content: flex-start; 
-    align-items: flex-start; 
-    text-align: center; 
-    height: 100vh;
-    margin: 0 auto; 
+    align-items: center;
+    margin: 20px auto;
+    width: 100%;
 }
 
-
 .estatisticas {
-    padding: 20px;
+    width: 100%;
+    max-width: 600px;
     background-color: #fff;
-    margin: 20px;
+    padding: 20px;
+    margin-bottom: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
@@ -55,98 +61,68 @@ nav{
     margin-bottom: 10px;
 }
 
-/* Estilos para o menu de ações */
 .acoes {
-    padding: 20px;
+    width: 100%;
+    max-width: 600px;
+    margin-bottom: 20px;
 }
 
-.acoes h2 {
-    margin-bottom: 15px;
-}
-
-/* Estilos para o menu principal */
 .acoes ul {
-    display: flex;
-    flex-direction: row;
-    justify-items: flex-start;
-    align-items: flex-start;
     list-style-type: none;
-    margin-bottom: 4px;
-    padding: 0px;
+    padding: 0;
 }
 
 .acoes ul li {
     margin-bottom: 10px;
-    padding: 20px;
 }
 
 .acoes ul li > strong {
     display: block;
-    width: 100%;
-    padding: 12px;
     background-color: #3498db;
     color: white;
+    padding: 15px;
     border-radius: 5px;
-    text-align: center;
     cursor: pointer;
-    transition: background-color 0.3s, color 0.3s;
-    font-size: 1.1rem; 
-    margin-bottom: 4px;
+    transition: background-color 0.3s;
 }
 
 .acoes ul li > strong:hover {
     background-color: #2980b9;
-    color: #fff;
 }
 
-/* Estilos para o submenu */
 .acoes ul li ul {
-    list-style-type: none;
-    padding-left: 0;
-    margin: 0;
+    display: none;
+    transition: max-height 0.3s ease-out;
+    overflow: hidden;
+}
+
+.acoes ul li ul[style="display: block;"] {
     display: block;
+    max-height: 500px; 
 }
 
-/*
-.acoes ul li.active ul {
-    display: block;
-}
-*/
-
-.acoes ul li ul li {
-    margin-bottom: 5px;
-    padding: 0;
-}
-
-/* Estilos para itens do submenu */
 .acoes ul li ul li {
     margin-bottom: 5px;
 }
 
 .acoes ul li ul li a {
-    text-decoration: none;
-    color: #3498db;
-    padding: 12px;
     display: block;
-    border-radius: 5px;
+    text-decoration: none;
     background-color: #e0e0e0;
-    transition: background-color 0.3s, color 0.3s, box-shadow 0.3s;
-    font-size: 1rem; 
-    border: 1px solid #ddd; 
+    color: #3498db;
+    padding: 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
 }
 
 .acoes ul li ul li a:hover {
     background-color: #f4f4f4;
-    color: #2980b9;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Adiciona uma sombra ao passar o mouse */
 }
 
-/* Estilos para o rodapé */
 footer {
     background-color: #3498db;
     color: white;
-    padding: 10px;
-    text-align: center;
+    padding: 20px;
 }
 
 footer img {
@@ -154,53 +130,229 @@ footer img {
     margin-bottom: 10px;
 }
 
-/* Estilos responsivos */
+/* Estilos responsivos para telas médias */
 @media (max-width: 1200px) {
-    .acoes {
-        padding: 15px;
-    }
-
     .acoes ul li > strong {
-        font-size: 1rem; /* Ajusta o tamanho da fonte em telas médias */
+        font-size: 1rem;
     }
 }
 
+/* Estilos responsivos para tablets e dispositivos pequenos */
 @media (max-width: 768px) {
     .estatisticas, .acoes {
+        padding: 10px;
         margin: 10px;
     }
 
-    .acoes {
-        padding: 10px;
-    }
-
     .acoes ul li > strong {
-        font-size: 0.9rem; /* Ajusta o tamanho da fonte em telas pequenas */
+        font-size: 0.9rem;
         padding: 10px;
     }
 
     .acoes ul li ul li a {
-        font-size: 0.9rem; /* Ajusta o tamanho da fonte em telas pequenas */
+        font-size: 0.9rem;
         padding: 8px;
     }
 }
 
+/* Estilos responsivos para telas muito pequenas (mobile) */
 @media (max-width: 480px) {
     .estatisticas, .acoes {
         padding: 10px;
+        margin: 5px;
+    }
+
+    .estatisticas {
+        width: 90%;
+    }
+
+    .acoes {
+        width: 90%;
     }
 
     .acoes ul li > strong {
-        font-size: 0.8rem; /* Ajusta o tamanho da fonte em telas muito pequenas */
+        font-size: 0.8rem;
         padding: 8px;
     }
 
     .acoes ul li ul li a {
-        font-size: 0.8rem; /* Ajusta o tamanho da fonte em telas muito pequenas */
-        padding: 6px;
+        font-size: 0.8rem;
+        padding: 7px;
+    }
+}
+
+/*Estatisticas*/
+
+/* Estilos para a seção de pets disponíveis */
+section.pets-disponiveis {
+    margin: 20px auto;
+    max-width: 1200px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+section.pets-disponiveis h2 {
+    text-align: center;
+}
+
+section.pets-disponiveis section {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+/* Estilos dos cards de pets na seção de pets disponíveis */
+section.pets-disponiveis div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 15px;
+    max-width: 200px;
+    transition: transform 0.3s ease;
+}
+
+section.pets-disponiveis div:hover {
+    transform: scale(1.05);
+}
+
+section.pets-disponiveis img {
+    width: 100%;
+    height: auto;
+    max-height: 200px;
+    border-radius: 8px;
+}
+
+/* Estilos para a seção de pets adotados */
+section.pets-adotados {
+    margin: 20px auto;
+    max-width: 1200px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+section.pets-adotados h2 {
+    text-align: center;
+}
+
+section.pets-adotados ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+section.pets-adotados li {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 15px;
+    max-width: 200px;
+    transition: transform 0.3s ease;
+}
+
+section.pets-adotados li:hover {
+    transform: scale(1.05);
+}
+
+section.pets-adotados img {
+    width: 100%;
+    height: auto;
+    max-height: 200px;
+    border-radius: 8px;
+}
+
+/* Estilos para a seção de últimas adoções */
+section.ultimas-adocoes {
+    margin: 20px auto;
+    max-width: 1200px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+section.ultimas-adocoes h2 {
+    text-align: center;
+}
+
+section.ultimas-adocoes ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+section.ultimas-adocoes li {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 15px;
+    max-width: 200px;
+    transition: transform 0.3s ease;
+}
+
+section.ultimas-adocoes li:hover {
+    transform: scale(1.05);
+}
+
+section.ultimas-adocoes img {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+}
+
+section.ultimas-adocoes li img:nth-child(2) {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-top: 10px;
+}
+
+/* Botões */
+.btn {
+    background-color: #3498db;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    display: inline-block;
+    margin: 10px; /* Adiciona margem ao redor dos botões */
+}
+
+.btn:hover {
+    background-color: #7e7e7e;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    section.pets-disponiveis div,
+    section.pets-adotados li,
+    section.ultimas-adocoes li {
+        max-width: 100%;
     }
 
-    footer img {
-        max-width: 100px;
+    section.pets-disponiveis section,
+    section.pets-adotados ul,
+    section.ultimas-adocoes ul {
+        flex-direction: column;
     }
 }
