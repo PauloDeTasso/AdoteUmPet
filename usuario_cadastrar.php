@@ -2,8 +2,7 @@
 
 include 'conexao_db.php';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST')
-{
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $conn = conectar();
 
     $cpf = $_POST['cpf'];
@@ -21,24 +20,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
     $estado = $_POST['estado'];
 
     // Verifica se o arquivo de imagem foi enviado
-    if (isset($_FILES['imagem']) && $_FILES['imagem']['error'] === UPLOAD_ERR_OK)
-    {
+    if (isset($_FILES['imagem']) && $_FILES['imagem']['error'] === UPLOAD_ERR_OK) {
         // Caminho completo para salvar a imagem
         $imagemNome = uniqid() . '-' . basename($_FILES['imagem']['name']);
         $imagemPath = 'imagens/usuarios/' . $imagemNome;
 
         // Move o arquivo para o diretório correto
-        if (move_uploaded_file($_FILES['imagem']['tmp_name'], $imagemPath))
-        {
+        if (move_uploaded_file($_FILES['imagem']['tmp_name'], $imagemPath)) {
             $imagemUrl = $imagemPath;
-        }
-        else
-        {
+        } else {
             echo "Erro ao mover o arquivo para o diretório.";
         }
-    }
-    else
-    {
+    } else {
         echo "Erro no envio do arquivo de imagem.";
         $imagemUrl = null;
     }
@@ -57,8 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
     ]);
 
     // Insere o endereço se fornecido
-    if ($rua && $bairro && $cep && $cidade && $estado)
-    {
+    if ($rua && $bairro && $cep && $cidade && $estado) {
         $sqlEndereco = "INSERT INTO Endereco (rua, numero, bairro, cep, referencia, cidade, estado) VALUES (:rua, :numero, :bairro, :cep, :referencia, :cidade, :estado)";
         $stmtEndereco = $conn->prepare($sqlEndereco);
         $stmtEndereco->execute([
@@ -82,8 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
     }
 
     // Insere a imagem do usuário, se houver
-    if ($imagemUrl)
-    {
+    if ($imagemUrl) {
         $sqlImagem = "INSERT INTO Imagem_Usuario (url_imagem, fk_Usuario_cpf) VALUES (:imagem_url, :cpf)";
         $stmtImagem = $conn->prepare($sqlImagem);
         $stmtImagem->execute([

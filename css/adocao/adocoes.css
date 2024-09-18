@@ -1,51 +1,169 @@
-/* Estilo geral para a tabela de adoções */
+/* Reset básico e definição de fonte padrão */
+body, h2, table {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #f9f9f9;
+    color: #333;
+    font-weight: 700;
+    font-size: larger;
+}
+
+/* Container */
+.container {
+    display: flex;
+    flex-direction: column;
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    align-items: center;
+    justify-content: center;
+}
+
+/* Cabeçalho */
+h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+/* Botão para realizar adoção */
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 16px;
+    color: #fff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 4px;
+    text-decoration: none;
+    text-align: center;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin: 10px;
+}
+
+.btn:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+/* Tabela */
 table {
     width: 100%;
     border-collapse: collapse;
-    margin: 20px 0;
-    font-size: 16px;
+    margin-bottom: 20px;
+    background-color: #e9ecef; 
+    border-radius: 8px;
+    overflow: hidden;
 }
 
-table th, table td {
+thead {
+    background-color: #007bff;
+    color: #fff;
+}
+
+thead th {
     padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
+    text-align: center;
+    border-bottom: 3px solid #0056b3; 
+    font-weight: bold;
 }
 
-table th {
-    background-color: #4CAF50;
-    color: white;
+th, td {
+    padding: 12px;
+    text-align: center;
+    border-right: 2px solid #ddd; 
 }
 
-table tr:nth-child(even) {
+th {
+    background-color: #0056b3;
+    color: #fff;
+    border-right: 3px solid #003d7a; 
+}
+
+td {
+    background-color: #fff;
+    border-bottom: 2px solid #ddd; 
+}
+
+/* Estilo para a coluna de imagens e nomes */
+td img.imagem-pet {
+    display: block;
+    max-width: 150px;
+    max-height: 150px;
+    margin: 0 auto 10px;
+    border-radius: 4px;
+}
+
+td .nome-pet {
+    text-align: center;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+/* Linhas horizontais */
+tbody tr {
+    border-bottom: 2px solid #ddd;
+}
+
+tbody tr:nth-child(even) {
     background-color: #f2f2f2;
 }
 
-img {
-    max-width: 100px;
-    border-radius: 5px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+tbody tr:hover {
+    background-color: #e6f7ff;
 }
 
-h1 {
-    color: #4CAF50;
+/* Paginação */
+.paginas {
     text-align: center;
     margin-top: 20px;
 }
 
-a {
-    display: block;
-    width: fit-content;
-    margin: 20px auto;
-    padding: 10px 20px;
-    background-color: #4CAF50;
-    color: white;
-    text-align: center;
-    border-radius: 5px;
-    text-decoration: none;
-    font-weight: bold;
+.paginas .btn {
+    padding: 8px 16px;
+    font-size: 14px;
+    margin: 0 5px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-a:hover {
-    background-color: #45a049;
+.paginas .btn:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+
+    h2 {
+        font-size: 20px;
+    }
+
+    table, th, td {
+        font-size: 14px;
+    }
+
+    .btn {
+        font-size: 14px;
+        padding: 8px 16px;
+    }
+
+    td img.imagem-pet {
+        max-width: 120px;
+        max-height: 120px;
+    }
 }

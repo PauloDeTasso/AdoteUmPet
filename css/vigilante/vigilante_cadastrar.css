@@ -1,0 +1,277 @@
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Estilo base */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f7f8fa;
+    color: #333;
+    line-height: 1.6;
+    padding: 20px;
+}
+
+h3 {
+    color: #4CAF50;
+    margin-bottom: 20px;
+}
+
+/* Estilo do container principal do formulário */
+.form-container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease-in-out;
+    animation: slideIn 0.5s ease-in-out;
+}
+
+.form-container:hover {
+    transform: translateY(-5px);
+}
+
+/* Efeito suave ao aparecer */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Estilo dos grupos de formulários */
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 5px;
+    display: block;
+    transition: color 0.3s ease-in-out;
+}
+
+/* Inputs personalizados */
+input[type="text"], 
+input[type="email"], 
+input[type="date"], 
+input[type="password"], 
+input[type="tel"] {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+    transition: border-color 0.3s, background-color 0.3s;
+}
+
+input[type="text"]:focus, 
+input[type="email"]:focus, 
+input[type="date"]:focus, 
+input[type="password"]:focus, 
+input[type="tel"]:focus {
+    border-color: #4CAF50;
+    background-color: #fff;
+    outline: none;
+}
+
+input::placeholder {
+    color: #bbb;
+}
+
+input:invalid {
+    border-color: #ff0000;
+}
+
+/* Mensagem de erro */
+.error-message {
+    color: #ff0000;
+    font-size: 12px;
+    display: none;
+    margin-top: 5px;
+}
+
+/* Animação suave quando erro for exibido */
+input:invalid + .error-message {
+    display: block;
+    animation: fadeInError 0.4s ease-in;
+}
+
+@keyframes fadeInError {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Botões */
+button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #4CAF50;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    margin-right: 10px;
+}
+
+button:hover {
+    background-color: #45a049;
+    transform: translateY(-2px);
+}
+
+button:active {
+    transform: translateY(1px);
+}
+
+button:focus {
+    outline: none;
+    border: 2px solid #4CAF50;
+}
+
+/* Botão secundário (limpar) */
+.btn-secondary {
+    background-color: #f44336;
+}
+
+.btn-secondary:hover {
+    background-color: #e53935;
+}
+
+/* Estilos do formulário de endereço opcional */
+#enderecoOpcional {
+    margin-top: 20px;
+    padding-top: 10px;
+    border-top: 2px dashed #ddd;
+    animation: fadeIn 0.5s ease-in;
+}
+
+/* Animação de fade-in suave para elementos dinâmicos */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Estilo específico para dispositivos móveis */
+@media (max-width: 768px) {
+    .form-container {
+        padding: 15px;
+        box-shadow: none;
+        margin: 20px auto;
+    }
+
+    button {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    input[type="text"], 
+    input[type="email"], 
+    input[type="date"], 
+    input[type="password"], 
+    input[type="tel"] {
+        font-size: 16px;
+    }
+}
+
+/* Estilo específico para telas muito pequenas (mobile) */
+@media (max-width: 480px) {
+    .form-container {
+        padding: 10px;
+    }
+
+    h3 {
+        font-size: 18px;
+    }
+
+    label {
+        font-size: 14px;
+    }
+
+    input[type="text"], 
+    input[type="email"], 
+    input[type="date"], 
+    input[type="password"], 
+    input[type="tel"] {
+        font-size: 14px;
+        padding: 8px;
+    }
+
+    button {
+        font-size: 14px;
+        padding: 10px;
+    }
+}
+
+/* Feedback visual para validações */
+input:valid {
+    border-color: #4CAF50;
+}
+
+input:invalid {
+    border-color: #ff0000;
+}
+
+input:valid + .error-message {
+    display: none;
+}
+
+/* Transição de erro */
+input:invalid + .error-message {
+    display: block;
+}
+
+/* Efeito nos campos de texto ao passar o mouse */
+input[type="text"]:hover, 
+input[type="email"]:hover, 
+input[type="date"]:hover, 
+input[type="password"]:hover, 
+input[type="tel"]:hover {
+    border-color: #ccc;
+}
+
+/* Customização de botão "Adicionar Endereço" */
+button[type="button"] {
+    background-color: #03A9F4;
+    color: #fff;
+}
+
+button[type="button"]:hover {
+    background-color: #0288D1;
+}
+
+button[type="button"]:active {
+    background-color: #0277BD;
+}
+
+/* Melhorando o contraste das mensagens de erro */
+.error-message {
+    color: #ff4444;
+}
+
+/* Dicas visuais ao usuário */
+input[type="text"]:focus + label, 
+input[type="email"]:focus + label, 
+input[type="date"]:focus + label, 
+input[type="password"]:focus + label, 
+input[type="tel"]:focus + label {
+    color: #4CAF50;
+}
