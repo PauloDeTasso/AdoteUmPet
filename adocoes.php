@@ -56,7 +56,10 @@ try {
     <?php include 'cabecalho.php'; ?>
 
     <div class="container">
-        <a href="adocao_cadastrar.php" class="btn">Realizar uma Adoção</a>
+
+        <?php if ($tipoPermissao == 'Administrador') : ?>
+            <a href="adocao_cadastrar.php" class="btn">Realizar uma Adoção</a>
+        <?php endif; ?>
 
         <table>
             <thead>
@@ -69,37 +72,37 @@ try {
             </thead>
             <tbody>
                 <?php if (!empty($adoções)): ?>
-                <?php foreach ($adoções as $adoção): ?>
-                <tr>
-                    <td><?= htmlspecialchars($adoção['data_adocao']) ?></td>
-                    <td>
-                        <img src="<?= htmlspecialchars($adoção['adotante_imagem']) ?>" alt="Imagem do Adotante"
-                            class="imagem-pet">
-                        <?= htmlspecialchars($adoção['adotante_nome']) ?>
-                    </td>
-                    <td>
-                        <img src="<?= htmlspecialchars($adoção['pet_imagem']) ?>" alt="Imagem do Pet"
-                            class="imagem-pet">
-                        <?= htmlspecialchars($adoção['pet_nome']) ?>
-                    </td>
-                    <td><?= htmlspecialchars($adoção['observacoes']) ?></td>
-                </tr>
-                <?php endforeach; ?>
+                    <?php foreach ($adoções as $adoção): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($adoção['data_adocao']) ?></td>
+                            <td>
+                                <img src="<?= htmlspecialchars($adoção['adotante_imagem']) ?>" alt="Imagem do Adotante"
+                                    class="imagem-pet">
+                                <?= htmlspecialchars($adoção['adotante_nome']) ?>
+                            </td>
+                            <td>
+                                <img src="<?= htmlspecialchars($adoção['pet_imagem']) ?>" alt="Imagem do Pet"
+                                    class="imagem-pet">
+                                <?= htmlspecialchars($adoção['pet_nome']) ?>
+                            </td>
+                            <td><?= htmlspecialchars($adoção['observacoes']) ?></td>
+                        </tr>
+                    <?php endforeach; ?>
                 <?php else: ?>
-                <tr>
-                    <td colspan="4">Nenhuma adoção encontrada.</td>
-                </tr>
+                    <tr>
+                        <td colspan="4">Nenhuma adoção encontrada.</td>
+                    </tr>
                 <?php endif; ?>
             </tbody>
         </table>
 
         <div class="paginas">
             <?php if ($paginaAtual > 1): ?>
-            <a href="adocoes.php?pagina=<?= $paginaAtual - 1 ?>" class="btn">Anterior</a>
+                <a href="adocoes.php?pagina=<?= $paginaAtual - 1 ?>" class="btn">Anterior</a>
             <?php endif; ?>
 
             <?php if ($paginaAtual < $totalPaginas): ?>
-            <a href="adocoes.php?pagina=<?= $paginaAtual + 1 ?>" class="btn">Próxima</a>
+                <a href="adocoes.php?pagina=<?= $paginaAtual + 1 ?>" class="btn">Próxima</a>
             <?php endif; ?>
         </div>
     </div>

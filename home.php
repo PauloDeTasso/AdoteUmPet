@@ -14,39 +14,31 @@ $queryUsuario = $pdo->prepare('SELECT cpf, nome, fk_permissao_id FROM Usuario WH
 $queryUsuario->execute([':cpf' => $cpfUsuario]);
 $usuarioLogado = $queryUsuario->fetch(PDO::FETCH_ASSOC);
 
-if (!$usuarioLogado)
-{
+if (!$usuarioLogado) {
     session_destroy();
     header('Location: login.php');
     exit();
 }
 
 // Verifica se o campo fk_permissao_id está presente e se o valor é válido
-if (isset($usuarioLogado['fk_permissao_id']) && !empty($usuarioLogado['fk_permissao_id']))
-{
+if (isset($usuarioLogado['fk_permissao_id']) && !empty($usuarioLogado['fk_permissao_id'])) {
     $permissaoUsuario = $usuarioLogado['fk_permissao_id'];
-}
-else
-{
+} else {
     echo "Erro: fk_permissao_id não está definido ou está vazio para o usuário.";
     $permissaoUsuario = null;
 }
 
 // Consulta o tipo de permissão do usuário (Administrador ou Adotante)
-if ($permissaoUsuario)
-{
+if ($permissaoUsuario) {
     $queryPermissao = $pdo->prepare('SELECT tipo FROM Permissao WHERE id = :id');
     $queryPermissao->execute([':id' => $permissaoUsuario]);
     $tipoPermissao = $queryPermissao->fetchColumn();
 
-    if ($tipoPermissao === false)
-    {
+    if ($tipoPermissao === false) {
         echo "Erro: Tipo de permissão não encontrado para id = " . htmlspecialchars($permissaoUsuario);
         $tipoPermissao = 'Indefinido';
     }
-}
-else
-{
+} else {
     echo "Erro: O usuário não possui uma permissão válida.";
     $tipoPermissao = 'Indefinido';
 }
@@ -165,198 +157,198 @@ $totalPaginas = ceil($totalPetsDisponiveis / $itensPorPagina);
 <!DOCTYPE html>
 <html lang="pt-BR">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Home - Adote um Pet</title>
-        <link rel="stylesheet" href="css/home.css">
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Adote um Pet</title>
+    <link rel="stylesheet" href="css/home.css">
+</head>
 
-    <body>
+<body>
 
-        <?php include_once 'cabecalho.php'; ?>
+    <?php include_once 'cabecalho.php'; ?>
 
-        <section class="cabecalho">
-            <h1>Bem-vindo, <?= htmlspecialchars($usuarioLogado['nome'], ENT_QUOTES, 'UTF-8'); ?>!</h1>
+    <section class="cabecalho">
+        <h1>Bem-vindo, <?= htmlspecialchars($usuarioLogado['nome'], ENT_QUOTES, 'UTF-8'); ?>!</h1>
 
-            <nav>
-                <a href="logout.php">Sair</a>
-            </nav>
-        </section>
+        <nav>
+            <a href="logout.php">Sair</a>
+        </nav>
+    </section>
 
-        <main>
+    <main>
 
-            <section class="secaoPrincipal">
+        <section class="secaoPrincipal">
 
-                <!-- Seção de Ações e Menus -->
-                <section class="acoes">
-                    <ul>
-                        <!-- Categoria de Pets -->
-                        <li><strong>Pets</strong>
-                            <ul>
-                                <li><a href="pets.php">Pesquisar Pets Disponíveis</a></li>
-                                <?php if ($tipoPermissao == 'Administrador') : ?>
-                                <li><a href="pet_cadastrar.php">Cadastrar Novo Pet</a></li>
-                                <?php endif; ?>
-                            </ul>
-                        </li>
-
-                        <!-- Categoria de Usuários -->
-                        <li><strong>Adotantes</strong>
-                            <ul>
-                                <?php if ($tipoPermissao == 'Administrador') : ?>
-                                <li> <a href="usuarios.php?tipo=adotante">Pesquisar Adotantes</a></li>
-                                <li><a href="usuario_cadastrar.php">Cadastrar Novo Adotante</a></li>
-                                <?php endif; ?>
-                                <?php if ($tipoPermissao == 'Adotante') : ?>
-                                <li><a
-                                        href="usuario_editar.php?cpf=<?= htmlspecialchars($usuarioLogado['cpf'], ENT_QUOTES, 'UTF-8'); ?>">Editar
-                                        meu perfil</a></li>
-                                <li><a
-                                        href="usuario_remover.php?cpf=<?= htmlspecialchars($usuarioLogado['cpf'], ENT_QUOTES, 'UTF-8'); ?>">Excluir
-                                        minha conta</a></li>
-                                <?php endif; ?>
-                            </ul>
-                        </li>
-
-                        <!-- Categoria de Vigilantes Sanitários -->
-                        <li><strong>Vigilantes Sanitários</strong>
-                            <ul>
-                                <li><a href="usuarios.php?tipo=vigilante">Pesquisar Vigilantes Sanitários</a></li>
-                                <?php if ($tipoPermissao == 'Administrador') : ?>
-                                <li><a href="vigilante_cadastrar.php">Cadastrar Novo Vigilante</a></li>
-                                <li><a href="vigilante_editar.php">Editar meus dados</a></li>
-                                <li><a href="vigilante_remover.php">Remover minha conta</a></li>
-                                <?php endif; ?>
-                            </ul>
-                        </li>
-
-                        <!-- Categoria de Adoções -->
-                        <li><strong>Adoções</strong>
-                            <ul>
-                                <li><a href="adocoes.php">Pesquisar Adoções</a></li>
-                                <?php if ($tipoPermissao == 'Administrador') : ?>
-                                <li><a href="adocao_cadastrar.php">Cadastrar Nova Adoção</a></li>
-                                <?php endif; ?>
-                            </ul>
-                        </li>
-
-                        <!-- Categoria de Sistema -->
-                        <li><strong>Sistema</strong>
-                            <ul>
-                                <li><a href="configuracoes.php">Configurações do Sistema</a></li>
-                            </ul>
-                        </li>
-                    </ul>
-                </section>
-
-                <!-- Seção de Estatísticas do sistema -->
-                <section class="estatisticas">
-                    <h2>Cadastros</h2>
-                    <p>Adotantes: <strong><?= htmlspecialchars($totalUsuarios, ENT_QUOTES, 'UTF-8'); ?></strong></p>
-                    <p>Vigilantes sanitários:
-                        <strong><?= htmlspecialchars($totalVigilantes, ENT_QUOTES, 'UTF-8'); ?></strong>
-                    </p>
-                    <p>Pets resgatados:
-                        <strong><?= htmlspecialchars($totalPetsCadastrados, ENT_QUOTES, 'UTF-8'); ?></strong>
-                    </p>
-                    <p>Pets adotados: <strong><?= htmlspecialchars($totalPetsAdotados, ENT_QUOTES, 'UTF-8'); ?></strong>
-                    </p>
-                    <p>Pets disponíveis:
-                        <strong><?= htmlspecialchars($totalPetsDisponiveis, ENT_QUOTES, 'UTF-8'); ?></strong>
-                    </p>
-
-                </section>
-
-                <!-- Seção de Pets Disponíveis -->
-                <section class="pets-disponiveis">
-                    <h2>Eles estão esperando por você:</h2>
-                    <section>
-                        <?php if (count($petsDisponiveis) > 0): ?>
-                        <?php foreach ($petsDisponiveis as $pet): ?>
-                        <div>
-                            <img src="<?= htmlspecialchars($pet['imagem_pet']); ?>"
-                                alt="Imagem de <?php echo htmlspecialchars($pet['pet_nome']); ?>">
-                            <strong><?php echo htmlspecialchars($pet['pet_nome']); ?></strong>
-                        </div>
-                        <?php endforeach; ?>
-
-                        <!-- Mensagem para mais itens -->
-                        <?php if ($totalPaginas > 1): ?>
-                        <p>Mostrando
-                            <?php echo min($itensPorPagina, $totalPetsDisponiveis - (($paginaAtual - 1) * $itensPorPagina)); ?>
-                            pets de <?php echo $totalPetsDisponiveis; ?> disponíveis.</p>
-                        <!-- Paginação -->
-                        <div class="paginacao">
-                            <?php if ($paginaAtual > 1): ?>
-                            <a href="?pagina=<?php echo $paginaAtual - 1; ?>" class="btn">Anterior</a>
+            <!-- Seção de Ações e Menus -->
+            <section class="acoes">
+                <ul>
+                    <!-- Categoria de Pets -->
+                    <li><strong>Pets</strong>
+                        <ul>
+                            <li><a href="pets.php">Pesquisar Pets Disponíveis</a></li>
+                            <?php if ($tipoPermissao == 'Administrador') : ?>
+                            <li><a href="pet_cadastrar.php">Cadastrar Novo Pet</a></li>
                             <?php endif; ?>
-                            <?php for ($i = 1; $i <= $totalPaginas; $i++): ?>
-                            <a href="?pagina=<?php echo $i; ?>" class="btn"><?php echo $i; ?></a>
-                            <?php endfor; ?>
-                            <?php if ($paginaAtual < $totalPaginas): ?>
-                            <a href="?pagina=<?php echo $paginaAtual + 1; ?>" class="btn">Próximo</a>
+                        </ul>
+                    </li>
+
+                    <!-- Categoria de Usuários -->
+                    <li><strong>Adotantes</strong>
+                        <ul>
+                            <?php if ($tipoPermissao == 'Administrador') : ?>
+                            <li> <a href="usuarios.php?tipo=adotante">Pesquisar Adotantes</a></li>
+                            <li><a href="usuario_cadastrar.php">Cadastrar Novo Adotante</a></li>
                             <?php endif; ?>
-                        </div>
-                        <?php endif; ?>
-                        <?php else: ?>
-                        <p>Não há pets disponíveis para adoção no momento.</p>
-                        <?php endif; ?>
-                    </section>
+                            <?php if ($tipoPermissao == 'Adotante') : ?>
+                            <li><a
+                                    href="usuario_editar.php?cpf=<?= htmlspecialchars($usuarioLogado['cpf'], ENT_QUOTES, 'UTF-8'); ?>">Editar
+                                    meu perfil</a></li>
+                            <li><a
+                                    href="usuario_remover.php?cpf=<?= htmlspecialchars($usuarioLogado['cpf'], ENT_QUOTES, 'UTF-8'); ?>">Excluir
+                                    minha conta</a></li>
+                            <?php endif; ?>
+                        </ul>
+                    </li>
 
-                    <br>
-                    <h2>Adote um amigo(a)!</h2>
-                </section>
+                    <!-- Categoria de Vigilantes Sanitários -->
+                    <li><strong>Vigilantes Sanitários</strong>
+                        <ul>
+                            <li><a href="usuarios.php?tipo=vigilante">Pesquisar Vigilantes Sanitários</a></li>
+                            <?php if ($tipoPermissao == 'Administrador') : ?>
+                            <li><a href="vigilante_cadastrar.php">Cadastrar Novo Vigilante</a></li>
+                            <li><a href="vigilante_editar.php">Editar meus dados</a></li>
+                            <li><a href="vigilante_remover.php">Remover minha conta</a></li>
+                            <?php endif; ?>
+                        </ul>
+                    </li>
 
-                <!-- Seção de Últimas Adoções -->
-                <section class="ultimas-adocoes">
-                    <h2>Últimas Adoções</h2>
-                    <ul>
-                        <?php foreach ($ultimasAdocoes as $adocao): ?>
-                        <li>
-                            <img src="<?php echo htmlspecialchars($adocao['imagem_pet']); ?>"
-                                alt="Imagem de <?php echo htmlspecialchars($adocao['pet_nome']); ?>"
-                                style="width:100px;height:100px;">
-                            Pet <strong><?php echo htmlspecialchars($adocao['pet_nome']); ?></strong> adotado por
-                            <img src="<?php echo htmlspecialchars($adocao['imagem_adotante']); ?>"
-                                alt="Imagem de <?php echo htmlspecialchars($adocao['usuario_nome']); ?>"
-                                style="width:50px;height:50px;">
-                            <strong><?php echo htmlspecialchars($adocao['usuario_nome']); ?></strong> em
-                            <strong><?php echo htmlspecialchars(date('d/m/Y', strtotime($adocao['data_adocao']))); ?></strong>.
-                        </li>
-                        <?php endforeach; ?>
-                    </ul>
-                </section>
+                    <!-- Categoria de Adoções -->
+                    <li><strong>Adoções</strong>
+                        <ul>
+                            <li><a href="adocoes.php">Pesquisar Adoções</a></li>
+                            <?php if ($tipoPermissao == 'Administrador') : ?>
+                            <li><a href="adocao_cadastrar_adm.php">Cadastrar Nova Adoção</a></li>
+                            <?php endif; ?>
+                        </ul>
+                    </li>
+
+                    <!-- Categoria de Sistema -->
+                    <li><strong>Sistema</strong>
+                        <ul>
+                            <li><a href="configuracoes.php">Configurações do Sistema</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </section>
+
+            <!-- Seção de Estatísticas do sistema -->
+            <section class="estatisticas">
+                <h2>Cadastros</h2>
+                <p>Adotantes: <strong><?= htmlspecialchars($totalUsuarios, ENT_QUOTES, 'UTF-8'); ?></strong></p>
+                <p>Vigilantes sanitários:
+                    <strong><?= htmlspecialchars($totalVigilantes, ENT_QUOTES, 'UTF-8'); ?></strong>
+                </p>
+                <p>Pets resgatados:
+                    <strong><?= htmlspecialchars($totalPetsCadastrados, ENT_QUOTES, 'UTF-8'); ?></strong>
+                </p>
+                <p>Pets adotados: <strong><?= htmlspecialchars($totalPetsAdotados, ENT_QUOTES, 'UTF-8'); ?></strong>
+                </p>
+                <p>Pets disponíveis:
+                    <strong><?= htmlspecialchars($totalPetsDisponiveis, ENT_QUOTES, 'UTF-8'); ?></strong>
+                </p>
 
             </section>
 
-        </main>
+            <!-- Seção de Pets Disponíveis -->
+            <section class="pets-disponiveis">
+                <h2>Eles estão esperando por você:</h2>
+                <section>
+                    <?php if (count($petsDisponiveis) > 0): ?>
+                    <?php foreach ($petsDisponiveis as $pet): ?>
+                    <div>
+                        <img src="<?= htmlspecialchars($pet['imagem_pet']); ?>"
+                            alt="Imagem de <?php echo htmlspecialchars($pet['pet_nome']); ?>">
+                        <strong><?php echo htmlspecialchars($pet['pet_nome']); ?></strong>
+                    </div>
+                    <?php endforeach; ?>
 
-        <footer>
-            <img src="imagens/sistema/logo/logo-prefeitura1.jpg" alt="Logo Prefeitura Municipal de Imaculada-PB">
-            <h3>Vigilância Sanitária</h3>
-            <p>Recolhendo cães abandonados e promovendo adoção responsável.</p>
+                    <!-- Mensagem para mais itens -->
+                    <?php if ($totalPaginas > 1): ?>
+                    <p>Mostrando
+                        <?php echo min($itensPorPagina, $totalPetsDisponiveis - (($paginaAtual - 1) * $itensPorPagina)); ?>
+                        pets de <?php echo $totalPetsDisponiveis; ?> disponíveis.</p>
+                    <!-- Paginação -->
+                    <div class="paginacao">
+                        <?php if ($paginaAtual > 1): ?>
+                        <a href="?pagina=<?php echo $paginaAtual - 1; ?>" class="btn">Anterior</a>
+                        <?php endif; ?>
+                        <?php for ($i = 1; $i <= $totalPaginas; $i++): ?>
+                        <a href="?pagina=<?php echo $i; ?>" class="btn"><?php echo $i; ?></a>
+                        <?php endfor; ?>
+                        <?php if ($paginaAtual < $totalPaginas): ?>
+                        <a href="?pagina=<?php echo $paginaAtual + 1; ?>" class="btn">Próximo</a>
+                        <?php endif; ?>
+                    </div>
+                    <?php endif; ?>
+                    <?php else: ?>
+                    <p>Não há pets disponíveis para adoção no momento.</p>
+                    <?php endif; ?>
+                </section>
 
-        </footer>
+                <br>
+                <h2>Adote um amigo(a)!</h2>
+            </section>
 
-        <script>
-        // Função para abrir/fechar submenus ao clicar
-        document.querySelectorAll('.acoes ul li strong').forEach(function(menuItem) {
-            menuItem.addEventListener('click', function() {
-                const submenu = this.nextElementSibling;
+            <!-- Seção de Últimas Adoções -->
+            <section class="ultimas-adocoes">
+                <h2>Últimas Adoções</h2>
+                <ul>
+                    <?php foreach ($ultimasAdocoes as $adocao): ?>
+                    <li>
+                        <img src="<?php echo htmlspecialchars($adocao['imagem_pet']); ?>"
+                            alt="Imagem de <?php echo htmlspecialchars($adocao['pet_nome']); ?>"
+                            style="width:100px;height:100px;">
+                        Pet <strong><?php echo htmlspecialchars($adocao['pet_nome']); ?></strong> adotado por
+                        <img src="<?php echo htmlspecialchars($adocao['imagem_adotante']); ?>"
+                            alt="Imagem de <?php echo htmlspecialchars($adocao['usuario_nome']); ?>"
+                            style="width:50px;height:50px;">
+                        <strong><?php echo htmlspecialchars($adocao['usuario_nome']); ?></strong> em
+                        <strong><?php echo htmlspecialchars(date('d/m/Y', strtotime($adocao['data_adocao']))); ?></strong>.
+                    </li>
+                    <?php endforeach; ?>
+                </ul>
+            </section>
 
-                // Verifica se o submenu existe
-                if (submenu && submenu.tagName === 'UL') {
-                    // Alterna a exibição do submenu
-                    if (submenu.style.display === 'block') {
-                        submenu.style.display = 'none';
-                    } else {
-                        submenu.style.display = 'block';
-                    }
+        </section>
+
+    </main>
+
+    <footer>
+        <img src="imagens/sistema/logo/logo-prefeitura1.jpg" alt="Logo Prefeitura Municipal de Imaculada-PB">
+        <h3>Vigilância Sanitária</h3>
+        <p>Recolhendo cães abandonados e promovendo adoção responsável.</p>
+
+    </footer>
+
+    <script>
+    // Função para abrir/fechar submenus ao clicar
+    document.querySelectorAll('.acoes ul li strong').forEach(function(menuItem) {
+        menuItem.addEventListener('click', function() {
+            const submenu = this.nextElementSibling;
+
+            // Verifica se o submenu existe
+            if (submenu && submenu.tagName === 'UL') {
+                // Alterna a exibição do submenu
+                if (submenu.style.display === 'block') {
+                    submenu.style.display = 'none';
+                } else {
+                    submenu.style.display = 'block';
                 }
-            });
+            }
         });
-        </script>
-    </body>
+    });
+    </script>
+</body>
 
 </html>

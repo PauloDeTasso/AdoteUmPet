@@ -6,8 +6,7 @@ include 'conexao_db.php';
 session_start();
 
 // Verifica se o usuário está logado
-if (!isset($_SESSION['cpf']))
-{
+if (!isset($_SESSION['cpf'])) {
     header('Location: login.php');
     exit();
 }
@@ -50,8 +49,7 @@ $cpfUsuario = filter_input(INPUT_GET, 'adotante', FILTER_SANITIZE_STRING);
 $brincoPet = filter_input(INPUT_GET, 'pet', FILTER_SANITIZE_NUMBER_INT);
 
 // Verifica se ambos os parâmetros estão presentes
-if (!$cpfUsuario || !$brincoPet)
-{
+if (!$cpfUsuario || !$brincoPet) {
     echo "Erro: Parâmetros inválidos.";
     exit();
 }
@@ -61,26 +59,20 @@ $adotante = getAdotante($pdo, $cpfUsuario);
 $pet = getPet($pdo, $brincoPet);
 
 // Verifica se o adotante e o pet existem no banco de dados
-if (!$adotante || !$pet)
-{
+if (!$adotante || !$pet) {
     echo "Erro: Adotante ou Pet não encontrado.";
     exit();
 }
 
 // Verifica se o formulário foi enviado
-if ($_SERVER['REQUEST_METHOD'] === 'POST')
-{
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $observacoes = filter_var(trim($_POST['observacoes']), FILTER_SANITIZE_STRING);
 
     // Validação básica dos dados
-    if (strlen($observacoes) > 255)
-    {
+    if (strlen($observacoes) > 255) {
         $mensagem = 'Observações não podem exceder 255 caracteres.';
-    }
-    else
-    {
-        try
-        {
+    } else {
+        try {
             // Inicia a transação
             $pdo->beginTransaction();
 
@@ -108,9 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
             // Redireciona para a página inicial
             header('Location: home.php');
             exit();
-        }
-        catch (Exception $e)
-        {
+        } catch (Exception $e) {
             // Reverte a transação em caso de erro
             $pdo->rollBack();
             $mensagem = 'Erro ao processar a adoção: ' . $e->getMessage();
@@ -122,69 +112,69 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
 <!DOCTYPE html>
 <html lang="pt-br">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Adoção de Pet</title>
-        <link rel="stylesheet" href="css/adocao/adocao_cadastrar.css"> <!-- Caminho do CSS -->
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adoção de Pet</title>
+    <link rel="stylesheet" href="css/adocao/adocao_cadastrar.css"> <!-- Caminho do CSS -->
+</head>
 
-    <body>
+<body>
 
-        <?php include_once 'cabecalho.php'; ?>
+    <?php include_once 'cabecalho.php'; ?>
 
-        <section class="cabecalho">
-            <h2>Confirmar Adoção de Pet</h2>
-        </section>
+    <section class="cabecalho">
+        <h2>Confirmar Adoção de Pet</h2>
+    </section>
 
-        <div class="container">
+    <div class="container">
 
-            <!-- Verifica se o adotante e o pet existem -->
-            <?php if ($adotante && $pet): ?>
-            <div class="form-row">
-                <!-- Informações do Adotante -->
-                <div class="adotante-info">
-                    <h2>Adotante</h2>
+        <!-- Verifica se o adotante e o pet existem -->
+        <?php if ($adotante && $pet): ?>
+        <div class="form-row">
+            <!-- Informações do Adotante -->
+            <div class="adotante-info">
+                <h2>Adotante</h2>
 
-                    <div class="image-preview">
-                        <img src="<?php echo htmlspecialchars($adotante['imagem_url']); ?>" alt="Foto do Adotante">
-                    </div>
-                    <p><strong>Nome:</strong> <?php echo htmlspecialchars($adotante['nome']); ?></p>
-                    <p><strong>CPF:</strong> <?php echo htmlspecialchars($adotante['cpf']); ?></p>
+                <div class="image-preview">
+                    <img src="<?php echo htmlspecialchars($adotante['imagem_url']); ?>" alt="Foto do Adotante">
                 </div>
-
-                <!-- Informações do Pet -->
-                <div class="pet-info">
-                    <h2>Pet</h2>
-                    <div class="image-preview">
-                        <img src="<?php echo htmlspecialchars($pet['imagem_url']); ?>" alt="Foto do Pet">
-                    </div>
-                    <p><strong>Nome:</strong> <?php echo htmlspecialchars($pet['nome']); ?></p>
-                    <p><strong>Brinco:</strong> <?php echo htmlspecialchars($pet['brinco']); ?></p>
-                </div>
+                <p><strong>Nome:</strong> <?php echo htmlspecialchars($adotante['nome']); ?></p>
+                <p><strong>CPF:</strong> <?php echo htmlspecialchars($adotante['cpf']); ?></p>
             </div>
-            <hr>
-            <!-- Formulário de Observações e Confirmação -->
-            <form action="" method="POST">
-                <div class="form-group">
-                    <label for="observacoes">Observações sobre a adoção:</label>
-                    <textarea id="observacoes" name="observacoes" maxlength="255"
-                        placeholder="Digite suas observações sobre a adoção aqui..."></textarea>
+
+            <!-- Informações do Pet -->
+            <div class="pet-info">
+                <h2>Pet</h2>
+                <div class="image-preview">
+                    <img src="<?php echo htmlspecialchars($pet['imagem_url']); ?>" alt="Foto do Pet">
                 </div>
-
-                <button type="submit">Confirmar Adoção</button>
-            </form>
-
-            <!-- Mensagem de erro ou sucesso -->
-            <?php if (isset($mensagem)): ?>
-            <div class="message">
-                <?php echo htmlspecialchars($mensagem); ?>
+                <p><strong>Nome:</strong> <?php echo htmlspecialchars($pet['nome']); ?></p>
+                <p><strong>Brinco:</strong> <?php echo htmlspecialchars($pet['brinco']); ?></p>
             </div>
-            <?php endif; ?>
-            <?php else: ?>
-            <p>Erro: Adotante ou Pet não encontrado.</p>
-            <?php endif; ?>
         </div>
-    </body>
+        <hr>
+        <!-- Formulário de Observações e Confirmação -->
+        <form action="" method="POST">
+            <div class="form-group">
+                <label for="observacoes">Observações sobre a adoção:</label>
+                <textarea id="observacoes" name="observacoes" maxlength="255"
+                    placeholder="Digite suas observações sobre a adoção aqui..."></textarea>
+            </div>
+
+            <button type="submit">Confirmar Adoção</button>
+        </form>
+
+        <!-- Mensagem de erro ou sucesso -->
+        <?php if (isset($mensagem)): ?>
+        <div class="message">
+            <?php echo htmlspecialchars($mensagem); ?>
+        </div>
+        <?php endif; ?>
+        <?php else: ?>
+        <p>Erro: Adotante ou Pet não encontrado.</p>
+        <?php endif; ?>
+    </div>
+</body>
 
 </html>
