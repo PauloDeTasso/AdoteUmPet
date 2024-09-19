@@ -7,6 +7,16 @@ body {
     color: #333;
 }
 
+.cabecalho {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #3498db;
+    color: white;
+    padding: 20px;
+}
+
 .container {
     width: 90%;
     max-width: 1200px;
@@ -33,13 +43,13 @@ a {
     padding: 10px 20px;
     border-radius: 5px;
     font-size: 1em;
-    margin-bottom: 20px;
-    transition: background-color 0.3s ease-in-out, transform 0.3s;
+    transition: background-color 0.3s ease-in-out, transform 0.3s, box-shadow 0.3s;
 }
 
 .btn:hover {
     background-color: #4f4dbd;
     transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* Estilo da lista de pets */
@@ -59,11 +69,11 @@ a {
     padding: 20px;
     position: relative;
     animation: slideIn 0.5s ease-in-out;
-}
-
-.pet-item:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: white;
 }
 
 /* Fundo específico para Machos */
@@ -93,6 +103,7 @@ a {
 /* Informações do pet */
 .pet-info {
     padding: 15px 0;
+    text-align: center;
 }
 
 .pet-info h3 {
@@ -107,12 +118,65 @@ a {
     margin: 5px 0;
 }
 
+/* Campo do sexo/gênero do pet */
+.pet-info .sexo {
+    font-size: 1.1em;
+    color: #777;
+    font-weight: bold;
+    margin: 5px 0;
+}
+
 /* Botões de ação para administrador */
 .pet-info .btn {
-    display: block;
-    width: 100%;
+    background-color: #6a67ce;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 5px;
+    font-size: 1.1em;
+    margin: 20px 0 0;
     text-align: center;
-    margin: 10px 0;
+    cursor: pointer;
+    display: inline-block;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease-in-out, transform 0.3s, box-shadow 0.3s;
+}
+
+.pet-info .btn:hover {
+    background-color: #4f4dbd;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Centralizar o botão dentro do contêiner */
+.btn-container {
+    text-align: center;
+    margin-top: 20px;
+}
+
+/* Botão para adotar pet */
+.btn-adotar {
+    display: inline-block;
+    background-color: #3498db; /* Cor verde para o botão */
+    color: white;
+    padding: 12px 24px;
+    border-radius: 5px;
+    font-size: 1.1em;
+    margin-top: 15px; /* Espaço acima do botão */
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease-in-out, transform 0.3s, box-shadow 0.3s;
+}
+
+.btn-adotar:hover {
+    background-color: #69b2e4; /* Cor verde mais escura no hover */
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-adotar:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px #18405a; /* Sombra verde no foco */
 }
 
 /* Estilo para dispositivos móveis */

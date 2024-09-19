@@ -2,12 +2,9 @@
 session_start();
 require_once 'conexao_db.php';
 
-// Verifica se o usuário está logado
-if (!isset($_SESSION['cpf']))
-{
-    header('Location: login.php');
-    exit();
-}
+// Verifica usuário na sessão
+require_once 'auth.php';
+verificarSessao();
 
 $pdo = conectar();
 
