@@ -52,45 +52,47 @@ catch (PDOException $e)
 <!DOCTYPE html>
 <html lang="pt-BR">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($titulo); ?> Cadastrados</title>
-    <link rel="stylesheet" href="css/usuario/usuarios.css">
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title><?= htmlspecialchars($titulo); ?> Cadastrados</title>
+        <link rel="stylesheet" href="css/usuario/usuarios.css">
+    </head>
 
-<body>
+    <body>
 
-    <?php include_once 'cabecalho.php'; ?>
+        <?php include_once 'cabecalho.php'; ?>
 
-    <section class="cabecalho">
-        <h3><?= htmlspecialchars($titulo); ?></h3>
-    </section>
+        <section class="cabecalho">
+            <h3><?= htmlspecialchars($titulo); ?></h3>
+        </section>
 
-    <div class="usuarios-container">
-        <?php if (count($usuarios) > 0): ?>
+        <div class="usuarios-container">
+            <?php if (count($usuarios) > 0): ?>
             <?php foreach ($usuarios as $usuario): ?>
-                <div class="usuario-card">
-                    <!-- Verifica se há imagem associada ao usuário -->
-                    <?php if (!empty($usuario['url_imagem'])): ?>
-                        <!-- Usa a URL da imagem direto do banco de dados -->
-                        <img src="<?= htmlspecialchars($usuario['url_imagem']); ?>"
-                            alt="Foto de <?= htmlspecialchars($usuario['nome']); ?>" class="usuario-foto">
-                    <?php else: ?>
-                        <!-- Exibe uma imagem padrão se não houver URL de imagem -->
-                        <img src="imagens/usuarios/default.jpg" alt="Foto padrão" class="usuario-foto">
-                    <?php endif; ?>
+            <div class="usuario-card">
+                <!-- Verifica se há imagem associada ao usuário -->
+                <?php if (!empty($usuario['url_imagem'])): ?>
+                <!-- Usa a URL da imagem direto do banco de dados -->
+                <img src="<?= htmlspecialchars($usuario['url_imagem']); ?>"
+                    alt="Foto de <?= htmlspecialchars($usuario['nome']); ?>" class="usuario-foto">
+                <?php else: ?>
+                <!-- Exibe uma imagem padrão se não houver URL de imagem -->
+                <img src="imagens/usuarios/default.jpg" alt="Foto padrão" class="usuario-foto">
+                <?php endif; ?>
 
-                    <p><?= htmlspecialchars($usuario['nome']); ?></p>
-                    <a href="usuario_selecionar.php?cpf=<?= htmlspecialchars($usuario['cpf']); ?>"
-                        class="btn-ver-usuario">Ver Detalhes</a>
-                </div>
+                <p><?= htmlspecialchars($usuario['nome']); ?></p>
+                <a href="usuario_selecionar.php?cpf=<?= htmlspecialchars($usuario['cpf']); ?>"
+                    class="btn-ver-usuario">Ver Detalhes</a>
+            </div>
             <?php endforeach; ?>
-        <?php else: ?>
+            <?php else: ?>
             <p>Nenhum usuário cadastrado no momento.</p>
-        <?php endif; ?>
-    </div>
+            <?php endif; ?>
+        </div>
 
-</body>
+        <?php include 'rodape.php'; ?>
+
+    </body>
 
 </html>

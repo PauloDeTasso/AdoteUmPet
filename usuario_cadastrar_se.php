@@ -216,6 +216,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
             enderecoDiv.classList.toggle('hidden');
         }
     </script>
+
+    <?php include 'rodape.php'; ?>
+
 </body>
 
 </html>

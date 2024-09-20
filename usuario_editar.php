@@ -2,7 +2,8 @@
 session_start();
 require 'conexao_db.php';
 
-if (!isset($_SESSION['cpf']) || $_SESSION['tipo'] !== 'ADMINISTRADOR') {
+if (!isset($_SESSION['cpf']) || $_SESSION['tipo'] !== 'ADMINISTRADOR')
+{
     header('Location: login.php');
     exit;
 }
@@ -11,7 +12,8 @@ $cpf = $_GET['cpf'] ?? '';
 
 $pdo = conectar();
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST')
+{
     $nome = $_POST['nome'];
     $data_nascimento = $_POST['data_nascimento'];
     $email = $_POST['email'];
@@ -77,6 +79,9 @@ $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
         <button type="submit">Salvar</button>
     </form>
     <p><a href="usuarios.php">Voltar</a></p>
+    
+    <?php include 'rodape.php'; ?>
+
 </body>
 
 </html>

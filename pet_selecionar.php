@@ -35,8 +35,7 @@ if (!$pet)
     exit();
 }
 
-// Obtém o CPF do usuário logado (adotante) da sessão
-$cpfAdotante = $_SESSION['cpf'];
+$cpfUsuarioLogado = $_SESSION['cpf'];
 
 ?>
 
@@ -113,7 +112,7 @@ $cpfAdotante = $_SESSION['cpf'];
 
                         <?php if ($pet['ja_adotado'] == 0): ?>
                         <!-- Botão Adotar Pet -->
-                        <a href="adocao_cadastrar.php?pet=<?= $pet['brinco'] ?>&adotante=<?= $cpfAdotante ?>"
+                        <a href="adocao_cadastrar.php?pet=<?= $pet['brinco'] ?>&adotante=<?= $cpfUsuarioLogado ?>"
                             class="btn">Adotar Pet</a>
                         <?php else: ?>
                         <p class="alerta">Este pet já foi adotado.</p>
@@ -122,6 +121,9 @@ $cpfAdotante = $_SESSION['cpf'];
                 </form>
             </div>
         </div>
+
+        <?php include 'rodape.php'; ?>
+
     </body>
 
 </html>

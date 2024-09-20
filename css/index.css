@@ -151,7 +151,7 @@ section.ultimas-adocoes li img:nth-child(2) {
 
 .btn-container {
     display: flex;
-    justify-content: center; /* Centraliza os botões */
+    justify-content: center; 
     align-items: center;
 }
 

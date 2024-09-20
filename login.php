@@ -116,6 +116,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
             <p><a href="usuario_cadastrar_se.php">Cadastrar-se</a></p>
         </div>
     </div>
+
+    <?php include 'rodape.php'; ?>
+
 </body>
 
 </html>

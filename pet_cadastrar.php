@@ -255,6 +255,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
         </form>
     </section>
 
+    <?php include 'rodape.php'; ?>
+
 </body>
 
 </html>

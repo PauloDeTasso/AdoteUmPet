@@ -39,6 +39,19 @@ nav a:hover {
     background-color: #1f6fa5;
 }
 
+.usuario-imagem {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.usuario-imagem img {
+    border-radius: 50%;
+    width: 150px; 
+    height: 150px;
+    object-fit: cover;
+}
+
+
 .secaoPrincipal {
     display: flex;
     flex-direction: column;

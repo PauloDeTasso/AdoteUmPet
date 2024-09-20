@@ -1,0 +1,249 @@
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Configurações gerais do corpo */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* Container principal */
+.container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 30px;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* Título da página */
+h2 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 40px;
+    font-size: 2em;
+}
+
+/* Informações do usuário */
+.usuario-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.usuario-imagem {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #2980b9;
+}
+
+.usuario-info h3 {
+    font-size: 1.8em;
+    color: #2c3e50;
+    margin: 0;
+}
+
+/* Menu de Configurações */
+.menu-configuracoes {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.menu-configuracoes ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.menu-configuracoes li {
+    display: inline-block;
+    margin: 0 15px;
+}
+
+.menu-configuracoes a {
+    display: inline-block;
+    padding: 12px 25px;
+    background-color: #2980b9;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 1.1em;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.menu-configuracoes a:hover {
+    background-color: #3498db;
+    transform: scale(1.05);
+}
+
+/* Estilo do link ativo */
+.menu-configuracoes a.active {
+    background-color: #3498db;
+}
+
+/* Estilo do submenu (Alterar Senha) */
+#alterar-senha-form {
+    display: none;
+    margin-top: 30px;
+    padding: 25px;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    background-color: #fafafa;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Formulário - Alterar Senha */
+#alterar-senha-form h3 {
+    margin-bottom: 25px;
+    font-size: 1.6em;
+    color: #2c3e50;
+}
+
+#alterar-senha-form label {
+    display: block;
+    font-size: 1.1em;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+/* Campos de entrada */
+#alterar-senha-form input {
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1.1em;
+    width: 100%;
+    margin-bottom: 15px;
+    transition: border-color 0.3s ease;
+}
+
+/* Foco no campo de entrada */
+#alterar-senha-form input:focus {
+    border-color: #2980b9;
+    outline: none;
+}
+
+/* Placeholders com dicas */
+input::placeholder {
+    color: #7f8c8d;
+}
+
+/* Feedback de sucesso e erro */
+.sucesso {
+    color: #3498db;
+    background-color: #eafaf1;
+    padding: 15px;
+    border-radius: 6px;
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.1em;
+}
+
+.erro {
+    color: #e74c3c;
+    background-color: #fdeaea;
+    padding: 15px;
+    border-radius: 6px;
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.1em;
+}
+
+/* Botões */
+button {
+    padding: 14px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 1.1em;
+}
+
+button:hover {
+    background-color: #4eb2f5;
+}
+
+/* Estilo para os toasts */
+#toast-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    pointer-events: none; /* Para evitar interação */
+}
+
+.toast {
+    background-color: #333;
+    color: white;
+    padding: 10px 20px;
+    margin: 5px;
+    border-radius: 5px;
+    opacity: 0.9;
+    font-family: Arial, sans-serif;
+    transition: opacity 0.3s ease-in-out;
+    pointer-events: auto; /* Permite interação com o toast */
+}
+
+.toast.sucesso {
+    background-color: green;
+}
+
+.toast.erro {
+    background-color: red;
+}
+
+.toast:hover {
+    opacity: 1;
+}
+
+/* Responsividade para telas menores (Mobile) */
+@media (max-width: 768px) {
+    .container {
+        padding: 20px;
+        margin: 10px;
+    }
+
+    .usuario-info h3 {
+        font-size: 1.4em;
+    }
+
+    h2 {
+        font-size: 1.8em;
+    }
+
+    input,
+    button {
+        font-size: 1em;
+    }
+}
+
+/* Responsividade para telas maiores (Desktop) */
+@media (min-width: 769px) {
+    .form-configuracoes {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    input,
+    button {
+        font-size: 1.2em;
+    }
+}
