@@ -14,18 +14,15 @@ $fotoNome = "";
 $erroMsg = [];
 
 // Verificar se o formulário foi enviado via POST
-if ($_SERVER["REQUEST_METHOD"] == "POST")
-{
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Validações do formulário (conforme já estavam no código original)
     // (...)
 
     // Tratamento da imagem (obrigatório)
-    if (isset($_FILES['foto']) && $_FILES['foto']['error'] == 0)
-    {
+    if (isset($_FILES['foto']) && $_FILES['foto']['error'] == 0) {
         // Verificar se o diretório de imagens existe, se não, criar
         $diretorioImagens = 'imagens/pets/';
-        if (!is_dir($diretorioImagens))
-        {
+        if (!is_dir($diretorioImagens)) {
             mkdir($diretorioImagens, 0755, true);
         }
 
@@ -34,21 +31,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
         $fotoNome = $diretorioImagens . $nome . '.' . $extensaoFoto;
 
         // Mover a foto para o diretório de imagens
-        if (!move_uploaded_file($_FILES['foto']['tmp_name'], $fotoNome))
-        {
+        if (!move_uploaded_file($_FILES['foto']['tmp_name'], $fotoNome)) {
             $erroMsg[] = "Erro ao enviar a foto.";
         }
-    }
-    else
-    {
+    } else {
         $erroMsg[] = "O campo Foto é obrigatório.";
     }
 
     // Se não houver erros, prosseguir com o cadastro no banco de dados
-    if (empty($erroMsg))
-    {
-        try
-        {
+    if (empty($erroMsg)) {
+        try {
             // Conectar ao banco de dados
             $pdo = conectar();
 
@@ -74,8 +66,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
             $stmtPet->bindParam(':informacoes', $informacoes);
 
             // Executar inserção na tabela Pet
-            if ($stmtPet->execute())
-            {
+            if ($stmtPet->execute()) {
                 // Recuperar o ID do pet recém-cadastrado (brinco)
                 $brincoPet = $pdo->lastInsertId();
 
@@ -88,36 +79,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
                 $stmtImagem->bindParam(':fk_Pet_brinco', $brincoPet);
 
                 // Executar inserção na tabela Imagem_Pet
-                if ($stmtImagem->execute())
-                {
+                if ($stmtImagem->execute()) {
                     // Commit da transação
                     $pdo->commit();
                     echo "<p>Pet cadastrado com sucesso!</p>";
-                }
-                else
-                {
+                } else {
                     // Rollback se falhar a inserção da imagem
                     $pdo->rollBack();
                     echo "<p>Erro ao cadastrar a imagem do pet.</p>";
                 }
-            }
-            else
-            {
+            } else {
                 echo "<p>Erro ao cadastrar o pet.</p>";
             }
-        }
-        catch (PDOException $e)
-        {
+        } catch (PDOException $e) {
             // Em caso de erro, exibir a mensagem e rollback
             $pdo->rollBack();
             echo "Erro no banco de dados: " . $e->getMessage();
         }
-    }
-    else
-    {
+    } else {
         // Exibir erros de validação
-        foreach ($erroMsg as $erro)
-        {
+        foreach ($erroMsg as $erro) {
             echo "<p style='color:red;'>$erro</p>";
         }
     }
@@ -135,81 +116,85 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
     <link rel="stylesheet" href="css/pet/pet_cadastrar.css">
 
     <script>
-        // Função para validar o formulário no lado do cliente
-        function validarFormulario() {
-            let erroMsg = [];
+    // Função para validar o formulário no lado do cliente
+    function validarFormulario() {
+        let erroMsg = [];
 
-            // Validar campo nome (obrigatório e até 255 caracteres)
-            let nome = document.getElementById('nome').value;
-            if (nome === "" || nome.length > 255) {
-                erroMsg.push("O campo Nome é obrigatório e deve ter no máximo 255 caracteres.");
-            }
-
-            // Validar sexo (obrigatório)
-            let sexo = document.getElementById('sexo').value;
-            if (sexo !== "M" && sexo !== "F") {
-                erroMsg.push("O campo Sexo deve ser 'M' (Macho) ou 'F' (Fêmea).");
-            }
-
-            // Validar idade (opcional, mas deve ser número inteiro)
-            let idade = document.getElementById('idade').value;
-            if (idade !== "" && isNaN(idade)) {
-                erroMsg.push("O campo Idade deve ser um número inteiro.");
-            }
-
-            // Validar raca (até 100 caracteres)
-            let raca = document.getElementById('raca').value;
-            if (raca.length > 100) {
-                erroMsg.push("O campo Raça deve ter no máximo 100 caracteres.");
-            }
-
-            // Validar pelagem (até 100 caracteres)
-            let pelagem = document.getElementById('pelagem').value;
-            if (pelagem.length > 100) {
-                erroMsg.push("O campo Pelagem deve ter no máximo 100 caracteres.");
-            }
-
-            // Validar local de resgate (até 255 caracteres)
-            let local_resgate = document.getElementById('local_resgate').value;
-            if (local_resgate.length > 255) {
-                erroMsg.push("O campo Local de Resgate deve ter no máximo 255 caracteres.");
-            }
-
-            // Validar status (obrigatório, até 20 caracteres)
-            let status = document.getElementById('status').value;
-            if (status === "" || status.length > 20) {
-                erroMsg.push("O campo Status é obrigatório e deve ter no máximo 20 caracteres.");
-            }
-
-            // Validar foto (obrigatório)
-            let foto = document.getElementById('foto').files.length;
-            if (foto === 0) {
-                erroMsg.push("A foto do pet é obrigatória.");
-            }
-
-            // Mostrar mensagens de erro, se houver
-            if (erroMsg.length > 0) {
-                document.getElementById('erroMsg').innerHTML = erroMsg.join("<br>");
-                return false; // Impedir o envio do formulário
-            }
-            return true; // Prosseguir com o envio se não houver erros
+        // Validar campo nome (obrigatório e até 255 caracteres)
+        let nome = document.getElementById('nome').value;
+        if (nome === "" || nome.length > 255) {
+            erroMsg.push("O campo Nome é obrigatório e deve ter no máximo 255 caracteres.");
         }
 
-        // Função para limitar campos de texto e apenas números
-        function apenasNumeros(e) {
-            let tecla = (window.event) ? event.keyCode : e.which;
-            if ((tecla > 47 && tecla < 58)) return true;
-            else {
-                if (tecla == 8 || tecla == 0) return true;
-                else return false;
-            }
+        // Validar sexo (obrigatório)
+        let sexo = document.getElementById('sexo').value;
+        if (sexo !== "M" && sexo !== "F") {
+            erroMsg.push("O campo Sexo deve ser 'M' (Macho) ou 'F' (Fêmea).");
         }
+
+        // Validar idade (opcional, mas deve ser número inteiro)
+        let idade = document.getElementById('idade').value;
+        if (idade !== "" && isNaN(idade)) {
+            erroMsg.push("O campo Idade deve ser um número inteiro.");
+        }
+
+        // Validar raca (até 100 caracteres)
+        let raca = document.getElementById('raca').value;
+        if (raca.length > 100) {
+            erroMsg.push("O campo Raça deve ter no máximo 100 caracteres.");
+        }
+
+        // Validar pelagem (até 100 caracteres)
+        let pelagem = document.getElementById('pelagem').value;
+        if (pelagem.length > 100) {
+            erroMsg.push("O campo Pelagem deve ter no máximo 100 caracteres.");
+        }
+
+        // Validar local de resgate (até 255 caracteres)
+        let local_resgate = document.getElementById('local_resgate').value;
+        if (local_resgate.length > 255) {
+            erroMsg.push("O campo Local de Resgate deve ter no máximo 255 caracteres.");
+        }
+
+        // Validar status (obrigatório, até 20 caracteres)
+        let status = document.getElementById('status').value;
+        if (status === "" || status.length > 20) {
+            erroMsg.push("O campo Status é obrigatório e deve ter no máximo 20 caracteres.");
+        }
+
+        // Validar foto (obrigatório)
+        let foto = document.getElementById('foto').files.length;
+        if (foto === 0) {
+            erroMsg.push("A foto do pet é obrigatória.");
+        }
+
+        // Mostrar mensagens de erro, se houver
+        if (erroMsg.length > 0) {
+            document.getElementById('erroMsg').innerHTML = erroMsg.join("<br>");
+            return false; // Impedir o envio do formulário
+        }
+        return true; // Prosseguir com o envio se não houver erros
+    }
+
+    // Função para limitar campos de texto e apenas números
+    function apenasNumeros(e) {
+        let tecla = (window.event) ? event.keyCode : e.which;
+        if ((tecla > 47 && tecla < 58)) return true;
+        else {
+            if (tecla == 8 || tecla == 0) return true;
+            else return false;
+        }
+    }
     </script>
 </head>
 
 <body>
 
     <?php include_once 'cabecalho.php'; ?>
+
+    <section class="cabecalho">
+        <h3>Cadastrar Pet</h3>
+    </section>
 
     <section class="secaoPrincipal">
         <p id="erroMsg" class="error"></p>
@@ -227,8 +212,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
             </select>
 
             <label for="idade">Idade do Pet (opcional):</label>
-            <input type="text" name="idade" id="idade" placeholder="Ex: 3"
-                onkeypress="return apenasNumeros(event);">
+            <input type="text" name="idade" id="idade" placeholder="Ex: 3" onkeypress="return apenasNumeros(event);">
 
             <label for="raca">Raça do Pet (até 100 caracteres):</label>
             <input type="text" name="raca" id="raca" maxlength="100" placeholder="Ex: Labrador">

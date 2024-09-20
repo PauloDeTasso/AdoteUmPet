@@ -20,6 +20,7 @@ body {
     background-color: #3498db;
     color: white;
     padding: 20px;
+    margin-top: 2px;
 }
 
 table {
@@ -41,10 +42,22 @@ body {
     display: flex;
     flex-direction: column;
     max-width: 1200px;
-    margin: 20px auto;
-    padding: 20px;
+    margin: 10px;
+    padding: 0px;
     background-color: #fff;
-    border-radius: 8px;
+    border-radius: 4%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    align-items: center;
+    justify-content: center;
+}
+
+.container2 {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin: 10px;
+    padding: 10px;
+    border-radius: 4%;    
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     align-items: center;
     justify-content: center;

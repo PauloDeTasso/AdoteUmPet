@@ -1,15 +1,13 @@
 <?php
 // Verifica se a sessão já foi iniciada
-if (session_status() === PHP_SESSION_NONE)
-{
+if (session_status() === PHP_SESSION_NONE) {
     session_start(); // Iniciando a sessão apenas se ainda não foi iniciada
 }
 
 require_once 'conexao_db.php'; // Incluindo a conexão ao banco de dados apenas uma vez
 
 // Verifica se o usuário está logado
-if (!isset($_SESSION['cpf']))
-{
+if (!isset($_SESSION['cpf'])) {
     // Redireciona para a página de login se não estiver logado
     header("Location: login.php");
     exit();
@@ -17,8 +15,7 @@ if (!isset($_SESSION['cpf']))
 
 $cpfUsuarioLogado = $_SESSION['cpf'];
 
-try
-{
+try {
     // Conecta ao banco de dados
     $pdo = conectar();
 
@@ -33,12 +30,9 @@ try
     $resultadoPermissao = $stmtPermissao->fetch(PDO::FETCH_ASSOC);
 
     // Verificar se o resultado retornou um tipo de permissão válido
-    if ($resultadoPermissao)
-    {
+    if ($resultadoPermissao) {
         $tipoPermissao = $resultadoPermissao['tipo'];
-    }
-    else
-    {
+    } else {
         // Se o tipo de permissão não for encontrado, assume que não tem permissão
         $tipoPermissao = null;
     }
@@ -75,9 +69,7 @@ try
 
     // Calculando o número total de páginas
     $totalPaginas = ceil($totalAdoções / $registrosPorPagina);
-}
-catch (PDOException $e)
-{
+} catch (PDOException $e) {
     die("Erro ao conectar com o banco de dados: " . $e->getMessage());
 }
 ?>
@@ -85,94 +77,94 @@ catch (PDOException $e)
 <!DOCTYPE html>
 <html lang="pt-BR">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Adoções</title>
-        <link rel="stylesheet" href="css/adocao/adocoes.css">
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adoções</title>
+    <link rel="stylesheet" href="css/adocao/adocoes.css">
+</head>
 
-    <body>
+<body>
 
-        <?php include 'cabecalho.php'; ?>
+    <?php include 'cabecalho.php'; ?>
 
-        <section class="cabecalho">
-            <h1>Adoções:</h1>
-        </section>
+    <section class="cabecalho">
+        <h1>Adoções:</h1>
+    </section>
 
-        <div class="container">
+    <div class="container">
 
-            <section class="container">
-                <!-- Exibir o botão ou mensagem dependendo do tipo de permissão -->
-                <?php if ($tipoPermissao === 'Administrador') : ?>
-                <a href="adocao_cadastrar_adm.php" class="btn">Cadastrar uma Adoção</a>
-                <?php elseif ($tipoPermissao === 'Adotante') : ?>
-                <a href="adocao_cadastrar.php" class="btn">Adotar um Pet</a>
-                <?php else : ?>
-                <!-- Não exibir botão se o usuário não for Administrador ou Adotante -->
-                <?php endif; ?>
-            </section>
-
-            <table>
-                <thead>
-                    <tr>
-                        <th>Data da Adoção</th>
-                        <th>Adotante</th>
-                        <th>Pet</th>
-                        <th>Observações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (!empty($adoções)): ?>
-                    <?php foreach ($adoções as $adoção): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($adoção['data_adocao']) ?></td>
-                        <td>
-                            <img src="<?= htmlspecialchars($adoção['adotante_imagem']) ?>" alt="Imagem do Adotante"
-                                class="imagem-pet">
-                            <?= htmlspecialchars($adoção['adotante_nome']) ?>
-                        </td>
-                        <td>
-                            <img src="<?= htmlspecialchars($adoção['pet_imagem']) ?>" alt="Imagem do Pet"
-                                class="imagem-pet">
-                            <?= htmlspecialchars($adoção['pet_nome']) ?>
-                        </td>
-                        <td><?= htmlspecialchars($adoção['observacoes']) ?></td>
-                    </tr>
-                    <?php endforeach; ?>
-                    <?php else: ?>
-                    <tr>
-                        <td colspan="4">Nenhuma adoção encontrada.</td>
-                    </tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-
-            <div class="paginas">
-                <?php if ($paginaAtual > 1): ?>
-                <a href="adocoes.php?pagina=<?= $paginaAtual - 1 ?>" class="btn">Anterior</a>
-                <?php endif; ?>
-
-                <?php if ($paginaAtual < $totalPaginas): ?>
-                <a href="adocoes.php?pagina=<?= $paginaAtual + 1 ?>" class="btn">Próxima</a>
-                <?php endif; ?>
-            </div>
-        </div>
-
-        <section class="container">
+        <section class="container2">
             <!-- Exibir o botão ou mensagem dependendo do tipo de permissão -->
             <?php if ($tipoPermissao === 'Administrador') : ?>
             <a href="adocao_cadastrar_adm.php" class="btn">Cadastrar uma Adoção</a>
             <?php elseif ($tipoPermissao === 'Adotante') : ?>
-            <a href="adocao_cadastrar.php" class="btn">Adotar um
-                Pet</a>
+            <a href="adocao_cadastrar.php" class="btn">Adotar um Pet</a>
             <?php else : ?>
             <!-- Não exibir botão se o usuário não for Administrador ou Adotante -->
             <?php endif; ?>
         </section>
 
-        <?php include 'rodape.php'; ?>
+        <table>
+            <thead>
+                <tr>
+                    <th>Data da Adoção</th>
+                    <th>Adotante</th>
+                    <th>Pet</th>
+                    <th>Observações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if (!empty($adoções)): ?>
+                <?php foreach ($adoções as $adoção): ?>
+                <tr>
+                    <td><?= htmlspecialchars($adoção['data_adocao']) ?></td>
+                    <td>
+                        <img src="<?= htmlspecialchars($adoção['adotante_imagem']) ?>" alt="Imagem do Adotante"
+                            class="imagem-pet">
+                        <?= htmlspecialchars($adoção['adotante_nome']) ?>
+                    </td>
+                    <td>
+                        <img src="<?= htmlspecialchars($adoção['pet_imagem']) ?>" alt="Imagem do Pet"
+                            class="imagem-pet">
+                        <?= htmlspecialchars($adoção['pet_nome']) ?>
+                    </td>
+                    <td><?= htmlspecialchars($adoção['observacoes']) ?></td>
+                </tr>
+                <?php endforeach; ?>
+                <?php else: ?>
+                <tr>
+                    <td colspan="4">Nenhuma adoção encontrada.</td>
+                </tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
 
-    </body>
+        <div class="paginas">
+            <?php if ($paginaAtual > 1): ?>
+            <a href="adocoes.php?pagina=<?= $paginaAtual - 1 ?>" class="btn">Anterior</a>
+            <?php endif; ?>
+
+            <?php if ($paginaAtual < $totalPaginas): ?>
+            <a href="adocoes.php?pagina=<?= $paginaAtual + 1 ?>" class="btn">Próxima</a>
+            <?php endif; ?>
+        </div>
+    </div>
+
+    <section class="container">
+        <!-- Exibir o botão ou mensagem dependendo do tipo de permissão -->
+        <?php if ($tipoPermissao === 'Administrador') : ?>
+        <a href="adocao_cadastrar_adm.php" class="btn">Cadastrar uma Adoção</a>
+        <?php elseif ($tipoPermissao === 'Adotante') : ?>
+        <a href="adocao_cadastrar.php" class="btn">Adotar um
+            Pet</a>
+        <?php else : ?>
+        <!-- Não exibir botão se o usuário não for Administrador ou Adotante -->
+        <?php endif; ?>
+    </section>
+
+    <?php include 'rodape.php'; ?>
+
+</body>
 
 </html>

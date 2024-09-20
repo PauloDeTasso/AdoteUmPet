@@ -5,8 +5,7 @@ $cpf = $_GET['cpf'] ?? '';
 
 $conn = conectar();
 
-try
-{
+try {
     // Consulta para obter os dados do usuário com base no CPF, incluindo a imagem e endereço
     $query = "
         SELECT u.*, i.url_imagem, e.rua, e.numero, e.bairro, e.cidade, e.estado
@@ -23,15 +22,13 @@ try
     // Verifica se o usuário existe
     $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if (!$usuario)
-    {
+    if (!$usuario) {
         echo "Usuário não encontrado!";
         exit;
     }
 
     // Processa a atualização dos dados
-    if ($_SERVER['REQUEST_METHOD'] === 'POST')
-    {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Recebe os dados do formulário
         $nome = $_POST['nome'];
         $email = $_POST['email'];
@@ -43,8 +40,7 @@ try
         $estado = $_POST['estado'];
 
         // Verifica se uma nova imagem foi enviada
-        if (isset($_FILES['foto']) && $_FILES['foto']['error'] == 0)
-        {
+        if (isset($_FILES['foto']) && $_FILES['foto']['error'] == 0) {
             // Caminho temporário e nome do arquivo
             $fotoTmp = $_FILES['foto']['tmp_name'];
             $fotoNome = $_FILES['foto']['name'];
@@ -63,11 +59,9 @@ try
             $imagemExistente = $verificaImagemStmt->fetch(PDO::FETCH_ASSOC);
 
             // Se já existir uma imagem, remove a imagem antiga do servidor
-            if ($imagemExistente)
-            {
+            if ($imagemExistente) {
                 $imagemAntiga = $imagemExistente['url_imagem'];
-                if (file_exists($imagemAntiga))
-                {
+                if (file_exists($imagemAntiga)) {
                     unlink($imagemAntiga); // Remove a imagem antiga do sistema de arquivos
                 }
 
@@ -81,9 +75,7 @@ try
                 $updateImagemStmt->bindParam(':cpf', $cpf);
                 $updateImagemStmt->bindParam(':url_imagem', $destino);
                 $updateImagemStmt->execute();
-            }
-            else
-            {
+            } else {
                 // Se não existir, insere uma nova imagem
                 $inserirImagemQuery = "
                     INSERT INTO Imagem_Usuario (fk_Usuario_cpf, url_imagem)
@@ -152,9 +144,7 @@ try
 
     // Verifica se o usuário clicou em "Editar"
     $editMode = isset($_GET['edit']) && $_GET['edit'] === 'true';
-}
-catch (PDOException $e)
-{
+} catch (PDOException $e) {
     echo "Erro ao buscar usuário: " . $e->getMessage();
     exit;
 }
@@ -163,87 +153,89 @@ catch (PDOException $e)
 <!DOCTYPE html>
 <html lang="pt-BR">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Detalhes do Usuário</title>
-        <link rel="stylesheet" href="css/usuario/usuario_selecionar.css">
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Usuário</title>
+    <link rel="stylesheet" href="css/usuario/usuario_selecionar.css">
+</head>
 
-    <body>
-        <h1>Detalhes do Usuário</h1>
+<body>
 
-        <div class="usuario-detalhes">
-            <!-- Ajusta o caminho da imagem -->
+    <?php include 'cabecalho.php'; ?>
 
-            <?php if (!empty($usuario['url_imagem'])): ?>
-            <img src="<?= htmlspecialchars($usuario['url_imagem']); ?>"
-                alt="Foto de <?= htmlspecialchars($usuario['nome']); ?>" class="usuario-foto-grande">
-            <?php else: ?>
-            <img src="imagens/usuarios/default.png" alt="Foto padrão" class="usuario-foto-grande">
-            <?php endif; ?>
+    <section class="cabecalho">
+        <h3>Informações do Usuário</h3>
+    </section>
 
-            <?php if ($editMode): ?>
-            <form method="POST" enctype="multipart/form-data">
-                <fieldset>
-                    <legend>Editar Dados</legend>
+    <div class="usuario-detalhes">
 
-                    <label for="foto">Alterar Foto:</label>
-                    <input type="file" id="foto" name="foto" accept="image/*">
+        <?php if (!empty($usuario['url_imagem'])): ?>
+        <img src="<?= htmlspecialchars($usuario['url_imagem']); ?>"
+            alt="Foto de <?= htmlspecialchars($usuario['nome']); ?>" class="usuario-foto-grande">
+        <?php else: ?>
+        <img src="imagens/usuarios/default.png" alt="Foto padrão" class="usuario-foto-grande">
+        <?php endif; ?>
 
-                    <label for="nome">Nome:</label>
-                    <input type="text" id="nome" name="nome" value="<?= htmlspecialchars($usuario['nome']); ?>"
-                        required>
+        <?php if ($editMode): ?>
+        <form method="POST" enctype="multipart/form-data">
+            <fieldset>
+                <legend>Editar Dados</legend>
 
-                    <label for="email">Email:</label>
-                    <input type="email" id="email" name="email" value="<?= htmlspecialchars($usuario['email']); ?>"
-                        required>
+                <label for="foto">Alterar Foto:</label>
+                <input type="file" id="foto" name="foto" accept="image/*">
 
-                    <label for="telefone">Telefone:</label>
-                    <input type="tel" id="telefone" name="telefone"
-                        value="<?= htmlspecialchars($usuario['telefone']); ?>" required>
+                <label for="nome">Nome:</label>
+                <input type="text" id="nome" name="nome" value="<?= htmlspecialchars($usuario['nome']); ?>" required>
 
-                    <label for="rua">Rua:</label>
-                    <input type="text" id="rua" name="rua" value="<?= htmlspecialchars($usuario['rua']); ?>" required>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" value="<?= htmlspecialchars($usuario['email']); ?>"
+                    required>
 
-                    <label for="numero">Número:</label>
-                    <input type="text" id="numero" name="numero" value="<?= htmlspecialchars($usuario['numero']); ?>"
-                        required>
+                <label for="telefone">Telefone:</label>
+                <input type="tel" id="telefone" name="telefone" value="<?= htmlspecialchars($usuario['telefone']); ?>"
+                    required>
 
-                    <label for="bairro">Bairro:</label>
-                    <input type="text" id="bairro" name="bairro" value="<?= htmlspecialchars($usuario['bairro']); ?>"
-                        required>
+                <label for="rua">Rua:</label>
+                <input type="text" id="rua" name="rua" value="<?= htmlspecialchars($usuario['rua']); ?>" required>
 
-                    <label for="cidade">Cidade:</label>
-                    <input type="text" id="cidade" name="cidade" value="<?= htmlspecialchars($usuario['cidade']); ?>"
-                        required>
+                <label for="numero">Número:</label>
+                <input type="text" id="numero" name="numero" value="<?= htmlspecialchars($usuario['numero']); ?>"
+                    required>
 
-                    <label for="estado">Estado:</label>
-                    <input type="text" id="estado" name="estado" value="<?= htmlspecialchars($usuario['estado']); ?>"
-                        required>
+                <label for="bairro">Bairro:</label>
+                <input type="text" id="bairro" name="bairro" value="<?= htmlspecialchars($usuario['bairro']); ?>"
+                    required>
 
-                    <button type="submit">Atualizar</button>
-                </fieldset>
-            </form>
-            <?php else: ?>
-            <p><strong>Nome:</strong> <?= htmlspecialchars($usuario['nome']); ?></p>
-            <p><strong>Email:</strong> <?= htmlspecialchars($usuario['email']); ?></p>
-            <p><strong>Telefone:</strong> <?= htmlspecialchars($usuario['telefone']); ?></p>
-            <p><strong>Rua:</strong> <?= htmlspecialchars($usuario['rua']); ?></p>
-            <p><strong>Número:</strong> <?= htmlspecialchars($usuario['numero']); ?></p>
-            <p><strong>Bairro:</strong> <?= htmlspecialchars($usuario['bairro']); ?></p>
-            <p><strong>Cidade:</strong> <?= htmlspecialchars($usuario['cidade']); ?></p>
-            <p><strong>Estado:</strong> <?= htmlspecialchars($usuario['estado']); ?></p>
-            <p><a href="?cpf=<?= urlencode($cpf); ?>&edit=true">Editar</a>
-                <a href="usuario_remover.php?cpf=<?= htmlspecialchars($usuario['cpf']); ?>"
-                    class="btn-remover">Remover</a>
-            </p>
+                <label for="cidade">Cidade:</label>
+                <input type="text" id="cidade" name="cidade" value="<?= htmlspecialchars($usuario['cidade']); ?>"
+                    required>
 
-            <?php endif; ?>
-        </div>
+                <label for="estado">Estado:</label>
+                <input type="text" id="estado" name="estado" value="<?= htmlspecialchars($usuario['estado']); ?>"
+                    required>
 
-        <?php include 'rodape.php'; ?>
+                <button type="submit">Atualizar</button>
+            </fieldset>
+        </form>
+        <?php else: ?>
+        <p><strong>Nome:</strong> <?= htmlspecialchars($usuario['nome']); ?></p>
+        <p><strong>Email:</strong> <?= htmlspecialchars($usuario['email']); ?></p>
+        <p><strong>Telefone:</strong> <?= htmlspecialchars($usuario['telefone']); ?></p>
+        <p><strong>Rua:</strong> <?= htmlspecialchars($usuario['rua']); ?></p>
+        <p><strong>Número:</strong> <?= htmlspecialchars($usuario['numero']); ?></p>
+        <p><strong>Bairro:</strong> <?= htmlspecialchars($usuario['bairro']); ?></p>
+        <p><strong>Cidade:</strong> <?= htmlspecialchars($usuario['cidade']); ?></p>
+        <p><strong>Estado:</strong> <?= htmlspecialchars($usuario['estado']); ?></p>
+        <p><a href="?cpf=<?= urlencode($cpf); ?>&edit=true">Editar</a>
+            <a href="usuario_remover.php?cpf=<?= htmlspecialchars($usuario['cpf']); ?>" class="btn-remover">Remover</a>
+        </p>
 
-    </body>
+        <?php endif; ?>
+    </div>
+
+    <?php include 'rodape.php'; ?>
+
+</body>
 
 </html>

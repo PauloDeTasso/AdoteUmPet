@@ -2,8 +2,7 @@
 
 include 'conexao_db.php';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST')
-{
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $conn = conectar();
 
     $cpf = $_POST['cpf'];
@@ -21,24 +20,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
     $estado = $_POST['estado'];
 
     // Verifica se o arquivo de imagem foi enviado
-    if (isset($_FILES['imagem']) && $_FILES['imagem']['error'] === UPLOAD_ERR_OK)
-    {
+    if (isset($_FILES['imagem']) && $_FILES['imagem']['error'] === UPLOAD_ERR_OK) {
         // Caminho completo para salvar a imagem
         $imagemNome = uniqid() . '-' . basename($_FILES['imagem']['name']);
         $imagemPath = 'imagens/usuarios/' . $imagemNome;
 
         // Move o arquivo para o diretório correto
-        if (move_uploaded_file($_FILES['imagem']['tmp_name'], $imagemPath))
-        {
+        if (move_uploaded_file($_FILES['imagem']['tmp_name'], $imagemPath)) {
             $imagemUrl = $imagemPath;
-        }
-        else
-        {
+        } else {
             echo "Erro ao mover o arquivo para o diretório.";
         }
-    }
-    else
-    {
+    } else {
         echo "Erro no envio do arquivo de imagem.";
         $imagemUrl = null;
     }
@@ -57,8 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
     ]);
 
     // Insere o endereço se fornecido
-    if ($rua && $bairro && $cep && $cidade && $estado)
-    {
+    if ($rua && $bairro && $cep && $cidade && $estado) {
         $sqlEndereco = "INSERT INTO Endereco (rua, numero, bairro, cep, referencia, cidade, estado) VALUES (:rua, :numero, :bairro, :cep, :referencia, :cidade, :estado)";
         $stmtEndereco = $conn->prepare($sqlEndereco);
         $stmtEndereco->execute([
@@ -82,8 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
     }
 
     // Insere a imagem do usuário, se houver
-    if ($imagemUrl)
-    {
+    if ($imagemUrl) {
         $sqlImagem = "INSERT INTO Imagem_Usuario (url_imagem, fk_Usuario_cpf) VALUES (:imagem_url, :cpf)";
         $stmtImagem = $conn->prepare($sqlImagem);
         $stmtImagem->execute([
@@ -101,124 +92,129 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
 <!DOCTYPE html>
 <html lang="pt-BR">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Cadastro de Novo Usuário</title>
-        <link rel="stylesheet" href="css/usuario/usuario_cadastrar_se.css">
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Novo Usuário</title>
+    <link rel="stylesheet" href="css/usuario/usuario_cadastrar.css">
+</head>
 
-    <body>
-        <?php include 'cabecalho.php'; ?>
+<body>
 
-        <main>
-            <form method="post" enctype="multipart/form-data" onsubmit="return validarFormulario()">
-                <label for="cpf" class="required">CPF:</label>
-                <input type="text" id="cpf" name="cpf" required pattern="\d{11}" maxlength="11"
-                    placeholder="Digite apenas números">
+    <?php include 'cabecalho.php'; ?>
 
-                <label for="nome" class="required">Nome:</label>
-                <input type="text" id="nome" name="nome" required maxlength="255">
+    <section class="cabecalho">
+        <h3>Cadastrar Adotante</h3>
+    </section>
 
-                <label for="data_nascimento" class="required">Data de Nascimento:</label>
-                <input type="date" id="data_nascimento" name="data_nascimento" required>
+    <main>
+        <form method="post" enctype="multipart/form-data" onsubmit="return validarFormulario()">
+            <label for="cpf" class="required">CPF:</label>
+            <input type="text" id="cpf" name="cpf" required pattern="\d{11}" maxlength="11"
+                placeholder="Digite apenas números">
 
-                <label for="email" class="optional">Email:</label>
-                <input type="email" id="email" name="email" maxlength="255">
+            <label for="nome" class="required">Nome:</label>
+            <input type="text" id="nome" name="nome" required maxlength="255">
 
-                <label for="telefone" class="required">Telefone:</label>
-                <input type="tel" id="telefone" name="telefone" required pattern="\d{11}" maxlength="11"
-                    placeholder="Digite apenas números">
+            <label for="data_nascimento" class="required">Data de Nascimento:</label>
+            <input type="date" id="data_nascimento" name="data_nascimento" required>
 
-                <label for="senha" class="required">Senha:</label>
-                <input type="password" id="senha" name="senha" required maxlength="255">
+            <label for="email" class="optional">Email:</label>
+            <input type="email" id="email" name="email" maxlength="255">
 
-                <label for="imagem">Foto do Perfil:</label>
-                <input type="file" id="imagem" name="imagem" accept="image/*">
+            <label for="telefone" class="required">Telefone:</label>
+            <input type="tel" id="telefone" name="telefone" required pattern="\d{11}" maxlength="11"
+                placeholder="Digite apenas números">
 
-                <button type="button" onclick="toggleEndereco()">Adicionar Endereço</button>
+            <label for="senha" class="required">Senha:</label>
+            <input type="password" id="senha" name="senha" required maxlength="255">
 
-                <div class="endereco hidden" id="endereco">
-                    <h2>Endereço</h2>
+            <label for="imagem">Foto do Perfil:</label>
+            <input type="file" id="imagem" name="imagem" accept="image/*">
 
-                    <label for="rua" class="required">Rua:</label>
-                    <input type="text" id="rua" name="rua" maxlength="255">
+            <button type="button" onclick="toggleEndereco()">Adicionar Endereço</button>
 
-                    <label for="numero">Número:</label>
-                    <input type="text" id="numero" name="numero" maxlength="10">
+            <div class="endereco hidden" id="endereco">
+                <h2>Endereço</h2>
 
-                    <label for="bairro" class="required">Bairro:</label>
-                    <input type="text" id="bairro" name="bairro" maxlength="255">
+                <label for="rua" class="required">Rua:</label>
+                <input type="text" id="rua" name="rua" maxlength="255">
 
-                    <label for="cep" class="required">CEP:</label>
-                    <input type="text" id="cep" name="cep" maxlength="10">
+                <label for="numero">Número:</label>
+                <input type="text" id="numero" name="numero" maxlength="10">
 
-                    <label for="referencia">Referência:</label>
-                    <input type="text" id="referencia" name="referencia" maxlength="255">
+                <label for="bairro" class="required">Bairro:</label>
+                <input type="text" id="bairro" name="bairro" maxlength="255">
 
-                    <label for="cidade" class="required">Cidade:</label>
-                    <input type="text" id="cidade" name="cidade" maxlength="255">
+                <label for="cep" class="required">CEP:</label>
+                <input type="text" id="cep" name="cep" maxlength="10">
 
-                    <label for="estado" class="required">Estado:</label>
-                    <input type="text" id="estado" name="estado" maxlength="2">
-                </div>
+                <label for="referencia">Referência:</label>
+                <input type="text" id="referencia" name="referencia" maxlength="255">
 
-                <hr>
-                <button type="reset">Limpar Formulário</button>
-                <button type="submit">Cadastrar</button>
-            </form>
-        </main>
+                <label for="cidade" class="required">Cidade:</label>
+                <input type="text" id="cidade" name="cidade" maxlength="255">
 
-        <script>
-        // Função para validar o formulário
-        function validarFormulario() {
-            const cpf = document.getElementById('cpf').value;
-            const telefone = document.getElementById('telefone').value;
-            const senha = document.getElementById('senha').value;
-            const rua = document.getElementById('rua');
-            const bairro = document.getElementById('bairro');
-            const cep = document.getElementById('cep');
-            const cidade = document.getElementById('cidade');
-            const estado = document.getElementById('estado');
+                <label for="estado" class="required">Estado:</label>
+                <input type="text" id="estado" name="estado" maxlength="2">
+            </div>
 
-            // Valida CPF (11 dígitos)
-            if (cpf.length !== 11) {
-                alert('O CPF deve ter 11 dígitos.');
-                return false;
-            }
+            <hr>
+            <button type="reset">Limpar Formulário</button>
+            <button type="submit">Cadastrar</button>
+        </form>
+    </main>
 
-            // Valida telefone (11 dígitos)
-            if (telefone.length !== 11) {
-                alert('O telefone deve ter 11 dígitos.');
-                return false;
-            }
+    <script>
+    // Função para validar o formulário
+    function validarFormulario() {
+        const cpf = document.getElementById('cpf').value;
+        const telefone = document.getElementById('telefone').value;
+        const senha = document.getElementById('senha').value;
+        const rua = document.getElementById('rua');
+        const bairro = document.getElementById('bairro');
+        const cep = document.getElementById('cep');
+        const cidade = document.getElementById('cidade');
+        const estado = document.getElementById('estado');
 
-            // Valida senha
-            if (senha.length < 6) {
-                alert('A senha deve ter pelo menos 6 caracteres.');
-                return false;
-            }
-
-            // Valida endereço se algum campo estiver preenchido
-            if (rua.value || bairro.value || cep.value || cidade.value || estado.value) {
-                if (!rua.value || !bairro.value || !cep.value || !cidade.value || !estado.value) {
-                    alert('Todos os campos de endereço são obrigatórios.');
-                    return false;
-                }
-            }
-
-            return true;
+        // Valida CPF (11 dígitos)
+        if (cpf.length !== 11) {
+            alert('O CPF deve ter 11 dígitos.');
+            return false;
         }
 
-        // Função para alternar a visibilidade dos campos de endereço
-        function toggleEndereco() {
-            const enderecoDiv = document.getElementById('endereco');
-            enderecoDiv.classList.toggle('hidden');
+        // Valida telefone (11 dígitos)
+        if (telefone.length !== 11) {
+            alert('O telefone deve ter 11 dígitos.');
+            return false;
         }
-        </script>
 
-        <?php include 'rodape.php'; ?>
+        // Valida senha
+        if (senha.length < 6) {
+            alert('A senha deve ter pelo menos 6 caracteres.');
+            return false;
+        }
 
-    </body>
+        // Valida endereço se algum campo estiver preenchido
+        if (rua.value || bairro.value || cep.value || cidade.value || estado.value) {
+            if (!rua.value || !bairro.value || !cep.value || !cidade.value || !estado.value) {
+                alert('Todos os campos de endereço são obrigatórios.');
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    // Função para alternar a visibilidade dos campos de endereço
+    function toggleEndereco() {
+        const enderecoDiv = document.getElementById('endereco');
+        enderecoDiv.classList.toggle('hidden');
+    }
+    </script>
+
+    <?php include 'rodape.php'; ?>
+
+</body>
 
 </html>

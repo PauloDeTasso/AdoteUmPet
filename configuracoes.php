@@ -8,8 +8,7 @@ verificarSessao();
 $pdo = conectar();
 
 // Acessível para Administrador e Adotante
-if ($_SESSION['tipo'] !== 'Administrador' && $_SESSION['tipo'] !== 'Adotante')
-{
+if ($_SESSION['tipo'] !== 'Administrador' && $_SESSION['tipo'] !== 'Adotante') {
     echo "Acesso negado.";
     exit();
 }
@@ -21,8 +20,7 @@ $stmt = $pdo->prepare($sqlUsuario);
 $stmt->execute([':cpf' => $cpfUsuario]);
 $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
-if (!$usuario)
-{
+if (!$usuario) {
     echo "Usuário não encontrado.";
     exit();
 }
@@ -32,44 +30,34 @@ $mensagemSucesso = '';
 $mensagemErro = '';
 
 // Atualização de senha
-if ($_SERVER['REQUEST_METHOD'] === 'POST')
-{
-    if (isset($_POST['senha_atual'], $_POST['nova_senha'], $_POST['confirmar_senha']) && !empty($_POST['nova_senha']))
-    {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['senha_atual'], $_POST['nova_senha'], $_POST['confirmar_senha']) && !empty($_POST['nova_senha'])) {
         $senhaAtual = filter_input(INPUT_POST, 'senha_atual', FILTER_SANITIZE_STRING);
         $novaSenha = filter_input(INPUT_POST, 'nova_senha', FILTER_SANITIZE_STRING);
         $confirmarSenha = filter_input(INPUT_POST, 'confirmar_senha', FILTER_SANITIZE_STRING);
 
         // Verificar se a nova senha e a confirmação coincidem
-        if ($novaSenha !== $confirmarSenha)
-        {
+        if ($novaSenha !== $confirmarSenha) {
             $_SESSION['mensagemErro'] = "A nova senha e a confirmação não coincidem.";
-        }
-        else
-        {
+        } else {
             // Verificar se a senha atual está correta
             $sql = "SELECT senha FROM Usuario WHERE cpf = :cpf";
             $stmt = $pdo->prepare($sql);
             $stmt->execute([':cpf' => $cpfUsuario]);
             $senhaAtualBD = $stmt->fetchColumn();
 
-            if ($senhaAtual === $senhaAtualBD)
-            {
+            if ($senhaAtual === $senhaAtualBD) {
                 // Atualizar senha no banco de dados
                 $sql = "UPDATE Usuario SET senha = :nova_senha WHERE cpf = :cpf";
                 $stmt = $pdo->prepare($sql);
                 $stmt->execute([':nova_senha' => $novaSenha, ':cpf' => $cpfUsuario]);
 
                 $_SESSION['mensagemSucesso'] = "Senha atualizada com sucesso!";
-            }
-            else
-            {
+            } else {
                 $_SESSION['mensagemErro'] = "A senha atual está incorreta.";
             }
         }
-    }
-    else
-    {
+    } else {
         $_SESSION['mensagemErro'] = "Por favor, preencha todos os campos.";
     }
     header("Location: configuracoes.php");
@@ -88,7 +76,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
 </head>
 
 <body>
+
     <?php include 'cabecalho.php'; ?>
+
+    <section class="cabecalho">
+        <h3>Configurações</h3>
+    </section>
 
     <div class="container">
         <!-- Exibe nome e imagem do usuário -->
@@ -99,7 +92,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
 
         <!-- Menu de Configurações -->
         <div class="menu-configuracoes">
-            <h2>Configurações</h2>
             <ul>
                 <li><a href="#" id="alterar-senha-link">Configuração de Senha</a></li>
                 <!-- Adicione mais opções de configuração aqui -->
@@ -119,8 +111,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
                 <input type="password" name="nova_senha" id="nova_senha" placeholder="Digite a nova senha" required>
 
                 <label for="confirmar_senha">Confirmar nova senha:</label>
-                <input type="password" name="confirmar_senha" id="confirmar_senha"
-                    placeholder="Confirme a nova senha" required>
+                <input type="password" name="confirmar_senha" id="confirmar_senha" placeholder="Confirme a nova senha"
+                    required>
 
                 <button type="submit">Atualizar Senha</button>
             </form>
@@ -131,56 +123,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
     <div id="toast-container"></div>
 
     <script>
-        // Exibe mensagens de feedback (toast)
-        function exibirToast(mensagem, tipo) {
-            const toastContainer = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.classList.add('toast', tipo);
-            toast.textContent = mensagem;
-            toastContainer.appendChild(toast);
+    // Exibe mensagens de feedback (toast)
+    function exibirToast(mensagem, tipo) {
+        const toastContainer = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.classList.add('toast', tipo);
+        toast.textContent = mensagem;
+        toastContainer.appendChild(toast);
 
-            setTimeout(() => {
-                toast.remove();
-            }, 3000);
+        setTimeout(() => {
+            toast.remove();
+        }, 3000);
+    }
+
+    // Validar o formulário antes de enviar
+    document.getElementById('form-senha').addEventListener('submit', function(event) {
+        const novaSenha = document.getElementById('nova_senha').value;
+        const confirmarSenha = document.getElementById('confirmar_senha').value;
+
+        if (novaSenha !== confirmarSenha) {
+            event.preventDefault(); // Evita o envio
+            exibirToast('As senhas não coincidem.', 'erro');
         }
+    });
 
-        // Validar o formulário antes de enviar
-        document.getElementById('form-senha').addEventListener('submit', function(event) {
-            const novaSenha = document.getElementById('nova_senha').value;
-            const confirmarSenha = document.getElementById('confirmar_senha').value;
+    // Exibir mensagens de feedback do servidor
+    <?php if (isset($_SESSION['mensagemSucesso'])): ?>
+    exibirToast('<?= $_SESSION['mensagemSucesso'] ?>', 'sucesso');
+    <?php unset($_SESSION['mensagemSucesso']); ?>
+    <?php elseif (isset($_SESSION['mensagemErro'])): ?>
+    exibirToast('<?= $_SESSION['mensagemErro'] ?>', 'erro');
+    <?php unset($_SESSION['mensagemErro']); ?>
+    <?php endif; ?>
 
-            if (novaSenha !== confirmarSenha) {
-                event.preventDefault(); // Evita o envio
-                exibirToast('As senhas não coincidem.', 'erro');
-            }
-        });
+    // Alterna a visibilidade do formulário de alterar senha
+    document.getElementById('alterar-senha-link').addEventListener('click', function(event) {
+        event.preventDefault();
 
-        // Exibir mensagens de feedback do servidor
-        <?php if (isset($_SESSION['mensagemSucesso'])): ?>
-            exibirToast('<?= $_SESSION['mensagemSucesso'] ?>', 'sucesso');
-            <?php unset($_SESSION['mensagemSucesso']); ?>
-        <?php elseif (isset($_SESSION['mensagemErro'])): ?>
-            exibirToast('<?= $_SESSION['mensagemErro'] ?>', 'erro');
-            <?php unset($_SESSION['mensagemErro']); ?>
-        <?php endif; ?>
+        const alterarSenhaForm = document.getElementById('alterar-senha-form');
+        const isFormVisible = alterarSenhaForm.style.display === 'block';
 
-        // Alterna a visibilidade do formulário de alterar senha
-        document.getElementById('alterar-senha-link').addEventListener('click', function(event) {
-            event.preventDefault();
+        alterarSenhaForm.style.display = isFormVisible ? 'none' : 'block';
 
-            const alterarSenhaForm = document.getElementById('alterar-senha-form');
-            const isFormVisible = alterarSenhaForm.style.display === 'block';
+        // Atualizar os itens do menu, removendo a classe active dos outros itens
+        const links = document.querySelectorAll('.menu-configuracoes a');
+        links.forEach(link => link.classList.remove('active'));
 
-            alterarSenhaForm.style.display = isFormVisible ? 'none' : 'block';
-
-            // Atualizar os itens do menu, removendo a classe active dos outros itens
-            const links = document.querySelectorAll('.menu-configuracoes a');
-            links.forEach(link => link.classList.remove('active'));
-
-            if (!isFormVisible) {
-                this.classList.add('active');
-            }
-        });
+        if (!isFormVisible) {
+            this.classList.add('active');
+        }
+    });
     </script>
 
     <?php include 'rodape.php'; ?>

@@ -1,277 +1,131 @@
-/* Reset básico */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-/* Estilo base */
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f7f8fa;
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
     color: #333;
-    line-height: 1.6;
+    text-align: center;
+    width: 100%;
+}
+
+.cabecalho {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #3498db;
+    color: white;
     padding: 20px;
 }
 
-h3 {
-    color: #4CAF50;
-    margin-bottom: 20px;
-}
-
-/* Estilo do container principal do formulário */
-.form-container {
-    max-width: 600px;
-    margin: 50px auto;
+header {
+    text-align: center;
     padding: 20px;
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease-in-out;
-    animation: slideIn 0.5s ease-in-out;
+    background-color: #343a40;
+    color: white;
 }
 
-.form-container:hover {
-    transform: translateY(-5px);
+main {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* Efeito suave ao aparecer */
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+form {
+    display: flex;
+    flex-direction: column;
 }
 
-/* Estilo dos grupos de formulários */
-.form-group {
-    margin-bottom: 20px;
+fieldset {
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    margin: 20px;
+    padding: 20px;
+    text-align: left;
+}
+
+legend {
+    font-weight: bold;
+    margin: 5px;
+    padding: 10px;
 }
 
 label {
+    margin: 10px;
+    padding: 10px;
     font-weight: bold;
-    color: #333;
-    margin-bottom: 5px;
-    display: block;
-    transition: color 0.3s ease-in-out;
 }
 
-/* Inputs personalizados */
-input[type="text"], 
-input[type="email"], 
-input[type="date"], 
-input[type="password"], 
-input[type="tel"] {
+input,
+select {
     width: 100%;
     padding: 10px;
     margin-top: 5px;
-    border-radius: 5px;
-    border: 1px solid #ddd;
-    background-color: #f9f9f9;
-    transition: border-color 0.3s, background-color 0.3s;
-}
-
-input[type="text"]:focus, 
-input[type="email"]:focus, 
-input[type="date"]:focus, 
-input[type="password"]:focus, 
-input[type="tel"]:focus {
-    border-color: #4CAF50;
-    background-color: #fff;
-    outline: none;
+    margin-bottom: 20px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 16px;
 }
 
 input::placeholder {
-    color: #bbb;
+    font-style: italic;
+    color: #6c757d;
 }
 
-input:invalid {
-    border-color: #ff0000;
-}
-
-/* Mensagem de erro */
-.error-message {
-    color: #ff0000;
-    font-size: 12px;
-    display: none;
-    margin-top: 5px;
-}
-
-/* Animação suave quando erro for exibido */
-input:invalid + .error-message {
-    display: block;
-    animation: fadeInError 0.4s ease-in;
-}
-
-@keyframes fadeInError {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-
-/* Botões */
 button {
-    padding: 12px 20px;
-    border: none;
-    border-radius: 5px;
-    background-color: #4CAF50;
+    padding: 10px;
+    background-color: #28a745;
     color: white;
+    border: none;
+    border-radius: 4px;
     font-size: 16px;
     cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s;
-    margin-right: 10px;
+    transition: background-color 0.3s;
 }
 
 button:hover {
-    background-color: #45a049;
-    transform: translateY(-2px);
+    background-color: #218838;
 }
 
-button:active {
-    transform: translateY(1px);
+.toggle-endereco {
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
 }
 
-button:focus {
-    outline: none;
-    border: 2px solid #4CAF50;
+.toggle-endereco:hover {
+    background-color: #0056b3;
 }
 
-/* Botão secundário (limpar) */
-.btn-secondary {
-    background-color: #f44336;
-}
-
-.btn-secondary:hover {
-    background-color: #e53935;
-}
-
-/* Estilos do formulário de endereço opcional */
-#enderecoOpcional {
-    margin-top: 20px;
-    padding-top: 10px;
-    border-top: 2px dashed #ddd;
-    animation: fadeIn 0.5s ease-in;
-}
-
-/* Animação de fade-in suave para elementos dinâmicos */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-
-/* Estilo específico para dispositivos móveis */
-@media (max-width: 768px) {
-    .form-container {
-        padding: 15px;
-        box-shadow: none;
-        margin: 20px auto;
-    }
-
-    button {
-        width: 100%;
-        margin-bottom: 10px;
-    }
-
-    input[type="text"], 
-    input[type="email"], 
-    input[type="date"], 
-    input[type="password"], 
-    input[type="tel"] {
-        font-size: 16px;
-    }
-}
-
-/* Estilo específico para telas muito pequenas (mobile) */
-@media (max-width: 480px) {
-    .form-container {
-        padding: 10px;
-    }
-
-    h3 {
-        font-size: 18px;
-    }
-
-    label {
-        font-size: 14px;
-    }
-
-    input[type="text"], 
-    input[type="email"], 
-    input[type="date"], 
-    input[type="password"], 
-    input[type="tel"] {
-        font-size: 14px;
-        padding: 8px;
-    }
-
-    button {
-        font-size: 14px;
-        padding: 10px;
-    }
-}
-
-/* Feedback visual para validações */
-input:valid {
-    border-color: #4CAF50;
-}
-
-input:invalid {
-    border-color: #ff0000;
-}
-
-input:valid + .error-message {
+.hidden {
     display: none;
 }
 
-/* Transição de erro */
-input:invalid + .error-message {
-    display: block;
+@media (max-width: 768px) {
+    main {
+        margin: 10px;
+        padding: 15px;
 }
 
-/* Efeito nos campos de texto ao passar o mouse */
-input[type="text"]:hover, 
-input[type="email"]:hover, 
-input[type="date"]:hover, 
-input[type="password"]:hover, 
-input[type="tel"]:hover {
-    border-color: #ccc;
+    button,
+    .toggle-endereco {
+        padding: 8px;
+        font-size: 14px;
 }
 
-/* Customização de botão "Adicionar Endereço" */
-button[type="button"] {
-    background-color: #03A9F4;
-    color: #fff;
-}
-
-button[type="button"]:hover {
-    background-color: #0288D1;
-}
-
-button[type="button"]:active {
-    background-color: #0277BD;
-}
-
-/* Melhorando o contraste das mensagens de erro */
-.error-message {
-    color: #ff4444;
-}
-
-/* Dicas visuais ao usuário */
-input[type="text"]:focus + label, 
-input[type="email"]:focus + label, 
-input[type="date"]:focus + label, 
-input[type="password"]:focus + label, 
-input[type="tel"]:focus + label {
-    color: #4CAF50;
+    input {
+        padding: 8px;
+        font-size: 14px;
+    }
 }

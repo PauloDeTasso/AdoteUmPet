@@ -1,14 +1,12 @@
 <?php
 session_start();
 require 'conexao_db.php';
-if ($_SERVER['REQUEST_METHOD'] === 'POST')
-{
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Pega os valores do formulário
     $cpf = filter_input(INPUT_POST, 'cpf', FILTER_SANITIZE_STRING);
     $senha = filter_input(INPUT_POST, 'senha', FILTER_SANITIZE_STRING);
 
-    try
-    {
+    try {
         // Conecta ao banco de dados
         $pdo = conectar();
 
@@ -21,11 +19,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
         $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
         // Verifica se o usuário foi encontrado
-        if ($usuario)
-        {
+        if ($usuario) {
             // Comparação direta da senha (sem hashing ou criptografia)
-            if ($senha === $usuario['senha'])
-            {
+            if ($senha === $usuario['senha']) {
                 // Inicia a sessão do usuário
                 $_SESSION['cpf'] = $usuario['cpf'];
                 $_SESSION['nome'] = $usuario['nome'];
@@ -41,13 +37,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
                 $endereco = $stmtEndereco->fetch(PDO::FETCH_ASSOC);
 
                 // Caso o endereço não seja encontrado
-                if ($endereco)
-                {
+                if ($endereco) {
                     $_SESSION['cidade'] = $endereco['cidade'];
                     $_SESSION['estado'] = $endereco['estado'];
-                }
-                else
-                {
+                } else {
                     $_SESSION['cidade'] = null;
                     $_SESSION['estado'] = null;
                 }
@@ -58,21 +51,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
                 // Redireciona para a página home.php
                 header('Location: home.php');
                 exit;
-            }
-            else
-            {
+            } else {
                 // Senha incorreta
                 $erro = "Senha incorreta.";
             }
-        }
-        else
-        {
+        } else {
             // CPF não encontrado
             $erro = "Usuário não encontrado com esse CPF.";
         }
-    }
-    catch (PDOException $e)
-    {
+    } catch (PDOException $e) {
         // Tratamento de erro ao conectar ao banco de dados
         $erro = "Erro ao conectar com o banco de dados: " . $e->getMessage();
     }
@@ -91,15 +78,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
 
 <body>
 
-    <?php include 'cabecalho.php'; ?>
+    <?php include 'cabecalho2.php'; ?>
+
+    <section class="cabecalho">
+        <h3>Login</h3>
+    </section>
 
     <div class="container">
         <div class="container2">
-            <h2>Entrar</h2>
 
             <!-- Exibe mensagem de erro se houver -->
             <?php if (isset($erro)): ?>
-                <p class="error"><?= htmlspecialchars($erro) ?></p>
+            <p class="error"><?= htmlspecialchars($erro) ?></p>
             <?php endif; ?>
 
             <form method="POST">

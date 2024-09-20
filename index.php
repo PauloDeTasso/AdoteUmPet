@@ -92,114 +92,111 @@ $totalPaginas = ceil($quantidadePetsDisponiveis / $itensPorPagina);
 <!DOCTYPE html>
 <html lang="pt-BR">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Adote um Pet</title>
-        <link rel="stylesheet" href="css/index.css">
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adote um Pet</title>
+    <link rel="stylesheet" href="css/index.css">
+</head>
 
-    <body>
+<body>
 
-        <?php include 'cabecalho.php'; ?>
+    <?php include 'cabecalho2.php'; ?>
 
-        <section class="login-cadastro">
-            <p><a href="login.php" class="btn">Entrar</a> ou <a href="usuario_cadastrar_se.php"
-                    class="btn">Cadastrar-se</a>
-            </p>
-        </section>
+    <section class="login-cadastro">
+        <p><a href="login.php" class="btn">Entrar</a> ou <a href="usuario_cadastrar_se.php" class="btn">Cadastrar-se</a>
+        </p>
+    </section>
 
-        <h3>Seja bem-vindo(a)!</h3>
+    <h3>Seja bem-vindo(a)!</h3>
 
-        <section class="estatisticas">
+    <section class="estatisticas">
 
-            <ul>
-                <li>Pets disponíveis: <strong><?php echo $quantidadePetsDisponiveis; ?></strong></li>
-                <li>Adoções: <strong><?php echo $quantidadeAdocoesRealizadas; ?></strong></li>
-            </ul>
-        </section>
+        <ul>
+            <li>Pets disponíveis: <strong><?php echo $quantidadePetsDisponiveis; ?></strong></li>
+            <li>Adoções: <strong><?php echo $quantidadeAdocoesRealizadas; ?></strong></li>
+        </ul>
+    </section>
 
-        <section class="pets-disponiveis">
-            <h2>Eles estão esperando por você:</h2>
-            <section>
-                <?php if (count($petsDisponiveis) > 0): ?>
-                <?php foreach ($petsDisponiveis as $pet): ?>
-                <div>
-                    <img src="<?= htmlspecialchars($pet['imagem_pet']); ?>"
-                        alt="Imagem de <?php echo htmlspecialchars($pet['pet_nome']); ?>">
-                    <strong><?php echo htmlspecialchars($pet['pet_nome']); ?></strong>
-                </div>
-                <?php endforeach; ?>
+    <section class="pets-disponiveis">
+        <h2>Eles estão esperando por você:</h2>
+        <section>
+            <?php if (count($petsDisponiveis) > 0): ?>
+            <?php foreach ($petsDisponiveis as $pet): ?>
+            <div>
+                <img src="<?= htmlspecialchars($pet['imagem_pet']); ?>"
+                    alt="Imagem de <?php echo htmlspecialchars($pet['pet_nome']); ?>">
+                <strong><?php echo htmlspecialchars($pet['pet_nome']); ?></strong>
+            </div>
+            <?php endforeach; ?>
 
-                <!-- Mensagem para mais itens -->
-                <?php if ($totalPaginas > 1): ?>
-                <p>Mostrando
-                    <?php echo min($itensPorPagina, $quantidadePetsDisponiveis - (($paginaAtual - 1) * $itensPorPagina)); ?>
-                    pets de <?php echo $quantidadePetsDisponiveis; ?> disponíveis.</p>
-                <!-- Paginação -->
-                <div class="paginacao">
-                    <?php if ($paginaAtual > 1): ?>
-                    <a href="?pagina=<?php echo $paginaAtual - 1; ?>" class="btn">Anterior</a>
-                    <?php endif; ?>
-                    <?php for ($i = 1; $i <= $totalPaginas; $i++): ?>
-                    <a href="?pagina=<?php echo $i; ?>" class="btn"><?php echo $i; ?></a>
-                    <?php endfor; ?>
-                    <?php if ($paginaAtual < $totalPaginas): ?>
-                    <a href="?pagina=<?php echo $paginaAtual + 1; ?>" class="btn">Próximo</a>
-                    <?php endif; ?>
-                </div>
+            <!-- Mensagem para mais itens -->
+            <?php if ($totalPaginas > 1): ?>
+            <p>Mostrando
+                <?php echo min($itensPorPagina, $quantidadePetsDisponiveis - (($paginaAtual - 1) * $itensPorPagina)); ?>
+                pets de <?php echo $quantidadePetsDisponiveis; ?> disponíveis.</p>
+            <!-- Paginação -->
+            <div class="paginacao">
+                <?php if ($paginaAtual > 1): ?>
+                <a href="?pagina=<?php echo $paginaAtual - 1; ?>" class="btn">Anterior</a>
                 <?php endif; ?>
-                <?php else: ?>
-                <p>Não há pets disponíveis para adoção no momento.</p>
+                <?php for ($i = 1; $i <= $totalPaginas; $i++): ?>
+                <a href="?pagina=<?php echo $i; ?>" class="btn"><?php echo $i; ?></a>
+                <?php endfor; ?>
+                <?php if ($paginaAtual < $totalPaginas): ?>
+                <a href="?pagina=<?php echo $paginaAtual + 1; ?>" class="btn">Próximo</a>
                 <?php endif; ?>
+            </div>
+            <?php endif; ?>
+            <?php else: ?>
+            <p>Não há pets disponíveis para adoção no momento.</p>
+            <?php endif; ?>
 
-            </section>
-
-            <br>
-            <h2>Adote um amigo(a)!</h2>
         </section>
 
-        <section class="pets-adotados">
-            <h2>Pets Adotados</h2>
-            <ul>
-                <?php foreach ($petsAdotados as $pet): ?>
-                <li>
-                    <img src="<?php echo htmlspecialchars($pet['imagem_pet']); ?>"
-                        alt="Imagem de <?php echo htmlspecialchars($pet['pet_nome']); ?>"
-                        style="width:100px;height:100px;">
-                    <strong><?php echo htmlspecialchars($pet['pet_nome']); ?></strong>
-                </li>
-                <?php endforeach; ?>
-            </ul>
-        </section>
+        <br>
+        <h2>Adote um amigo(a)!</h2>
+    </section>
 
-        <section class="ultimas-adocoes">
-            <h2>Últimas Adoções</h2>
-            <ul>
-                <?php foreach ($ultimasAdocoes as $adocao): ?>
-                <li>
-                    <img src="<?php echo htmlspecialchars($adocao['imagem_pet']); ?>"
-                        alt="Imagem de <?php echo htmlspecialchars($adocao['pet_nome']); ?>"
-                        style="width:100px;height:100px;">
-                    Pet <strong><?php echo htmlspecialchars($adocao['pet_nome']); ?></strong> adotado por
-                    <img src="<?php echo htmlspecialchars($adocao['imagem_adotante']); ?>"
-                        alt="Imagem de <?php echo htmlspecialchars($adocao['usuario_nome']); ?>"
-                        style="width:50px;height:50px;">
-                    <strong><?php echo htmlspecialchars($adocao['usuario_nome']); ?></strong> em
-                    <strong><?php echo htmlspecialchars(date('d/m/Y', strtotime($adocao['data_adocao']))); ?></strong>.
-                </li>
-                <?php endforeach; ?>
-            </ul>
-        </section>
+    <section class="pets-adotados">
+        <h2>Pets Adotados</h2>
+        <ul>
+            <?php foreach ($petsAdotados as $pet): ?>
+            <li>
+                <img src="<?php echo htmlspecialchars($pet['imagem_pet']); ?>"
+                    alt="Imagem de <?php echo htmlspecialchars($pet['pet_nome']); ?>" style="width:100px;height:100px;">
+                <strong><?php echo htmlspecialchars($pet['pet_nome']); ?></strong>
+            </li>
+            <?php endforeach; ?>
+        </ul>
+    </section>
 
-        <section class="login-cadastro">
-            <p><a href="login.php" class="btn">Entrar</a> ou <a href="usuario_cadastrar_se.php"
-                    class="btn">Cadastre-se</a>
-            </p>
-        </section>
+    <section class="ultimas-adocoes">
+        <h2>Últimas Adoções</h2>
+        <ul>
+            <?php foreach ($ultimasAdocoes as $adocao): ?>
+            <li>
+                <img src="<?php echo htmlspecialchars($adocao['imagem_pet']); ?>"
+                    alt="Imagem de <?php echo htmlspecialchars($adocao['pet_nome']); ?>"
+                    style="width:100px;height:100px;">
+                Pet <strong><?php echo htmlspecialchars($adocao['pet_nome']); ?></strong> adotado por
+                <img src="<?php echo htmlspecialchars($adocao['imagem_adotante']); ?>"
+                    alt="Imagem de <?php echo htmlspecialchars($adocao['usuario_nome']); ?>"
+                    style="width:50px;height:50px;">
+                <strong><?php echo htmlspecialchars($adocao['usuario_nome']); ?></strong> em
+                <strong><?php echo htmlspecialchars(date('d/m/Y', strtotime($adocao['data_adocao']))); ?></strong>.
+            </li>
+            <?php endforeach; ?>
+        </ul>
+    </section>
 
-        <?php include 'rodape.php'; ?>
+    <section class="login-cadastro">
+        <p><a href="login.php" class="btn">Entrar</a> ou <a href="usuario_cadastrar_se.php" class="btn">Cadastre-se</a>
+        </p>
+    </section>
 
-    </body>
+    <?php include 'rodape.php'; ?>
+
+</body>
 
 </html>

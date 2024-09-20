@@ -6,8 +6,7 @@ include 'conexao_db.php';
 session_start();
 
 // Verifica se o usuário está logado
-if (!isset($_SESSION['cpf']))
-{
+if (!isset($_SESSION['cpf'])) {
     header('Location: login.php');
     exit();
 }
@@ -28,8 +27,7 @@ function verificaPermissao($pdo, $cpf)
 
 // Verifica se o usuário logado tem permissão de "Adotante"
 $permissaoUsuario = verificaPermissao($pdo, $_SESSION['cpf']);
-if ($permissaoUsuario !== 'Adotante')
-{
+if ($permissaoUsuario !== 'Adotante') {
     echo "Acesso negado: apenas usuários com permissão de Adotante podem realizar adoções.";
     exit();
 }
@@ -80,8 +78,7 @@ $cpfUsuario = filter_input(INPUT_GET, 'adotante', FILTER_SANITIZE_STRING);
 $brincoPet = filter_input(INPUT_GET, 'pet', FILTER_SANITIZE_NUMBER_INT);
 
 // Define o CPF do usuário logado como adotante, caso o parâmetro "adotante" não esteja presente
-if (!$cpfUsuario)
-{
+if (!$cpfUsuario) {
     $cpfUsuario = $_SESSION['cpf'];
 }
 
@@ -91,22 +88,18 @@ $adotante = getAdotante($pdo, $cpfUsuario);
 // Se o brinco do pet não for fornecido, a página carrega sem pet selecionado inicialmente
 $pet = null;
 $imagemPetUrl = 'imagens/pets/default.jpg'; // URL da imagem padrão
-if ($brincoPet)
-{
+if ($brincoPet) {
     $pet = getPet($pdo, $brincoPet);
-    if ($pet)
-    {
+    if ($pet) {
         $imagemPetUrl = getImagemPet($pdo, $brincoPet);
-        if (!$imagemPetUrl)
-        {
+        if (!$imagemPetUrl) {
             $imagemPetUrl = 'imagens/pets/default.jpg'; // Fallback para a imagem padrão se não houver URL
         }
     }
 }
 
 // Verifica se o adotante existe no banco de dados
-if (!$adotante)
-{
+if (!$adotante) {
     echo "Erro: Adotante não encontrado.";
     exit();
 }
@@ -115,24 +108,17 @@ if (!$adotante)
 $petsAdotaveis = listarPetsAdotaveis($pdo);
 
 // Verifica se o formulário foi enviado
-if ($_SERVER['REQUEST_METHOD'] === 'POST')
-{
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $observacoes = filter_var(trim($_POST['observacoes']), FILTER_SANITIZE_STRING);
     $brincoPetPost = filter_input(INPUT_POST, 'pet_brinco', FILTER_SANITIZE_NUMBER_INT);
 
     // Validação básica dos dados
-    if (strlen($observacoes) > 255)
-    {
+    if (strlen($observacoes) > 255) {
         $mensagem = 'Observações não podem exceder 255 caracteres.';
-    }
-    elseif (!$brincoPetPost)
-    {
+    } elseif (!$brincoPetPost) {
         $mensagem = 'Erro: Você deve selecionar um pet válido.';
-    }
-    else
-    {
-        try
-        {
+    } else {
+        try {
             // Inicia a transação
             $pdo->beginTransaction();
 
@@ -160,9 +146,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
             // Redireciona para a página inicial
             header('Location: home.php');
             exit();
-        }
-        catch (Exception $e)
-        {
+        } catch (Exception $e) {
             // Reverte a transação em caso de erro
             $pdo->rollBack();
             $mensagem = 'Erro ao processar a adoção: ' . $e->getMessage();
@@ -171,16 +155,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
 }
 
 // Se a requisição for AJAX para obter a imagem do pet
-if (isset($_GET['action']) && $_GET['action'] === 'getImagemPet')
-{
+if (isset($_GET['action']) && $_GET['action'] === 'getImagemPet') {
     $brinco = filter_input(INPUT_GET, 'brinco', FILTER_SANITIZE_NUMBER_INT);
-    if ($brinco)
-    {
+    if ($brinco) {
         $imagemUrl = getImagemPet($pdo, $brinco);
         echo $imagemUrl ? $imagemUrl : 'imagens/pets/default.jpg';
-    }
-    else
-    {
+    } else {
         echo 'imagens/pets/default.jpg'; // Imagem padrão se não houver brinco
     }
     exit();
@@ -190,100 +170,100 @@ if (isset($_GET['action']) && $_GET['action'] === 'getImagemPet')
 <!DOCTYPE html>
 <html lang="pt-br">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Adoção de Pet</title>
-        <link rel="stylesheet" href="css/adocao/adocao_cadastrar.css">
-        <script>
-        // Função para atualizar a imagem do pet com AJAX
-        function atualizarImagemPet() {
-            const petSelecionado = document.getElementById('pet_brinco');
-            const imagemPet = document.getElementById('imagem_pet');
-            const brincoPet = petSelecionado.value;
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adoção de Pet</title>
+    <link rel="stylesheet" href="css/adocao/adocao_cadastrar.css">
+    <script>
+    // Função para atualizar a imagem do pet com AJAX
+    function atualizarImagemPet() {
+        const petSelecionado = document.getElementById('pet_brinco');
+        const imagemPet = document.getElementById('imagem_pet');
+        const brincoPet = petSelecionado.value;
 
-            if (brincoPet) {
-                const xhr = new XMLHttpRequest();
-                xhr.open('GET', `adocao_cadastrar.php?action=getImagemPet&brinco=${brincoPet}`, true);
-                xhr.onload = function() {
-                    if (xhr.status === 200) {
-                        const imagemUrl = xhr.responseText;
-                        imagemPet.src = imagemUrl ? imagemUrl : 'imagens/pets/default.jpg';
-                    } else {
-                        imagemPet.src = 'imagens/pets/default.jpg'; // Fallback
-                    }
-                };
-                xhr.send();
-            } else {
-                imagemPet.src = 'imagens/pets/default.jpg'; // Imagem padrão se nenhum pet estiver selecionado
-            }
+        if (brincoPet) {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', `adocao_cadastrar.php?action=getImagemPet&brinco=${brincoPet}`, true);
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    const imagemUrl = xhr.responseText;
+                    imagemPet.src = imagemUrl ? imagemUrl : 'imagens/pets/default.jpg';
+                } else {
+                    imagemPet.src = 'imagens/pets/default.jpg'; // Fallback
+                }
+            };
+            xhr.send();
+        } else {
+            imagemPet.src = 'imagens/pets/default.jpg'; // Imagem padrão se nenhum pet estiver selecionado
         }
-        </script>
-    </head>
+    }
+    </script>
+</head>
 
-    <body>
+<body>
 
-        <?php include_once 'cabecalho.php'; ?>
+    <?php include_once 'cabecalho.php'; ?>
 
-        <section class="cabecalho">
-            <h2>Adoção de Pet</h2>
-        </section>
+    <section class="cabecalho">
+        <h2>Adoção de Pet</h2>
+    </section>
 
-        <div class="container">
+    <div class="container">
 
-            <!-- Formulário de Adoção -->
-            <form method="POST">
+        <!-- Formulário de Adoção -->
+        <form method="POST">
 
-                <!-- Verifica se o adotante existe -->
-                <?php if ($adotante): ?>
-                <div class="form-row">
-                    <!-- Informações do Adotante -->
-                    <img id="imagem_adotante" src="<?php echo htmlspecialchars($adotante['url_imagem']); ?>"
-                        alt="Imagem do Adotante" />
-                    <h3>Adotante:</h3>
-                    <p>Nome: <?php echo htmlspecialchars($adotante['nome']); ?></p>
-                    <p>CPF: <?php echo htmlspecialchars($adotante['cpf']); ?></p>
-                </div>
-                <?php else: ?>
-                <p>Adotante não encontrado.</p>
-                <?php endif; ?>
-
-
-                <div class="form-row">
-                    <img id="imagem_pet" src="<?php echo htmlspecialchars($imagemPetUrl); ?>" alt="Imagem do Pet" />
-                </div>
-
-                <div class="form-row">
-                    <label for="pet_brinco">Selecionar Pet:</label>
-                    <select id="pet_brinco" name="pet_brinco" onchange="atualizarImagemPet()">
-                        <option value="">Selecione um Pet</option>
-                        <?php foreach ($petsAdotaveis as $pet): ?>
-                        <option value="<?php echo htmlspecialchars($pet['brinco']); ?>"
-                            <?php if ($pet && $pet['brinco'] === (int)$brincoPet) echo 'selected'; ?>>
-                            <?php echo htmlspecialchars($pet['nome']); ?>
-                        </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-
-                <div class="form-row">
-                    <label for="observacoes">Observações:</label>
-                    <textarea id="observacoes" name="observacoes" rows="4" cols="50"
-                        placeholder="Digite aqui suas observações..."><?php echo htmlspecialchars($observacoes ?? ''); ?></textarea>
-                </div>
-
-                <button type="submit">Confirmar Adoção</button>
-            </form>
-
-            <!-- Exibe mensagens de erro ou sucesso -->
-            <?php if (isset($mensagem)): ?>
-            <p class="mensagem"><?php echo htmlspecialchars($mensagem); ?></p>
+            <!-- Verifica se o adotante existe -->
+            <?php if ($adotante): ?>
+            <div class="form-row">
+                <!-- Informações do Adotante -->
+                <img id="imagem_adotante" src="<?php echo htmlspecialchars($adotante['url_imagem']); ?>"
+                    alt="Imagem do Adotante" />
+                <h3>Adotante:</h3>
+                <p>Nome: <?php echo htmlspecialchars($adotante['nome']); ?></p>
+                <p>CPF: <?php echo htmlspecialchars($adotante['cpf']); ?></p>
+            </div>
+            <?php else: ?>
+            <p>Adotante não encontrado.</p>
             <?php endif; ?>
 
-        </div>
 
-        <?php include 'rodape.php'; ?>
+            <div class="form-row">
+                <img id="imagem_pet" src="<?php echo htmlspecialchars($imagemPetUrl); ?>" alt="Imagem do Pet" />
+            </div>
 
-    </body>
+            <div class="form-row">
+                <label for="pet_brinco">Selecionar Pet:</label>
+                <select id="pet_brinco" name="pet_brinco" onchange="atualizarImagemPet()">
+                    <option value="">Selecione um Pet</option>
+                    <?php foreach ($petsAdotaveis as $pet): ?>
+                    <option value="<?php echo htmlspecialchars($pet['brinco']); ?>"
+                        <?php if ($pet && $pet['brinco'] === (int)$brincoPet) echo 'selected'; ?>>
+                        <?php echo htmlspecialchars($pet['nome']); ?>
+                    </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <div class="form-row">
+                <label for="observacoes">Observações:</label>
+                <textarea id="observacoes" name="observacoes" rows="4" cols="50"
+                    placeholder="Digite aqui suas observações..."><?php echo htmlspecialchars($observacoes ?? ''); ?></textarea>
+            </div>
+
+            <button type="submit">Confirmar Adoção</button>
+        </form>
+
+        <!-- Exibe mensagens de erro ou sucesso -->
+        <?php if (isset($mensagem)): ?>
+        <p class="mensagem"><?php echo htmlspecialchars($mensagem); ?></p>
+        <?php endif; ?>
+
+    </div>
+
+    <?php include 'rodape.php'; ?>
+
+</body>
 
 </html>

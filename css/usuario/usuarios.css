@@ -23,6 +23,7 @@ body {
     background-color: #3498db;
     color: white;
     padding: 20px;
+    margin-top: 2px;
 }
 
 h1 {
@@ -37,7 +38,7 @@ h1 {
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 20px;
     max-width: 1200px;
-    margin: 0 auto;
+    margin: 30px;
 }
 
 /* Estilo dos cards de usuário */
