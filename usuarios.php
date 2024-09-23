@@ -25,17 +25,16 @@ try
     }
     else
     {
-        // Pesquisa padrão de adotantes
+        // Pesquisa padrão de adotantes mostrando todos os usuários com status 'ATIVO'
         $query = "
         SELECT u.cpf, u.nome, MAX(i.url_imagem) AS url_imagem 
         FROM Usuario u
-        JOIN Permissao p ON u.fk_Permissao_id = p.id 
         LEFT JOIN Imagem_Usuario i ON u.cpf = i.fk_Usuario_cpf
-        WHERE p.tipo = 'Adotante'
+        WHERE u.status = 'ATIVO'
         GROUP BY u.cpf, u.nome
         ORDER BY u.nome
         ";
-        $titulo = 'Adotantes';  // Título da página para os adotantes
+        $titulo = 'Usuários Ativos';  // Título da página para adotantes
     }
 
     $stmt = $conn->prepare($query);
@@ -71,16 +70,15 @@ catch (PDOException $e)
             <?php if (count($usuarios) > 0): ?>
             <?php foreach ($usuarios as $usuario): ?>
             <div class="usuario-card">
-                <!-- Verifica se há imagem associada ao usuário -->
-                <?php if (!empty($usuario['url_imagem'])): ?>
-                <!-- Usa a URL da imagem direto do banco de dados -->
-                <img src="<?= htmlspecialchars($usuario['url_imagem']); ?>"
-                    alt="Foto de <?= htmlspecialchars($usuario['nome']); ?>" class="usuario-foto">
-                <?php else: ?>
-                <!-- Exibe uma imagem padrão se não houver URL de imagem -->
-                <img src="imagens/usuarios/default.jpg" alt="Foto padrão" class="usuario-foto">
-                <?php endif; ?>
-
+                <a href="usuario_selecionar.php?cpf=<?= htmlspecialchars($usuario['cpf']); ?>">
+                    <!-- Verifica se há imagem associada ao usuário -->
+                    <?php if (!empty($usuario['url_imagem'])): ?>
+                    <img src="<?= htmlspecialchars($usuario['url_imagem']); ?>"
+                        alt="Foto de <?= htmlspecialchars($usuario['nome']); ?>" class="usuario-foto">
+                    <?php else: ?>
+                    <img src="imagens/usuarios/default.jpg" alt="Foto padrão" class="usuario-foto">
+                    <?php endif; ?>
+                </a>
                 <p><?= htmlspecialchars($usuario['nome']); ?></p>
                 <a href="usuario_selecionar.php?cpf=<?= htmlspecialchars($usuario['cpf']); ?>"
                     class="btn-ver-usuario">Ver Detalhes</a>

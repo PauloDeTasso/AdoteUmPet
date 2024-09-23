@@ -2,7 +2,8 @@
 
 include 'conexao_db.php';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST')
+{
     $conn = conectar();
 
     $cpf = $_POST['cpf'];
@@ -20,25 +21,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $estado = $_POST['estado'];
 
     // Verifica se o arquivo de imagem foi enviado
-    if (isset($_FILES['imagem']) && $_FILES['imagem']['error'] === UPLOAD_ERR_OK) {
-        // Caminho completo para salvar a imagem
-        $imagemNome = uniqid() . '-' . basename($_FILES['imagem']['name']);
-        $imagemPath = 'imagens/usuarios/' . $imagemNome;
+    if (isset($_FILES['imagem']) && $_FILES['imagem']['error'] === UPLOAD_ERR_OK)
+    {
+        $extensoesPermitidas = ['jpg', 'jpeg', 'png', 'gif'];
+        $extensao = strtolower(pathinfo($_FILES['imagem']['name'], PATHINFO_EXTENSION));
 
-        // Move o arquivo para o diretório correto
-        if (move_uploaded_file($_FILES['imagem']['tmp_name'], $imagemPath)) {
-            $imagemUrl = $imagemPath;
-        } else {
-            echo "Erro ao mover o arquivo para o diretório.";
+        if (in_array($extensao, $extensoesPermitidas))
+        {
+            // Caminho completo para salvar a imagem
+            $imagemNome = uniqid() . '-' . basename($_FILES['imagem']['name']);
+            $imagemPath = 'imagens/usuarios/' . $imagemNome;
+
+            // Move o arquivo para o diretório correto
+            if (move_uploaded_file($_FILES['imagem']['tmp_name'], $imagemPath))
+            {
+                $imagemUrl = $imagemPath;
+            }
+            else
+            {
+                echo "Erro ao mover o arquivo para o diretório.";
+                $imagemUrl = null;
+            }
         }
-    } else {
+        else
+        {
+            echo "A extensão da imagem não é permitida.";
+            $imagemUrl = null;
+        }
+    }
+    else
+    {
         echo "Erro no envio do arquivo de imagem.";
         $imagemUrl = null;
     }
 
-
-    // Insere o usuário
-    $sql = "INSERT INTO Usuario (cpf, nome, data_nascimento, email, telefone, status, senha) VALUES (:cpf, :nome, :data_nascimento, :email, :telefone, 'ATIVO', :senha)";
+    // Insere o usuário com permissão tipo "2"
+    $sql = "INSERT INTO Usuario (cpf, nome, data_nascimento, email, telefone, status, senha, fk_Permissao_id) 
+            VALUES (:cpf, :nome, :data_nascimento, :email, :telefone, 'ATIVO', :senha, 2)";
     $stmt = $conn->prepare($sql);
     $stmt->execute([
         ':cpf' => $cpf,
@@ -50,8 +69,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ]);
 
     // Insere o endereço se fornecido
-    if ($rua && $bairro && $cep && $cidade && $estado) {
-        $sqlEndereco = "INSERT INTO Endereco (rua, numero, bairro, cep, referencia, cidade, estado) VALUES (:rua, :numero, :bairro, :cep, :referencia, :cidade, :estado)";
+    if ($rua && $bairro && $cep && $cidade && $estado)
+    {
+        $sqlEndereco = "INSERT INTO Endereco (rua, numero, bairro, cep, referencia, cidade, estado) 
+                        VALUES (:rua, :numero, :bairro, :cep, :referencia, :cidade, :estado)";
         $stmtEndereco = $conn->prepare($sqlEndereco);
         $stmtEndereco->execute([
             ':rua' => $rua,
@@ -65,7 +86,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $enderecoId = $conn->lastInsertId();
 
-        $sqlEnderecosUsuarios = "INSERT INTO Enderecos_Usuarios (fk_Usuario_cpf, fk_Endereco_id) VALUES (:cpf, :endereco_id)";
+        $sqlEnderecosUsuarios = "INSERT INTO Enderecos_Usuarios (fk_Usuario_cpf, fk_Endereco_id) 
+                                  VALUES (:cpf, :endereco_id)";
         $stmtEnderecosUsuarios = $conn->prepare($sqlEnderecosUsuarios);
         $stmtEnderecosUsuarios->execute([
             ':cpf' => $cpf,
@@ -74,8 +96,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Insere a imagem do usuário, se houver
-    if ($imagemUrl) {
-        $sqlImagem = "INSERT INTO Imagem_Usuario (url_imagem, fk_Usuario_cpf) VALUES (:imagem_url, :cpf)";
+    if ($imagemUrl)
+    {
+        $sqlImagem = "INSERT INTO Imagem_Usuario (url_imagem, fk_Usuario_cpf) 
+                      VALUES (:imagem_url, :cpf)";
         $stmtImagem = $conn->prepare($sqlImagem);
         $stmtImagem->execute([
             ':imagem_url' => $imagemUrl,
@@ -85,7 +109,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $conn = null;
 
-    echo "<script>alert('Cadastro realizado com sucesso!'); window.location.href = window.location.href;</script>";
+    // Redireciona para usuarios.php após o cadastro
+    echo "<script>alert('Cadastro realizado com sucesso!'); window.location.href = 'usuarios.php';</script>";
 }
 ?>
 
@@ -100,7 +125,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 
 <body>
-
     <?php include 'cabecalho.php'; ?>
 
     <section class="cabecalho">
@@ -166,55 +190,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </main>
 
     <script>
-    // Função para validar o formulário
-    function validarFormulario() {
-        const cpf = document.getElementById('cpf').value;
-        const telefone = document.getElementById('telefone').value;
-        const senha = document.getElementById('senha').value;
-        const rua = document.getElementById('rua');
-        const bairro = document.getElementById('bairro');
-        const cep = document.getElementById('cep');
-        const cidade = document.getElementById('cidade');
-        const estado = document.getElementById('estado');
+        // Função para validar o formulário
+        function validarFormulario() {
+            const cpf = document.getElementById('cpf').value;
+            const telefone = document.getElementById('telefone').value;
+            const senha = document.getElementById('senha').value;
+            const rua = document.getElementById('rua');
+            const bairro = document.getElementById('bairro');
+            const cep = document.getElementById('cep');
+            const cidade = document.getElementById('cidade');
+            const estado = document.getElementById('estado');
 
-        // Valida CPF (11 dígitos)
-        if (cpf.length !== 11) {
-            alert('O CPF deve ter 11 dígitos.');
-            return false;
-        }
-
-        // Valida telefone (11 dígitos)
-        if (telefone.length !== 11) {
-            alert('O telefone deve ter 11 dígitos.');
-            return false;
-        }
-
-        // Valida senha
-        if (senha.length < 6) {
-            alert('A senha deve ter pelo menos 6 caracteres.');
-            return false;
-        }
-
-        // Valida endereço se algum campo estiver preenchido
-        if (rua.value || bairro.value || cep.value || cidade.value || estado.value) {
-            if (!rua.value || !bairro.value || !cep.value || !cidade.value || !estado.value) {
-                alert('Todos os campos de endereço são obrigatórios.');
+            // Valida CPF (11 dígitos)
+            if (cpf.length !== 11) {
+                alert('O CPF deve ter 11 dígitos.');
                 return false;
             }
+
+            // Valida telefone (11 dígitos)
+            if (telefone.length !== 11) {
+                alert('O telefone deve ter 11 dígitos.');
+                return false;
+            }
+
+            // Valida senha
+            if (senha.length < 6) {
+                alert('A senha deve ter pelo menos 6 caracteres.');
+                return false;
+            }
+
+            // Valida endereço se algum campo estiver preenchido
+            if (rua.value || bairro.value || cep.value || cidade.value || estado.value) {
+                if (!rua.value || !bairro.value || !cep.value || !cidade.value || !estado.value) {
+                    alert('Todos os campos de endereço devem ser preenchidos.');
+                    return false;
+                }
+            }
+
+            return true; // Formulário válido
         }
 
-        return true;
-    }
-
-    // Função para alternar a visibilidade dos campos de endereço
-    function toggleEndereco() {
-        const enderecoDiv = document.getElementById('endereco');
-        enderecoDiv.classList.toggle('hidden');
-    }
+        // Função para mostrar/esconder o campo de endereço
+        function toggleEndereco() {
+            const enderecoDiv = document.getElementById('endereco');
+            enderecoDiv.classList.toggle('hidden');
+        }
     </script>
 
     <?php include 'rodape.php'; ?>
-
 </body>
 
 </html>

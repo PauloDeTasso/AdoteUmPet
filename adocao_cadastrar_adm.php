@@ -7,7 +7,8 @@ include 'utilidades.php';
 session_start();
 
 // Verifica se o usuário está logado
-if (!isset($_SESSION['cpf'])) {
+if (!isset($_SESSION['cpf']))
+{
     header('Location: login.php');
     exit();
 }
@@ -15,25 +16,46 @@ if (!isset($_SESSION['cpf'])) {
 // Obtenha a instância do PDO
 $pdo = conectar();
 
-// Função para obter todos os usuários ativos
+// Função para calcular a idade com base na data de nascimento
+function calcularIdade($dataNascimento)
+{
+    $dataAtual = new DateTime();
+    $nascimento = new DateTime($dataNascimento);
+    $idade = $dataAtual->diff($nascimento)->y;
+    return $idade;
+}
+
+// Função para obter todos os usuários ativos maiores de 18 anos
 function getUsuariosAtivos($pdo)
 {
     $sql = '
-        SELECT u.cpf, u.nome, COALESCE(i.url_imagem, \'imagens/usuarios/default.jpg\') AS imagem_url
+        SELECT u.cpf, u.nome, u.data_nascimento, i.url_imagem
         FROM Usuario u
         LEFT JOIN Imagem_Usuario i ON u.cpf = i.fk_Usuario_cpf
         WHERE u.status = :status
     ';
     $stmt = $pdo->prepare($sql);
     $stmt->execute([':status' => 'ATIVO']);
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Filtra apenas os usuários maiores de 18 anos
+    $usuariosValidos = [];
+    foreach ($usuarios as $usuario)
+    {
+        $idade = calcularIdade($usuario['data_nascimento']);
+        if ($idade >= 18)
+        {
+            $usuariosValidos[] = $usuario;
+        }
+    }
+    return $usuariosValidos;
 }
 
 // Função para obter pets disponíveis
 function getPetsDisponiveis($pdo)
 {
     $sql = '
-        SELECT p.brinco, p.nome, COALESCE(i.url_imagem, \'imagens/pets/default.jpg\') AS imagem_url
+        SELECT p.brinco, p.nome, i.url_imagem
         FROM Pet p
         LEFT JOIN Imagem_Pet i ON p.brinco = i.fk_Pet_brinco
         WHERE p.status = :status
@@ -44,68 +66,124 @@ function getPetsDisponiveis($pdo)
 }
 
 // Obtém o CPF do adotante da URL, se estiver disponível
-$cpfAdotante = isset($_GET['adotante']) ? filter_var(trim($_GET['adotante']), FILTER_SANITIZE_STRING) : '';
+$cpfAdotante = filter_input(INPUT_GET, 'adotante', FILTER_SANITIZE_STRING);
 
 // Obtém os dados para exibição
 $usuariosAtivos = getUsuariosAtivos($pdo);
 $petsDisponiveis = getPetsDisponiveis($pdo);
 
 // Define o pet pré-selecionado, se existir
-$petSelecionado = isset($_GET['pet']) ? filter_var(trim($_GET['pet']), FILTER_SANITIZE_NUMBER_INT) : '';
-
-// Geração do token CSRF
-if (empty($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-}
-$csrf_token = $_SESSION['csrf_token'];
+$petSelecionado = filter_input(INPUT_GET, 'pet', FILTER_SANITIZE_NUMBER_INT);
 
 // Inicializa a variável mensagem para evitar avisos
 $mensagem = '';
 $tipoMensagem = 'info'; // Default message type
 
 // Processa o formulário quando enviado
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Verifica o token CSRF
-    if (isset($_POST['csrf_token']) && hash_equals($csrf_token, $_POST['csrf_token'])) {
-        // Verifica se os índices estão definidos
-        $usuario = isset($_POST['usuario']) ? filter_var(trim($_POST['usuario']), FILTER_SANITIZE_STRING) : '';
-        $pet = isset($_POST['pet']) ? filter_var(trim($_POST['pet']), FILTER_SANITIZE_NUMBER_INT) : '';
-        $observacoes = isset($_POST['observacoes']) ? filter_var(trim($_POST['observacoes']), FILTER_SANITIZE_STRING) : '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST')
+{
+    // Verifica se os índices estão definidos
+    $usuario = filter_input(INPUT_POST, 'usuario', FILTER_SANITIZE_STRING);
+    $pet = filter_input(INPUT_POST, 'pet', FILTER_SANITIZE_NUMBER_INT);
+    $observacoes = filter_input(INPUT_POST, 'observacoes', FILTER_SANITIZE_STRING);
 
-        // Valida os dados
-        if ($usuario && $pet) {
-            // Insere a adoção no banco de dados
-            $sql = '
-                INSERT INTO Adocao (fk_Usuario_cpf, fk_Pet_brinco, observacoes)
-                VALUES (:usuario, :pet, :observacoes)
-            ';
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([
-                ':usuario' => $usuario,
-                ':pet' => $pet,
-                ':observacoes' => $observacoes
-            ]);
+    // Valida os dados
+    if ($usuario && $pet)
+    {
+        // Verifica a idade do adotante
+        $sql = 'SELECT data_nascimento FROM Usuario WHERE cpf = :cpf LIMIT 1';
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([':cpf' => $usuario]);
+        $dataNascimento = $stmt->fetchColumn();
 
-            // Atualiza o status do pet para 'ADOTADO'
-            $sql = 'UPDATE Pet SET status = :status WHERE brinco = :pet';
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([
-                ':status' => 'ADOTADO',
-                ':pet' => $pet
-            ]);
+        if ($dataNascimento)
+        {
+            $idade = calcularIdade($dataNascimento);
 
-            // Mensagem de sucesso
-            $mensagem = 'Adoção cadastrada com sucesso!';
-            $tipoMensagem = 'sucesso';
-        } else {
-            // Mensagem de erro
-            $mensagem = 'Por favor, selecione um adotante e um pet.';
-            $tipoMensagem = 'erro';
+            if ($idade >= 18)
+            {
+                // Insere a adoção no banco de dados
+                $sql = '
+                    INSERT INTO Adocao (fk_Usuario_cpf, fk_Pet_brinco, observacoes)
+                    VALUES (:usuario, :pet, :observacoes)
+                ';
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute([
+                    ':usuario' => $usuario,
+                    ':pet' => $pet,
+                    ':observacoes' => $observacoes
+                ]);
+
+                // Atualiza o status do pet para 'ADOTADO'
+                $sql = 'UPDATE Pet SET status = :status WHERE brinco = :pet';
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute([
+                    ':status' => 'ADOTADO',
+                    ':pet' => $pet
+                ]);
+
+                // Mensagem de sucesso
+                $mensagem = 'Adoção cadastrada com sucesso!';
+                $tipoMensagem = 'sucesso';
+            }
+            else
+            {
+                // Mensagem de erro para idade insuficiente
+                $mensagem = 'O adotante deve ter 18 anos ou mais para adotar um pet.';
+                $tipoMensagem = 'erro';
+            }
         }
-    } else {
+    }
+    else
+    {
         // Mensagem de erro
-        $mensagem = 'Token CSRF inválido.';
+        $mensagem = 'Por favor, selecione um adotante e um pet.';
         $tipoMensagem = 'erro';
+    }
+}
+
+// Lógica para requisição AJAX
+if (isset($_GET['action']))
+{
+    if ($_GET['action'] === 'getImagemPet' && isset($_GET['brinco']))
+    {
+        $brinco = filter_input(INPUT_GET, 'brinco', FILTER_SANITIZE_NUMBER_INT);
+        $sql = 'SELECT url_imagem FROM Imagem_Pet WHERE fk_Pet_brinco = :brinco LIMIT 1';
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([':brinco' => $brinco]);
+        $imagemUrl = $stmt->fetchColumn();
+        echo $imagemUrl ? $imagemUrl : 'imagens/pets/default.jpg';
+        exit();
+    }
+    elseif ($_GET['action'] === 'getPetData' && isset($_GET['brinco']))
+    {
+        $brinco = filter_input(INPUT_GET, 'brinco', FILTER_SANITIZE_NUMBER_INT);
+        $sql = 'SELECT nome, sexo FROM Pet WHERE brinco = :brinco LIMIT 1';
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([':brinco' => $brinco]);
+        $petData = $stmt->fetch(PDO::FETCH_ASSOC);
+        echo json_encode($petData ? $petData : ['nome' => '-', 'sexo' => '-']);
+        exit();
+    }
+    elseif ($_GET['action'] === 'getImagemUsuario' && isset($_GET['cpf']))
+    {
+        $cpf = filter_input(INPUT_GET, 'cpf', FILTER_SANITIZE_STRING);
+        $sql = 'SELECT url_imagem FROM Imagem_Usuario WHERE fk_Usuario_cpf = :cpf LIMIT 1';
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([':cpf' => $cpf]);
+        $imagemUrl = $stmt->fetchColumn();
+        echo $imagemUrl ? $imagemUrl : 'imagens/usuarios/default.jpg';
+        exit();
+    }
+    elseif ($_GET['action'] === 'getUsuarioData' && isset($_GET['cpf']))
+    {
+        $cpf = filter_input(INPUT_GET, 'cpf', FILTER_SANITIZE_STRING);
+        $sql = 'SELECT nome, telefone FROM Usuario WHERE cpf = :cpf LIMIT 1';
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([':cpf' => $cpf]);
+        $usuarioData = $stmt->fetch(PDO::FETCH_ASSOC);
+        echo json_encode($usuarioData ? $usuarioData : ['nome' => '-', 'telefone' => '-']);
+        exit();
     }
 }
 ?>
@@ -113,133 +191,174 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <!DOCTYPE html>
 <html lang="pt-br">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro de Adoção</title>
-    <link rel="stylesheet" href="css/adocao/adocao_cadastrar.css">
-    <script src="utilidades.php"></script>
-    <script>
-    function atualizarImagem() {
-        var usuario = document.getElementById('usuario').value;
-        var pet = document.getElementById('pet').value;
-        var imagemUsuario = document.getElementById('imagemUsuario');
-        var imagemPet = document.getElementById('imagemPet');
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Cadastro de Adoção</title>
+        <link rel="stylesheet" href="css/adocao/adocao_cadastrar_adm.css">
+        <script>
+        // Função para atualizar a imagem do pet com AJAX
+        function atualizarImagemPet() {
+            const petSelecionado = document.getElementById('pet');
+            const imagemPet = document.getElementById('imagemPet');
+            const brincoPet = petSelecionado.value;
 
-        // Atualiza a imagem do adotante
-        if (usuario) {
-            var imagemUrlUsuario = doabel.querySelector('option[value="' + usuario + '"]').getAttribute(
-                'data-imagem');
-            imagemUsuario.src = imagemUrlUsuario ? imagemUrlUsuario : 'imagens/usuarios/default.jpg';
-            imagemUsuario.style.display = 'block';
-        } else {
-            imagemUsuario.src = 'imagens/usuarios/default.jpg';
-            imagemUsuario.style.display = 'block';
+            if (brincoPet) {
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', 'adocao_cadastrar_adm.php?action=getImagemPet&brinco=' + brincoPet, true);
+                xhr.onload = function() {
+                    if (xhr.status === 200) {
+                        const imagemUrl = xhr.responseText;
+                        imagemPet.src = imagemUrl ? imagemUrl : 'imagens/pets/default.jpg';
+                    } else {
+                        imagemPet.src = 'imagens/pets/default.jpg'; // Fallback
+                    }
+                };
+                xhr.send();
+            } else {
+                imagemPet.src = 'imagens/pets/default.jpg'; // Imagem padrão se nenhum pet estiver selecionado
+            }
         }
 
-        // Atualiza a imagem do pet
-        if (pet) {
-            var imagemUrlPet = document.querySelector('option[value="' + pet + '"]').getAttribute('data-imagem');
-            imagemPet.src = imagemUrlPet ? imagemUrlPet : 'imagens/pets/default.jpg';
-            imagemPet.style.display = 'block';
-        } else {
-            imagemPet.src = 'imagens/pets/default.jpg';
-            imagemPet.style.display = 'block';
+        function atualizarDadosPet() {
+            const petSelecionado = document.getElementById('pet');
+            const brincoPet = petSelecionado.value;
+
+            if (brincoPet) {
+                const petNome = document.getElementById('pet_nome');
+                const petSexo = document.getElementById('pet_sexo');
+
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', 'adocao_cadastrar_adm.php?action=getPetData&brinco=' + brincoPet, true);
+                xhr.onload = function() {
+                    if (xhr.status === 200) {
+                        const petData = JSON.parse(xhr.responseText);
+                        petNome.textContent = petData.nome ? petData.nome : '-';
+                        petSexo.textContent = petData.sexo ? (petData.sexo === 'M' ? 'Macho' : 'Fêmea') : '-';
+                    } else {
+                        petNome.textContent = '-';
+                        petSexo.textContent = '-';
+                    }
+                };
+                xhr.send();
+            } else {
+                document.getElementById('pet_nome').textContent = '-';
+                document.getElementById('pet_sexo').textContent = '-';
+            }
         }
-    }
 
-    function validarFormulario() {
-        var usuario = document.getElementById('usuario').value;
-        var pet = document.getElementById('pet').value;
-        var observacoes = document.getElementById('observacoes').value;
-        var mensagem = '';
 
-        if (!usuario) {
-            mensagem += 'Por favor, selecione um adotante.\n';
+        function atualizarImagemUsuario() {
+            const usuarioSelecionado = document.getElementById('usuario');
+            const cpfUsuario = usuarioSelecionado.value;
+            const imagemUsuario = document.getElementById('imagemUsuario');
+
+            if (cpfUsuario) {
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', 'adocao_cadastrar_adm.php?action=getImagemUsuario&cpf=' + cpfUsuario, true);
+                xhr.onload = function() {
+                    if (xhr.status === 200) {
+                        const imagemUrl = xhr.responseText;
+                        imagemUsuario.src = imagemUrl ? imagemUrl : 'imagens/usuarios/default.jpg';
+                    } else {
+                        imagemUsuario.src = 'imagens/usuarios/default.jpg';
+                    }
+                };
+                xhr.send();
+            } else {
+                imagemUsuario.src =
+                    'imagens/usuarios/default.jpg'; // Imagem padrão se nenhum usuário estiver selecionado
+            }
         }
-        if (!pet) {
-            mensagem += 'Por favor, selecione um pet.\n';
+
+        function atualizarDadosUsuario() {
+            const usuarioSelecionado = document.getElementById('usuario');
+            const cpfUsuario = usuarioSelecionado.value;
+
+            if (cpfUsuario) {
+                const usuarioNome = document.getElementById('usuario_nome');
+                const usuarioTelefone = document.getElementById('usuario_telefone');
+
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', 'adocao_cadastrar_adm.php?action=getUsuarioData&cpf=' + cpfUsuario, true);
+                xhr.onload = function() {
+                    if (xhr.status === 200) {
+                        const usuarioData = JSON.parse(xhr.responseText);
+                        usuarioNome.textContent = usuarioData.nome ? usuarioData.nome : '-';
+                        usuarioTelefone.textContent = usuarioData.telefone ? usuarioData.telefone : '-';
+                    } else {
+                        usuarioNome.textContent = '-';
+                        usuarioTelefone.textContent = '-';
+                    }
+                };
+                xhr.send();
+            } else {
+                document.getElementById('usuario_nome').textContent = '-';
+                document.getElementById('usuario_telefone').textContent = '-';
+            }
         }
-        if (observacoes.length > 255) {
-            mensagem += 'Observações não podem exceder 255 caracteres.\n';
-        }
+        </script>
+    </head>
 
-        if (mensagem) {
-            exibirMensagem('erro', mensagem, '');
-            return false;
-        }
-        return true;
-    }
+    <body>
 
-    window.onload = function() {
-        atualizarImagem();
+        <?php include 'cabecalho.php'; ?>
 
-        <?php if ($mensagem): ?>
-        exibirMensagem('<?= $tipoMensagem ?>', '<?= htmlspecialchars($mensagem) ?>', '');
-        <?php endif; ?>
-    };
-    </script>
-</head>
+        <section class="cabecalho">
+            <h3>Cadastro de Adoção</h3>
+        </section>
 
-<body>
+        <section class="sessaoPrincipal">
 
-    <?php include 'cabecalho.php'; ?>
+            <div class="container">
+                <?php if ($mensagem): ?>
+                <div class="mensagem <?= $tipoMensagem ?>">
+                    <?= $mensagem ?>
+                </div>
+                <?php endif; ?>
 
-    <section class="cabecalho">
-        <h3>Cadastrar uma Adoção</h3>
-    </section>
-
-    <div class="container">
-        <form action="" method="post" onsubmit="return validarFormulario()">
-            <div class="form-group">
-                <label for="usuario">Adotante:</label>
-                <div class="form-row">
-                    <select name="usuario" id="usuario" onchange="atualizarImagem()"
-                        <?= $cpfAdotante ? 'disabled' : '' ?> required>
+                <form method="POST">
+                    <!-- Seleção de Usuário -->
+                    <label for="usuario">Adotante:</label>
+                    <select id="usuario" name="usuario" onchange="atualizarImagemUsuario(); atualizarDadosUsuario();">
                         <option value="">Selecione um adotante</option>
                         <?php foreach ($usuariosAtivos as $usuario): ?>
-                        <option value="<?= htmlspecialchars($usuario['cpf']) ?>"
-                            <?= $cpfAdotante === $usuario['cpf'] ? 'selected' : (isset($_POST['usuario']) && $_POST['usuario'] === $usuario['cpf'] ? 'selected' : '') ?>
-                            data-imagem="<?= htmlspecialchars($usuario['imagem_url']) ?>">
-                            <?= htmlspecialchars($usuario['nome']) ?>
-                        </option>
+                        <option value="<?= $usuario['cpf']; ?>"><?= $usuario['nome']; ?></option>
                         <?php endforeach; ?>
                     </select>
-                    <div class="image-preview">
-                        <img id="imagemUsuario" src="imagens/usuarios/default.jpg" alt="Imagem do Adotante"
-                            style="display:none;">
-                    </div>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="pet">Pet:</label>
-                <div class="form-row">
-                    <select name="pet" id="pet" onchange="atualizarImagem()" required>
+
+                    <!-- Exibição da Imagem e Dados do Adotante -->
+                    <img id="imagemUsuario" src="imagens/usuarios/default.jpg" alt="Imagem do Adotante" width="100">
+                    <p id="usuario_nome">-</p>
+                    <p id="usuario_telefone">-</p>
+
+                    <!-- Seleção de Pet -->
+                    <label for="pet">Pet:</label>
+                    <select id="pet" name="pet" onchange="atualizarImagemPet(); atualizarDadosPet();">
                         <option value="">Selecione um pet</option>
                         <?php foreach ($petsDisponiveis as $pet): ?>
-                        <option value="<?= htmlspecialchars($pet['brinco']) ?>"
-                            <?= $petSelecionado === $pet['brinco'] ? 'selected' : (isset($_POST['pet']) && $_POST['pet'] === $pet['brinco'] ? 'selected' : '') ?>
-                            data-imagem="<?= htmlspecialchars($pet['imagem_url']) ?>">
-                            <?= htmlspecialchars($pet['nome']) ?>
-                        </option>
+                        <option value="<?= $pet['brinco']; ?>"><?= $pet['nome']; ?></option>
                         <?php endforeach; ?>
                     </select>
-                    <div class="image-preview">
-                        <img id="imagemPet" src="imagens/pets/default.jpg" alt="Imagem do Pet" style="display:none;">
-                    </div>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="observacoes">Observações:</label>
-                <textarea name="observacoes" id="observacoes" maxlength="255"></textarea>
-            </div>
-            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
-            <button type="submit">Cadastrar Adoção</button>
-        </form>
-    </div>
 
-    <?php include 'rodape.php'; ?>
+                    <!-- Exibição da Imagem e Dados do Pet -->
+                    <img id="imagemPet" src="imagens/pets/default.jpg" alt="Imagem do Pet" width="100">
+                    <p id="pet_nome">-</p>
+                    <p id="pet_sexo">-</p>
 
-</body>
+
+                    <label for="observacoes">Observações:</label>
+                    <textarea name="observacoes" id="observacoes" rows="3"
+                        placeholder="Observações adicionais"></textarea>
+
+                    <button type="submit">Cadastrar Adoção</button>
+                </form>
+            </div>
+
+        </section>
+
+        <?php include 'rodape.php'; ?>
+
+    </body>
 
 </html>

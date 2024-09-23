@@ -23,142 +23,174 @@ body {
     margin-top: 2px;
 }
 
-.secaoPrincipal
-{
-display: flex;
-flex-direction: column;
-justify-content: center;
-align-items: center;
+.sessaoFormulario{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
 }
 
-/* Título da página */
-h2 {
-    color: #2c3e50;
-    font-size: 2.5rem;
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-/* Formulário */
+/* Estilo do Formulário */
 form {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
     width: 80%;
-    transition: transform 0.3s ease;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin: 20px;
+    transition: transform 0.2s;
+    text-align: left;
 }
 
+form:hover {
+    transform: scale(1.01);
+}
 
-/* Campos do formulário */
+/* Estilo dos Labels e Inputs */
 label {
-    font-size: 1.1rem;
-    color: #34495e;
-    margin-bottom: 10px;
     display: block;
+    margin: 10px 0 5px;
+    font-weight: bold;
 }
 
+input[type="text"],
+input[type="number"],
+input[type="date"],
+select,
 textarea {
-    resize: vertical;
-    width: 100%;
-    height: 100px;
-    padding: 10px;
-}
-
-input[type="text"], input[type="file"], select {
     width: 100%;
     padding: 10px;
-    margin-bottom: 20px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 1rem;
-    transition: all 0.3s ease;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    transition: border-color 0.3s;
 }
 
-/* Foco no campo */
-input:focus, select:focus {
-    border-color: #3498db;
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus,
+select:focus,
+textarea:focus {
+    border-color: #007bff;
     outline: none;
-    box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
 }
 
-/* Botões */
-button[type="submit"], button[type="reset"] {
-    background-color: #2ecc71;
+/* Estilo do Botão */
+button {
+    background-color: #007bff;
     color: white;
     border: none;
-    padding: 12px 20px;
-    font-size: 1.1rem;
-    border-radius: 5px;
+    border-radius: 4px;
+    padding: 10px 15px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    font-size: 16px;
+    transition: background-color 0.3s, transform 0.2s;
+    width: 100%;
 }
 
-button[type="submit"]:hover, button[type="reset"]:hover {
-    background-color: #27ae60;
+button:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
 }
 
-/* Botão de limpar formulário */
-button[type="reset"] {
-    background-color: #e74c3c;
-    margin-left: 10px;
+/* Estilo para Toast */
+#toast {
+    visibility: hidden;
+    min-width: 250px;
+    margin-left: -125px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 2px;
+    padding: 16px;
+    position: fixed;
+    z-index: 1;
+    left: 50%;
+    bottom: 30px;
+    font-size: 17px;
+    transition: opacity 0.5s ease-in-out;
 }
 
-button[type="reset"]:hover {
-    background-color: #c0392b;
+#toast.show {
+    visibility: visible;
+    opacity: 1;
 }
 
-/* Mensagens de erro */
-.error {
-    color: #e74c3c;
-    margin-bottom: 20px;
+#toast.erro {
+    background-color: #e74c3c; /* Cor para erro */
 }
 
-/* Responsividade para telas menores */
-@media (max-width: 768px) {
-    h2 {
-        font-size: 2rem;
+#toast.sucesso {
+    background-color: #2ecc71; /* Cor para sucesso */
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: #999;
+    font-style: italic;
+}
+
+/* Estilos Responsivos */
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
     }
 
     form {
         padding: 15px;
     }
 
-    label {
-        font-size: 1rem;
+    h1 {
+        font-size: 24px;
     }
 
-    input[type="text"], select {
-        padding: 8px;
-        font-size: 0.9rem;
-    }
-
-    button[type="submit"], button[type="reset"] {
-        font-size: 1rem;
-        padding: 10px 15px;
+    button {
+        font-size: 14px;
     }
 }
 
-/* Animações suaves */
-input, select {
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+/* Estilo para mensagens de feedback e restrições */
+.feedback {
+    font-size: 14px;
+    margin: 10px 0;
+    padding: 5px;
+    border-radius: 4px;
 }
 
-button {
-    transition: background-color 0.3s ease;
+.feedback.informacao {
+    background-color: #d1ecf1;
+    color: #0c5460;
 }
 
-form {
-    animation: fadeIn 0.5s ease-in-out;
+.feedback.aviso {
+    background-color: #fff3cd;
+    color: #856404;
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.feedback.erro {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.feedback.sucesso {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+/* Animações sutis */
+input[type="text"],
+input[type="number"],
+input[type="date"],
+select,
+textarea {
+    transition: all 0.3s ease;
+}
+
+input[type="text"]:hover,
+input[type="number"]:hover,
+input[type="date"]:hover,
+select:hover,
+textarea:hover {
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }

@@ -4,11 +4,13 @@
     box-sizing: border-box;
 }
 
-body {
+body {    
+    justify-content: center;
+    align-items: center;    
+    text-align: center;
     font-family: Arial, sans-serif;
     background-color: #f5f5f5;
     color: #333;
-    text-align: center;
     width: 100%;
 }
 
@@ -17,11 +19,12 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background-color: rgb(255, 210, 127);
+    background-color: #ffffff;
     color: #3498db;
     padding: 20px;
     margin: 10px;
     border-radius: 4%;
+    /*width: fit-content;*/
 }
 
 nav {
@@ -135,6 +138,16 @@ nav a:hover {
     background-color: #f4f4f4;
 }
 
+.btnLink{
+    display: block;
+    background-color: #3498db;
+    color: white;
+    padding: 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
 footer {
     background-color: #3498db;
     color: white;
@@ -143,7 +156,7 @@ footer {
 
 footer img {
     max-width: 150px;
-    margin-bottom: 10px;
+    margin-bottom: 10px;  
 }
 
 /* Estilos responsivos para telas médias */

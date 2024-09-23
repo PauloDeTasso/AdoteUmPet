@@ -12,235 +12,332 @@ function sanitizarEntrada($data)
 $nome = $sexo = $idade = $raca = $pelagem = $local_resgate = $data_resgate = $informacoes = "";
 $fotoNome = "";
 $erroMsg = [];
+$sucessoMsg = "";
 
 // Verificar se o formulário foi enviado via POST
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Validações do formulário (conforme já estavam no código original)
-    // (...)
+if ($_SERVER["REQUEST_METHOD"] == "POST")
+{
+    // Sanitizar entradas
+    $nome = sanitizarEntrada($_POST['nome']);
+    $sexo = sanitizarEntrada($_POST['sexo']);
+    $idade = sanitizarEntrada($_POST['idade']);
+    $raca = sanitizarEntrada($_POST['raca']);
+    $pelagem = sanitizarEntrada($_POST['pelagem']);
+    $local_resgate = sanitizarEntrada($_POST['local_resgate']);
+    $data_resgate = sanitizarEntrada($_POST['data_resgate']);
+    $informacoes = sanitizarEntrada($_POST['informacoes']);
 
-    // Tratamento da imagem (obrigatório)
-    if (isset($_FILES['foto']) && $_FILES['foto']['error'] == 0) {
-        // Verificar se o diretório de imagens existe, se não, criar
+    // Validações do formulário
+    if (empty($nome) || strlen($nome) > 255)
+    {
+        $erroMsg[] = "O campo Nome é obrigatório e deve ter no máximo 255 caracteres.";
+    }
+
+    // Validações adicionais para cada campo
+    if ($sexo !== "M" && $sexo !== "F")
+    {
+        $erroMsg[] = "O campo Sexo deve ser 'M' (Macho) ou 'F' (Fêmea).";
+    }
+
+    if (!empty($idade) && !is_numeric($idade))
+    {
+        $erroMsg[] = "O campo Idade deve ser um número inteiro.";
+    }
+
+    if (strlen($raca) > 100)
+    {
+        $erroMsg[] = "O campo Raça deve ter no máximo 100 caracteres.";
+    }
+
+    if (strlen($pelagem) > 100)
+    {
+        $erroMsg[] = "O campo Pelagem deve ter no máximo 100 caracteres.";
+    }
+
+    if (strlen($local_resgate) > 255)
+    {
+        $erroMsg[] = "O campo Local de Resgate deve ter no máximo 255 caracteres.";
+    }
+
+    if (strlen($informacoes) > 500)
+    {
+        $erroMsg[] = "O campo Informações Adicionais deve ter no máximo 500 caracteres.";
+    }
+
+    // Tratamento da imagem (opcional)
+    if (isset($_FILES['foto']) && $_FILES['foto']['error'] == 0)
+    {
         $diretorioImagens = 'imagens/pets/';
-        if (!is_dir($diretorioImagens)) {
+        if (!is_dir($diretorioImagens))
+        {
             mkdir($diretorioImagens, 0755, true);
         }
 
-        // Nome da imagem com base no nome do pet
         $extensaoFoto = pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION);
-        $fotoNome = $diretorioImagens . $nome . '.' . $extensaoFoto;
+        $baseNomeFoto = preg_replace('/[^a-zA-Z0-9_-]/', '_', $nome); // Substituir caracteres inválidos
+        $fotoNome = $diretorioImagens . $baseNomeFoto;
 
-        // Mover a foto para o diretório de imagens
-        if (!move_uploaded_file($_FILES['foto']['tmp_name'], $fotoNome)) {
+        // Gerar nome único
+        $contador = 1;
+        while (file_exists($fotoNome . '.' . $extensaoFoto))
+        {
+            $fotoNome = $diretorioImagens . $baseNomeFoto . '_' . $contador;
+            $contador++;
+        }
+        $fotoNome .= '.' . $extensaoFoto;
+
+        if (!move_uploaded_file($_FILES['foto']['tmp_name'], $fotoNome))
+        {
             $erroMsg[] = "Erro ao enviar a foto.";
         }
-    } else {
-        $erroMsg[] = "O campo Foto é obrigatório.";
     }
 
     // Se não houver erros, prosseguir com o cadastro no banco de dados
-    if (empty($erroMsg)) {
-        try {
+    if (empty($erroMsg))
+    {
+        try
+        {
             // Conectar ao banco de dados
             $pdo = conectar();
-
-            // Iniciar transação para cadastrar o pet e a imagem
             $pdo->beginTransaction();
 
-            // Definir status automaticamente como 'ADOTÁVEL'
             $status = 'ADOTÁVEL';
 
-            // Inserir dados na tabela Pet
-            $sqlPet = "INSERT INTO Pet (nome, sexo, idade, raca, pelagem, local_resgate, data_resgate, status, informacoes)
-                       VALUES (:nome, :sexo, :idade, :raca, :pelagem, :local_resgate, :data_resgate, :status, :informacoes)";
+            // Prepare a consulta, permitindo NULL para campos opcionais
+            $sqlPet = "INSERT INTO Pet (nome, sexo, idade, raca, pelagem, local_resgate, data_resgate, data_cadastro, status, informacoes)
+                       VALUES (:nome, :sexo, :idade, :raca, :pelagem, :local_resgate, :data_resgate, CURRENT_DATE, :status, :informacoes)";
 
             $stmtPet = $pdo->prepare($sqlPet);
             $stmtPet->bindParam(':nome', $nome);
             $stmtPet->bindParam(':sexo', $sexo);
-            $stmtPet->bindParam(':idade', $idade);
+            $stmtPet->bindValue(':idade', !empty($idade) ? (int)$idade : null, PDO::PARAM_INT); // Permitir NULL
             $stmtPet->bindParam(':raca', $raca);
             $stmtPet->bindParam(':pelagem', $pelagem);
             $stmtPet->bindParam(':local_resgate', $local_resgate);
-            $stmtPet->bindParam(':data_resgate', $data_resgate);
-            $stmtPet->bindParam(':status', $status); // Valor padrão 'ADOTÁVEL'
+            $stmtPet->bindValue(':data_resgate', !empty($data_resgate) ? $data_resgate : null, PDO::PARAM_NULL); // Permitir NULL
+            $stmtPet->bindParam(':status', $status);
             $stmtPet->bindParam(':informacoes', $informacoes);
 
             // Executar inserção na tabela Pet
-            if ($stmtPet->execute()) {
-                // Recuperar o ID do pet recém-cadastrado (brinco)
+            if ($stmtPet->execute())
+            {
                 $brincoPet = $pdo->lastInsertId();
 
-                // Inserir a imagem do pet na tabela Imagem_Pet
-                $sqlImagem = "INSERT INTO Imagem_Pet (url_imagem, fk_Pet_brinco)
-                              VALUES (:url_imagem, :fk_Pet_brinco)";
+                // Inserir a imagem do pet na tabela Imagem_Pet se foi enviada
+                if (!empty($fotoNome))
+                {
+                    $sqlImagem = "INSERT INTO Imagem_Pet (url_imagem, fk_Pet_brinco)
+                                  VALUES (:url_imagem, :fk_Pet_brinco)";
 
-                $stmtImagem = $pdo->prepare($sqlImagem);
-                $stmtImagem->bindParam(':url_imagem', $fotoNome);
-                $stmtImagem->bindParam(':fk_Pet_brinco', $brincoPet);
+                    $stmtImagem = $pdo->prepare($sqlImagem);
+                    $stmtImagem->bindParam(':url_imagem', $fotoNome);
+                    $stmtImagem->bindParam(':fk_Pet_brinco', $brincoPet);
 
-                // Executar inserção na tabela Imagem_Pet
-                if ($stmtImagem->execute()) {
-                    // Commit da transação
-                    $pdo->commit();
-                    echo "<p>Pet cadastrado com sucesso!</p>";
-                } else {
-                    // Rollback se falhar a inserção da imagem
-                    $pdo->rollBack();
-                    echo "<p>Erro ao cadastrar a imagem do pet.</p>";
+                    // Executar inserção na tabela Imagem_Pet
+                    if (!$stmtImagem->execute())
+                    {
+                        $pdo->rollBack();
+                        $erroMsg[] = "Erro ao cadastrar a imagem do pet.";
+                    }
                 }
-            } else {
-                echo "<p>Erro ao cadastrar o pet.</p>";
+
+                $pdo->commit();
+                $sucessoMsg = "Pet cadastrado com sucesso!";
             }
-        } catch (PDOException $e) {
-            // Em caso de erro, exibir a mensagem e rollback
-            $pdo->rollBack();
-            echo "Erro no banco de dados: " . $e->getMessage();
+            else
+            {
+                $erroMsg[] = "Erro ao cadastrar o pet.";
+            }
         }
-    } else {
-        // Exibir erros de validação
-        foreach ($erroMsg as $erro) {
-            echo "<p style='color:red;'>$erro</p>";
+        catch (PDOException $e)
+        {
+            $pdo->rollBack();
+            $erroMsg[] = "Erro no banco de dados: " . $e->getMessage();
         }
     }
 }
 ?>
 
 
+
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastrar Pet</title>
-    <link rel="stylesheet" href="css/pet/pet_cadastrar.css">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Cadastrar Pet</title>
+        <link rel="stylesheet" href="css/pet/pet_cadastrar.css">
 
-    <script>
-    // Função para validar o formulário no lado do cliente
-    function validarFormulario() {
-        let erroMsg = [];
-
-        // Validar campo nome (obrigatório e até 255 caracteres)
-        let nome = document.getElementById('nome').value;
-        if (nome === "" || nome.length > 255) {
-            erroMsg.push("O campo Nome é obrigatório e deve ter no máximo 255 caracteres.");
+        <style>
+        /* Estilo para o toast */
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            margin-left: -125px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 2px;
+            padding: 16px;
+            position: fixed;
+            z-index: 1;
+            left: 50%;
+            bottom: 30px;
+            font-size: 17px;
         }
 
-        // Validar sexo (obrigatório)
-        let sexo = document.getElementById('sexo').value;
-        if (sexo !== "M" && sexo !== "F") {
-            erroMsg.push("O campo Sexo deve ser 'M' (Macho) ou 'F' (Fêmea).");
+        #toast.show {
+            visibility: visible;
+            -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
         }
 
-        // Validar idade (opcional, mas deve ser número inteiro)
-        let idade = document.getElementById('idade').value;
-        if (idade !== "" && isNaN(idade)) {
-            erroMsg.push("O campo Idade deve ser um número inteiro.");
+        @-webkit-keyframes fadein {
+            from {
+                bottom: 0;
+                opacity: 0;
+            }
+
+            to {
+                bottom: 30px;
+                opacity: 1;
+            }
         }
 
-        // Validar raca (até 100 caracteres)
-        let raca = document.getElementById('raca').value;
-        if (raca.length > 100) {
-            erroMsg.push("O campo Raça deve ter no máximo 100 caracteres.");
+        @keyframes fadein {
+            from {
+                bottom: 0;
+                opacity: 0;
+            }
+
+            to {
+                bottom: 30px;
+                opacity: 1;
+            }
         }
 
-        // Validar pelagem (até 100 caracteres)
-        let pelagem = document.getElementById('pelagem').value;
-        if (pelagem.length > 100) {
-            erroMsg.push("O campo Pelagem deve ter no máximo 100 caracteres.");
+        @-webkit-keyframes fadeout {
+            from {
+                bottom: 30px;
+                opacity: 1;
+            }
+
+            to {
+                bottom: 0;
+                opacity: 0;
+            }
         }
 
-        // Validar local de resgate (até 255 caracteres)
-        let local_resgate = document.getElementById('local_resgate').value;
-        if (local_resgate.length > 255) {
-            erroMsg.push("O campo Local de Resgate deve ter no máximo 255 caracteres.");
+        @keyframes fadeout {
+            from {
+                bottom: 30px;
+                opacity: 1;
+            }
+
+            to {
+                bottom: 0;
+                opacity: 0;
+            }
+        }
+        </style>
+
+        <script>
+        // Função para mostrar o toast
+        function mostrarToast(mensagem, tipo) {
+            let toast = document.getElementById("toast");
+            toast.innerHTML = mensagem;
+            if (tipo === 'erro') {
+                toast.style.backgroundColor = '#e74c3c'; // Cor para erro
+            } else {
+                toast.style.backgroundColor = '#2ecc71'; // Cor para sucesso
+            }
+            toast.className = "show";
+            setTimeout(function() {
+                toast.className = toast.className.replace("show", "");
+            }, 3000);
         }
 
-        // Validar status (obrigatório, até 20 caracteres)
-        let status = document.getElementById('status').value;
-        if (status === "" || status.length > 20) {
-            erroMsg.push("O campo Status é obrigatório e deve ter no máximo 20 caracteres.");
-        }
+        // Mostrar erros ou sucesso ao carregar a página
+        window.onload = function() {
+            <?php if (!empty($erroMsg)) : ?>
+            mostrarToast("<?php echo implode('<br>', $erroMsg); ?>", 'erro');
+            <?php elseif (!empty($sucessoMsg)) : ?>
+            mostrarToast("<?php echo $sucessoMsg; ?>", 'sucesso');
+            <?php endif; ?>
+        };
+        </script>
+    </head>
 
-        // Validar foto (obrigatório)
-        let foto = document.getElementById('foto').files.length;
-        if (foto === 0) {
-            erroMsg.push("A foto do pet é obrigatória.");
-        }
+    <body>
 
-        // Mostrar mensagens de erro, se houver
-        if (erroMsg.length > 0) {
-            document.getElementById('erroMsg').innerHTML = erroMsg.join("<br>");
-            return false; // Impedir o envio do formulário
-        }
-        return true; // Prosseguir com o envio se não houver erros
-    }
+        <?php include 'cabecalho.php'; ?>
 
-    // Função para limitar campos de texto e apenas números
-    function apenasNumeros(e) {
-        let tecla = (window.event) ? event.keyCode : e.which;
-        if ((tecla > 47 && tecla < 58)) return true;
-        else {
-            if (tecla == 8 || tecla == 0) return true;
-            else return false;
-        }
-    }
-    </script>
-</head>
+        <section class="cabecalho">
+            <h3>Cadastrar Pet</h3>
+        </section>
 
-<body>
+        <div id="toast"></div>
 
-    <?php include_once 'cabecalho.php'; ?>
+        <section class="sessaoFormulario">
 
-    <section class="cabecalho">
-        <h3>Cadastrar Pet</h3>
-    </section>
+            <form method="POST" enctype="multipart/form-data">
+                <label for="nome">Nome*:</label>
+                <input type="text" id="nome" name="nome" placeholder="Digite o nome do pet (máx. 255 caracteres)"
+                    maxlength="255" required>
 
-    <section class="secaoPrincipal">
-        <p id="erroMsg" class="error"></p>
+                <label for="sexo">Sexo*:</label>
+                <select id="sexo" name="sexo" required>
+                    <option value="">Selecione o sexo</option>
+                    <option value="M">Macho</option>
+                    <option value="F">Fêmea</option>
+                </select>
 
-        <form action="pet_cadastrar.php" method="POST" enctype="multipart/form-data"
-            onsubmit="return validarFormulario();">
-            <label for="nome">Nome do Pet (obrigatório):</label>
-            <input type="text" name="nome" id="nome" maxlength="255" placeholder="Ex: Rex" required>
+                <label for="idade">Idade:</label>
+                <input type="number" id="idade" name="idade" placeholder="Digite a idade do pet (em anos)" min="0">
 
-            <label for="sexo">Sexo do Pet (obrigatório):</label>
-            <select name="sexo" id="sexo" required>
-                <option value="">Selecione</option>
-                <option value="M">Macho</option>
-                <option value="F">Fêmea</option>
-            </select>
+                <label for="raca">Raça:</label>
+                <input type="text" id="raca" name="raca" placeholder="Digite a raça do pet (máx. 100 caracteres)"
+                    maxlength="100">
 
-            <label for="idade">Idade do Pet (opcional):</label>
-            <input type="text" name="idade" id="idade" placeholder="Ex: 3" onkeypress="return apenasNumeros(event);">
+                <label for="pelagem">Pelagem:</label>
+                <input type="text" id="pelagem" name="pelagem"
+                    placeholder="Digite a pelagem do pet (máx. 100 caracteres)" maxlength="100">
 
-            <label for="raca">Raça do Pet (até 100 caracteres):</label>
-            <input type="text" name="raca" id="raca" maxlength="100" placeholder="Ex: Labrador">
+                <label for="local_resgate">Local de Resgate:</label>
+                <input type="text" id="local_resgate" name="local_resgate"
+                    placeholder="Digite o local de resgate (máx. 255 caracteres)" maxlength="255">
 
-            <label for="pelagem">Pelagem do Pet (até 100 caracteres):</label>
-            <input type="text" name="pelagem" id="pelagem" maxlength="100" placeholder="Ex: Curta, Branca">
+                <label for="data_resgate">Data de Resgate:</label>
+                <input type="date" id="data_resgate" name="data_resgate">
 
-            <label for="local_resgate">Local de Resgate (até 255 caracteres):</label>
-            <input type="text" name="local_resgate" id="local_resgate" maxlength="255"
-                placeholder="Ex: Rua Principal, Centro">
+                <label for="informacoes">Informações Adicionais:</label>
+                <textarea id="informacoes" name="informacoes" placeholder="Digite informações adicionais sobre o pet"
+                    rows="4" maxlength="500"></textarea>
 
-            <label for="data_resgate">Data de Resgate (opcional):</label>
-            <input type="date" name="data_resgate" id="data_resgate">
+                <label for="foto">Foto:</label>
+                <input type="file" id="foto" name="foto" accept="image/*">
 
-            <label for="informacoes">Informações Adicionais (opcional):</label>
-            <textarea name="informacoes" id="informacoes"
-                placeholder="Descreva detalhes adicionais sobre o pet."></textarea>
+                <button type="submit">Cadastrar Pet</button>
 
-            <label for="foto">Foto do Pet (obrigatório):</label>
-            <input type="file" name="foto" id="foto" accept="image/*" required>
+                <div class="feedback erro">
+                    <?php foreach ($erroMsg as $msg): ?>
+                    <p><?php echo $msg; ?></p>
+                    <?php endforeach; ?>
+                </div>
 
-            <button type="submit">Cadastrar Pet</button>
-            <button type="reset">Limpar Formulário</button>
-        </form>
-    </section>
+                <div class="feedback sucesso">
+                    <?php if ($sucessoMsg): ?>
+                    <p><?php echo $sucessoMsg; ?></p>
+                    <?php endif; ?>
+                </div>
+            </form>
 
-    <?php include 'rodape.php'; ?>
+        </section>
 
-</body>
+        <?php include 'rodape.php'; ?>
+
+    </body>
 
 </html>

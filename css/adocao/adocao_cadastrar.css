@@ -24,230 +24,112 @@ body {
 }
 
 .container {
-    width: 90%;
-    max-width: 900px;
-    margin: 40px auto;
-    background: #ffffff;
+    max-width: 1200px;
+    margin: 20px auto;
     padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-    background: linear-gradient(135deg, #e2e2e2, #ffffff);
-}
-
-h1 {
-    margin-bottom: 30px;
-    font-size: 2.4em;
-    color: #333;
-    text-align: center;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-form {
-    display: flex;
-    flex-direction: column;
-}
-
-.form-group {
-    margin-bottom: 25px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 600;
-    color: #666;
-}
-
-.form-group select,
-.form-group textarea {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    font-size: 1em;
-    background: #fafafa;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.form-group textarea {
-    resize: vertical;
-    height: 150px;
-}
-
-button[type="submit"] {
-    padding: 14px 22px;
-    border: none;
-    border-radius: 10px;
-    background: #3498db;
-    color: #fff;
-    font-size: 1.1em;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background 0.3s, transform 0.2s;
-}
-
-button[type="submit"]:hover {
-    background: #4fb8ff;
-    transform: scale(1.03);
-}
-
-button[type="submit"]:active {
-    transform: scale(0.98);
-}
-
-/* Alinhamento lado a lado para seleção e imagens */
-.form-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 20px;
-    margin-bottom: 20px;
-}
-
-.form-row .form-group {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}
-
-.form-row .form-group select {
-    flex: 1;
-}
-
-.image-preview {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.image-preview img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 10px;
-    border: 2px solid #ddd;
+    border-radius: 8px;
+    background-color: #fff;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Mensagens de ajuda e erro */
-.message {
-    margin-top: 20px;
-    padding: 15px;
-    border-radius: 10px;
-    background-color: #e74c3c;
-    color: #ffffff;
-    border: 1px solid #c0392b;
+form
+{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     text-align: center;
-    font-weight: bold;
 }
 
-/* Estilos para o formulário de adoção */
-.container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #f4f4f4;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
+/* Estilos para as linhas do formulário */
 .form-row {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
     margin-bottom: 15px;
 }
 
-.form-group {
-    flex: 1;
-    margin-right: 10px;
+.form-row img {
+    max-width: 80%;
+    height: auto; /* Mantenha a proporção */
+    border-radius: 8px;
+    transition: transform 0.2s;
+    object-fit: cover; 
 }
 
-.form-group:last-child {
-    margin-right: 0;
+
+.form-row img:hover {
+    transform: scale(1.05);
 }
 
-.form-group label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 5px;
+.info
+{
+    display: flex;
+    flex-direction: column;
+    justify-content: left;
+    align-items: flex-start;
+    text-align: start;
+    background-color: #fdfdfd;
+    color: #000000;
+    border: 2px solid gainsboro;
+    border-radius: 10px;
+    width: fit-content;
+    padding: 20px;
+    margin: 30px;
 }
 
-.form-group input[type="text"],
-.form-group select,
-.form-group textarea {
-    width: 100%;
+p, h3 {
+    margin: 5px 0;
+}
+
+/* Estilos para inputs e textareas */
+input, select, textarea {
     padding: 10px;
-    border: 1px solid #ccc;
+    border: 1px solid #ced4da;
     border-radius: 5px;
+    font-size: 16px;
+    transition: border-color 0.3s;
 }
 
-.form-group textarea {
-    resize: vertical;
+input:focus, select:focus, textarea:focus {
+    border-color: #80bdff;
+    outline: none;
 }
 
-.imagem-pet {
-    max-width: 100%;
-    height: auto;
-    border: 1px solid #ddd;
+/* Estilo do botão */
+button {
+    padding: 10px 20px;
+    border: none;
     border-radius: 5px;
+    background-color: #007bff;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
 }
 
-.message {
-    padding: 15px;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    background-color: #fff;
-    color: #333;
+button:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
 }
 
 /* Responsividade */
 @media (max-width: 768px) {
     .container {
-        padding: 20px;
+        padding: 10px;
     }
 
-    h1 {
-        font-size: 2em;
+    h2 {
+        font-size: 1.5em;
     }
 
-    .form-group select,
-    .form-group textarea {
+    h4, p {
         font-size: 0.9em;
     }
 
-    button[type="submit"] {
-        font-size: 1em;
-    }
-
-    .form-row {
-        flex-direction: column;
-        gap: 15px;
-    }
-}
-
-@media (max-width: 480px) {
-    .container {
-        padding: 15px;
-    }
-
-    h1 {
-        font-size: 1.6em;
-    }
-
-    .form-group select,
-    .form-group textarea {
-        font-size: 0.8em;
-    }
-
-    button[type="submit"] {
-        font-size: 0.9em;
-    }
-
-    .image-preview img {
-        max-width: 100%;
-        height: auto;
+    button {
+        width: 100%;
     }
 }

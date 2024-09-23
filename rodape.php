@@ -11,7 +11,7 @@
                     class="logo-img" style="max-width: 150px; height: auto; margin: 5px;">
             </div>
             <a href="https://imaculada.pb.gov.br" target="_blank" class="link-prefeitura"
-                style="display: block; margin: 5px; color: #0222ff; text-decoration: none; font-size: 16px; transition: color 0.3s ease;">Prefeitura
+                style="display: block; margin: 5px; color: #0222ff; text-decoration: none;   font-size: small;; transition: color 0.3s ease;">Prefeitura
                 Municipal de Imaculada</a>
 
         </div>
@@ -24,7 +24,7 @@
             <p style=" margin: 5px; font-size: 14px;">&copy; 2024 Sistema Adote um Pet. Todos os direitos reservados.
             </p>
             <a href="desenvolvedor.php" class="link-desenvolvedor"
-                style="display: block; margin: 5px; color: #0222ff; text-decoration: none; font-size: 16px; transition: color 0.3s ease;">Sobre
+                style="display: block; margin: 5px; color: #0222ff; text-decoration: none;   font-size: small;; transition: color 0.3s ease;">Sobre
                 o Desenvolvedor</a>
         </div>
     </div>

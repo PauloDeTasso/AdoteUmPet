@@ -1,22 +1,26 @@
 <?php
 include 'conexao_db.php';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST')
+{
     // Validações específicas de entrada
     $cpf = filter_input(INPUT_POST, 'cpf', FILTER_SANITIZE_STRING);
-    if (strlen($cpf) !== 11 || !ctype_digit($cpf)) {
+    if (strlen($cpf) !== 11 || !ctype_digit($cpf))
+    {
         echo "<script>alert('O CPF deve ter exatamente 11 dígitos.');</script>";
         exit;
     }
 
     $cep = filter_input(INPUT_POST, 'cep', FILTER_SANITIZE_STRING);
-    if (!preg_match('/^\d{5}-?\d{3}$/', $cep)) {
+    if (!preg_match('/^\d{8}$/', $cep))
+    {
         echo "<script>alert('O CEP deve estar no formato correto.');</script>";
         exit;
     }
 
     // Conexão com PDO
-    try {
+    try
+    {
         $conn = conectar();
 
         // Sanitização de entradas
@@ -33,17 +37,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $estado = filter_input(INPUT_POST, 'estado', FILTER_SANITIZE_STRING);
 
         // Verifica se o arquivo de imagem foi enviado
-        if (isset($_FILES['imagem']) && $_FILES['imagem']['error'] === UPLOAD_ERR_OK) {
+        if (isset($_FILES['imagem']) && $_FILES['imagem']['error'] === UPLOAD_ERR_OK)
+        {
             $imagemNome = basename($_FILES['imagem']['name']);
             $imagemPath = 'imagens/vigilantes/' . $imagemNome;
 
             // Move o arquivo para o diretório correto
-            if (move_uploaded_file($_FILES['imagem']['tmp_name'], $imagemPath)) {
+            if (move_uploaded_file($_FILES['imagem']['tmp_name'], $imagemPath))
+            {
                 $imagemUrl = $imagemPath;
-            } else {
+            }
+            else
+            {
                 throw new Exception("Erro ao mover o arquivo para o diretório.");
             }
-        } else {
+        }
+        else
+        {
             $imagemUrl = null;
         }
 
@@ -62,7 +72,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
 
         // Insere o endereço se fornecido
-        if ($rua && $bairro && $cep && $cidade && $estado) {
+        if ($rua && $bairro && $cep && $cidade && $estado)
+        {
             $sqlEndereco = "INSERT INTO Endereco (rua, numero, bairro, cep, referencia, cidade, estado) 
                             VALUES (:rua, :numero, :bairro, :cep, :referencia, :cidade, :estado)";
             $stmtEndereco = $conn->prepare($sqlEndereco);
@@ -87,7 +98,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Insere a imagem do usuário, se houver
-        if ($imagemUrl) {
+        if ($imagemUrl)
+        {
             $sqlImagem = "INSERT INTO Imagem_Usuario (url_imagem, fk_Usuario_cpf) VALUES (:imagem_url, :cpf)";
             $stmtImagem = $conn->prepare($sqlImagem);
             $stmtImagem->execute([
@@ -97,13 +109,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $conn->commit();
-        echo "<script>alert('Cadastro realizado com sucesso!'); window.location.href = window.location.href;</script>";
-    } catch (PDOException $e) {
+        echo "<script>alert('Cadastro realizado com sucesso!'); window.location.href = 'home.php';</script>";
+    }
+    catch (PDOException $e)
+    {
         $conn->rollBack();
         echo "Erro no banco de dados: " . $e->getMessage();
-    } catch (Exception $e) {
+    }
+    catch (Exception $e)
+    {
         echo "Erro: " . $e->getMessage();
-    } finally {
+    }
+    finally
+    {
         $conn = null;
     }
 }
@@ -119,59 +137,59 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="css/vigilante/vigilante_cadastrar.css">
 
     <script>
-    function validarFormulario() {
-        let cpf = document.getElementById('cpf').value;
-        let telefone = document.getElementById('telefone').value;
-        let senha = document.getElementById('senha').value;
-        let confirmacaoSenha = document.getElementById('confirmacao_senha').value;
-        let email = document.getElementById('email').value;
-        let cep = document.getElementById('cep').value;
+        function validarFormulario() {
+            let cpf = document.getElementById('cpf').value;
+            let telefone = document.getElementById('telefone').value;
+            let senha = document.getElementById('senha').value;
+            let confirmacaoSenha = document.getElementById('confirmacao_senha').value;
+            let email = document.getElementById('email').value;
+            let cep = document.getElementById('cep').value;
 
-        // Validação de CPF
-        if (cpf.length !== 11 || isNaN(cpf)) {
-            alert('CPF deve ter exatamente 11 dígitos.');
-            return false;
+            // Validação de CPF
+            if (cpf.length !== 11 || isNaN(cpf)) {
+                alert('CPF deve ter exatamente 11 dígitos.');
+                return false;
+            }
+
+            // Validação de Telefone
+            if (telefone.length !== 11 || isNaN(telefone)) {
+                alert('Telefone deve ter exatamente 11 dígitos.');
+                return false;
+            }
+
+            // Validação de Senha
+            if (senha.length < 6) {
+                alert('A senha deve ter pelo menos 6 caracteres.');
+                return false;
+            }
+
+            // Validação de Confirmação de Senha
+            if (senha !== confirmacaoSenha) {
+                alert('As senhas não coincidem.');
+                return false;
+            }
+
+            // Validação de Email
+            let regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!regexEmail.test(email)) {
+                alert('Insira um email válido.');
+                return false;
+            }
+
+            // Validação de CEP
+            let regexCep = /^\d{8}$/;
+            if (!regexCep.test(cep)) {
+                alert('Insira um CEP válido no formato 12345678.');
+                return false;
+            }
+
+            return true;
         }
 
-        // Validação de Telefone
-        if (telefone.length !== 11 || isNaN(telefone)) {
-            alert('Telefone deve ter exatamente 11 dígitos.');
-            return false;
+        function toggleEndereco() {
+            let enderecoDiv = document.getElementById('endereco');
+            enderecoDiv.classList.toggle('hidden');
         }
-
-        // Validação de Senha
-        if (senha.length < 6) {
-            alert('A senha deve ter pelo menos 6 caracteres.');
-            return false;
-        }
-
-        // Validação de Confirmação de Senha
-        if (senha !== confirmacaoSenha) {
-            alert('As senhas não coincidem.');
-            return false;
-        }
-
-        // Validação de Email
-        let regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!regexEmail.test(email)) {
-            alert('Insira um email válido.');
-            return false;
-        }
-
-        // Validação de CEP
-        let regexCep = /^\d{5}-\d{3}$/;
-        if (!regexCep.test(cep)) {
-            alert('Insira um CEP válido no formato 12345-678.');
-            return false;
-        }
-
-        return true;
-    }
-
-    function toggleEndereco() {
-        let enderecoDiv = document.getElementById('endereco');
-        enderecoDiv.classList.toggle('hidden');
-    }
     </script>
 </head>
 
@@ -209,8 +227,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <input type="password" id="senha" name="senha" placeholder="Digite a senha" required>
 
                 <label for="confirmacao_senha">Confirme a Senha</label>
-                <input type="password" id="confirmacao_senha" name="confirmacao_senha" placeholder="Confirme a senha"
-                    required>
+                <input type="password" id="confirmacao_senha" name="confirmacao_senha"
+                    placeholder="Confirme a senha" required>
             </fieldset>
 
             <button type="button" class="toggle-endereco" onclick="toggleEndereco()">Adicionar Endereço</button>

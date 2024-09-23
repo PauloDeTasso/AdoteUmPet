@@ -49,7 +49,7 @@ a {
     padding: 10px 20px;
     border-radius: 5px;
     font-size: 1em;
-    transition: background-color 0.3s ease-in-out, transform 0.3s, box-shadow 0.3s;
+    transition: background-color 0.3s ease, transform 0.3s, box-shadow 0.3s;
 }
 
 .btn:hover {
@@ -61,7 +61,7 @@ a {
 /* Estilo da lista de pets */
 .pets-list {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 20px;
     margin-top: 20px;
 }
@@ -71,7 +71,7 @@ a {
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
     padding: 20px;
     position: relative;
     animation: slideIn 0.5s ease-in-out;
@@ -95,10 +95,10 @@ a {
 /* Estilo da imagem do pet */
 .pet-img {
     width: 100%;
-    height: 300px;
+    height: 250px;
     object-fit: cover;
     border-bottom: 2px solid #6a67ce;
-    transition: filter 0.3s ease-in-out;
+    transition: filter 0.3s ease;
     border-radius: 4%;
 }
 
@@ -144,7 +144,7 @@ a {
     cursor: pointer;
     display: inline-block;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: background-color 0.3s ease-in-out, transform 0.3s, box-shadow 0.3s;
+    transition: background-color 0.3s ease, transform 0.3s, box-shadow 0.3s;
 }
 
 .pet-info .btn:hover {
@@ -171,7 +171,7 @@ a {
     text-align: center;
     cursor: pointer;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: background-color 0.3s ease-in-out, transform 0.3s, box-shadow 0.3s;
+    transition: background-color 0.3s ease, transform 0.3s, box-shadow 0.3s;
 }
 
 .btn-adotar:hover {
@@ -202,6 +202,10 @@ a {
     .btn {
         font-size: 0.9em;
         padding: 8px 16px;
+    }
+
+    .pet-img {
+        height: 200px; /* Ajuste para mobile */
     }
 }
 

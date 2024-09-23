@@ -23,24 +23,31 @@ $imagemUrl = $imagemUsuario ? $imagemUsuario['url_imagem'] : 'imagens/usuarios/d
 
 
 // Verifica se o campo fk_permissao_id está presente e se o valor é válido
-if (isset($usuarioLogado['fk_permissao_id']) && !empty($usuarioLogado['fk_permissao_id'])) {
+if (isset($usuarioLogado['fk_permissao_id']) && !empty($usuarioLogado['fk_permissao_id']))
+{
     $permissaoUsuario = $usuarioLogado['fk_permissao_id'];
-} else {
+}
+else
+{
     echo "Erro: fk_permissao_id não está definido ou está vazio para o usuário.";
     $permissaoUsuario = null;
 }
 
 // Consulta o tipo de permissão do usuário (Administrador ou Adotante)
-if ($permissaoUsuario) {
+if ($permissaoUsuario)
+{
     $queryPermissao = $pdo->prepare('SELECT tipo FROM Permissao WHERE id = :id');
     $queryPermissao->execute([':id' => $permissaoUsuario]);
     $tipoPermissao = $queryPermissao->fetchColumn();
 
-    if ($tipoPermissao === false) {
+    if ($tipoPermissao === false)
+    {
         echo "Erro: Tipo de permissão não encontrado para id = " . htmlspecialchars($permissaoUsuario);
         $tipoPermissao = 'Indefinido';
     }
-} else {
+}
+else
+{
     echo "Erro: O usuário não possui uma permissão válida.";
     $tipoPermissao = 'Indefinido';
 }
@@ -110,20 +117,27 @@ LIMIT 5";
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-// Função para obter pets disponíveis para adoção com paginação
+// Obtendo as imagens dos pets disponíveis
 function obterPetsDisponiveis($pdo, $paginaAtual, $itensPorPagina)
 {
     $offset = ($paginaAtual - 1) * $itensPorPagina;
     $sql = "SELECT p.nome AS pet_nome, p.brinco, ip.url_imagem AS imagem_pet
-FROM Pet p
-LEFT JOIN Imagem_Pet ip ON ip.fk_Pet_brinco = p.brinco
-WHERE p.status = 'ADOTÁVEL'
-LIMIT :itensPorPagina OFFSET :offset";
+            FROM Pet p
+            LEFT JOIN Imagem_Pet ip ON ip.fk_Pet_brinco = p.brinco
+            WHERE p.status = 'ADOTÁVEL'
+            LIMIT :itensPorPagina OFFSET :offset";
     $stmt = $pdo->prepare($sql);
     $stmt->bindValue(':itensPorPagina', $itensPorPagina, PDO::PARAM_INT);
     $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
     $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Verificando a imagem do pet
+    $pets = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    foreach ($pets as &$pet)
+    {
+        $pet['imagem_pet'] = $pet['imagem_pet'] ? $pet['imagem_pet'] : 'imagens/pets/default.jpg';
+    }
+    return $pets;
 }
 
 // Função para obter pets já adotados
@@ -172,13 +186,9 @@ $totalPaginas = ceil($totalPetsDisponiveis / $itensPorPagina);
 
     <section class="cabecalho">
         <h1>Bem-vindo, <?= htmlspecialchars($usuarioLogado['nome'], ENT_QUOTES, 'UTF-8'); ?>!</h1>
-        <!-- Exibe a imagem do usuário -->
         <section class="usuario-imagem">
             <img src="<?= htmlspecialchars($imagemUrl, ENT_QUOTES, 'UTF-8'); ?>" alt="Foto do usuário">
         </section>
-        <nav>
-            <a href="logout.php">Sair</a>
-        </nav>
     </section>
 
     <main>
@@ -189,25 +199,31 @@ $totalPaginas = ceil($totalPetsDisponiveis / $itensPorPagina);
             <section class="acoes">
                 <ul>
                     <!-- Categoria de Pets -->
-                    <li><strong>Pets</strong>
+                    <li>
+                        <?php if ($tipoPermissao == 'Administrador') : ?>
+                            <strong id="petsMenu">Pets</strong>
+                        <?php else: ?>
+                            <a class="btnLink" href="pets.php"><strong id=" petsMenu">Pets</strong></a>
+                        <?php endif; ?>
+
                         <ul>
-                            <li><a href="pets.php">Pesquisar Pets Disponíveis</a></li>
+                            <li><a href="pets.php">Ver Pets</a></li>
                             <?php if ($tipoPermissao == 'Administrador') : ?>
                                 <li><a href="pet_cadastrar.php">Cadastrar Novo Pet</a></li>
                             <?php endif; ?>
                         </ul>
                     </li>
 
+
                     <!-- Categoria de Usuários -->
                     <li><strong>Adotantes</strong>
                         <ul>
                             <?php if ($tipoPermissao == 'Administrador') : ?>
-                                <li> <a href="usuarios.php?tipo=adotante">Pesquisar Adotantes</a></li>
+                                <li> <a href="usuarios.php?tipo=adotante">Ver Adotantes </a></li>
                                 <li><a href="usuario_cadastrar.php">Cadastrar Novo Adotante</a></li>
                             <?php endif; ?>
                             <?php if ($tipoPermissao == 'Adotante') : ?>
-                                <li><a
-                                        href="usuario_editar.php?cpf=<?= htmlspecialchars($usuarioLogado['cpf'], ENT_QUOTES, 'UTF-8'); ?>">Editar
+                                <li><a href="usuario_editar_dados.php">Editar
                                         meu perfil</a></li>
                                 <li><a
                                         href="usuario_remover.php?cpf=<?= htmlspecialchars($usuarioLogado['cpf'], ENT_QUOTES, 'UTF-8'); ?>">Excluir
@@ -217,39 +233,57 @@ $totalPaginas = ceil($totalPetsDisponiveis / $itensPorPagina);
                     </li>
 
                     <!-- Categoria de Vigilantes Sanitários -->
-                    <li><strong>Vigilantes Sanitários</strong>
+                    <li>
+                        <?php if ($tipoPermissao == 'Administrador') : ?>
+                            <strong>Vigilantes Sanitários</strong>
+                        <?php else: ?>
+
+                            <a class="btnLink" href="usuarios.php?tipo=vigilante"><strong>Vigilantes Sanitários</strong>
+                            </a>
+                        <?php endif; ?>
+
                         <ul>
-                            <li><a href="usuarios.php?tipo=vigilante">Pesquisar Vigilantes Sanitários</a></li>
+
                             <?php if ($tipoPermissao == 'Administrador') : ?>
+                                <li><a href="usuarios.php?tipo=vigilante">Ver Vigilantes Sanitários</a></li>
                                 <li><a href="vigilante_cadastrar.php">Cadastrar Novo Vigilante</a></li>
-                                <li><a href="vigilante_editar.php">Editar meus dados</a></li>
-                                <li><a href="vigilante_remover.php">Remover minha conta</a></li>
+                                <li><a href="usuario_editar_dados.php">Editar meus dados</a></li>
+                                <li><a href="usuario_remover.php">Remover minha conta</a></li>
                             <?php endif; ?>
                         </ul>
                     </li>
 
-                    <!-- Categoria de Adoções -->
-                    <li><strong>Adoções</strong>
+                    <li>
+                        <!-- Categoria de Adoções -->
+                        <?php if ($tipoPermissao == 'Administrador') : ?>
+                            <strong>Adoções</strong>
+                        <?php else: ?>
+                            <a class="btnLink" href="adocoes.php">
+                                <strong>Adoções</strong>
+                            </a>
+                        <?php endif; ?>
+
                         <ul>
-                            <li><a href="adocoes.php">Pesquisar Adoções</a></li>
+
                             <?php if ($tipoPermissao == 'Administrador') : ?>
                                 <li><a href="adocao_cadastrar_adm.php">Cadastrar Nova Adoção</a></li>
+                                <li><a href="adocoes.php">Ver Adoções Realizadas</a></li>
                             <?php endif; ?>
                         </ul>
                     </li>
 
                     <!-- Categoria de Sistema -->
-                    <li><strong>Sistema</strong>
-                        <ul>
-                            <li><a href="configuracoes.php">Configurações do Sistema</a></li>
-                        </ul>
-                    </li>
+
+                    <li><a class="btnLink" href="configuracoes.php">
+                            <strong>Sistema</strong>
+                        </a></li>
                 </ul>
             </section>
 
+            <?php include_once 'grafico.php'; ?>
+
             <!-- Seção de Estatísticas do sistema -->
             <section class="estatisticas">
-                <h2>Cadastros</h2>
                 <p>Adotantes: <strong><?= htmlspecialchars($totalUsuarios, ENT_QUOTES, 'UTF-8'); ?></strong></p>
                 <p>Vigilantes sanitários:
                     <strong><?= htmlspecialchars($totalVigilantes, ENT_QUOTES, 'UTF-8'); ?></strong>
@@ -264,8 +298,6 @@ $totalPaginas = ceil($totalPetsDisponiveis / $itensPorPagina);
                 </p>
 
             </section>
-
-            <?php include_once 'graficos.php'; ?>
 
             <!-- Seção de Pets Disponíveis -->
             <section class="pets-disponiveis">
