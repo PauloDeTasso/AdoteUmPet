@@ -1,4 +1,10 @@
 <?php
+
+if (session_status() === PHP_SESSION_NONE)
+{
+    session_start();
+}
+
 function verificarSessao()
 {
     if (!isset($_SESSION['cpf']))

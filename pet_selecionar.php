@@ -1,8 +1,5 @@
 <?php
-session_start();
-require_once 'conexao_db.php';
-require_once 'auth.php';
-verificarSessao();
+include_once "start.php";
 
 $pdo = conectar();
 

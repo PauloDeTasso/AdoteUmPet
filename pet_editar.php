@@ -1,13 +1,5 @@
 <?php
-session_start();
-require_once 'conexao_db.php';
-
-// Verifica se o usuário é administrador
-if ($_SESSION['tipo'] !== 'Administrador')
-{
-    header('Location: index.php');
-    exit();
-}
+include_once "start.php";
 
 $pdo = conectar();
 

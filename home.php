@@ -1,10 +1,5 @@
 <?php
-session_start();
-require_once 'conexao_db.php';
-
-// Verifica usuário na sessão
-require_once 'auth.php';
-verificarSessao();
+include_once "start.php";
 
 $pdo = conectar();
 
@@ -19,8 +14,16 @@ $queryImagem = $pdo->prepare('SELECT url_imagem FROM Imagem_Usuario WHERE fk_Usu
 $queryImagem->execute([':cpf' => $cpfUsuario]);
 $imagemUsuario = $queryImagem->fetch(PDO::FETCH_ASSOC);
 
-$imagemUrl = $imagemUsuario ? $imagemUsuario['url_imagem'] : 'imagens/usuarios/default.jpg';
-
+// Verifica se a URL da imagem existe no banco e se o arquivo está presente no servidor
+if ($imagemUsuario && file_exists($imagemUsuario['url_imagem']))
+{
+    $imagemUrl = $imagemUsuario['url_imagem'];
+}
+else
+{
+    // Caso não exista uma imagem cadastrada ou o arquivo não esteja presente, usa a imagem padrão
+    $imagemUrl = 'imagens/usuarios/default.jpg';
+}
 
 // Verifica se o campo fk_permissao_id está presente e se o valor é válido
 if (isset($usuarioLogado['fk_permissao_id']) && !empty($usuarioLogado['fk_permissao_id']))
@@ -114,7 +117,24 @@ ORDER BY a.data_adocao DESC
 LIMIT 5";
     $stmt = $pdo->prepare($sql);
     $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $ultimasAdocoes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Verifica as imagens dos adotantes
+    foreach ($ultimasAdocoes as &$adocao)
+    {
+        if (empty($adocao['imagem_adotante']) || !file_exists($adocao['imagem_adotante']))
+        {
+            $adocao['imagem_adotante'] = 'imagens/usuarios/default.jpg';
+        }
+
+        // Verifica as imagens dos pets
+        if (empty($adocao['imagem_pet']))
+        {
+            $adocao['imagem_pet'] = 'imagens/pets/default.jpg';
+        }
+    }
+
+    return $ultimasAdocoes;
 }
 
 // Obtendo as imagens dos pets disponíveis

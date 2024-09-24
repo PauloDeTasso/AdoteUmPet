@@ -1,13 +1,5 @@
 <?php
-session_start();
-require_once 'conexao_db.php';
-
-// Verifica se o usuário está logado
-if (!isset($_SESSION['cpf']))
-{
-    header('Location: login.php');
-    exit();
-}
+include_once "start.php";
 
 if (isset($_SESSION['message']))
 {
@@ -57,12 +49,12 @@ $pets = obterPets($pdo);
 <!DOCTYPE html>
 <html lang="pt-BR">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pets Disponíveis</title>
-    <link rel="stylesheet" href="css/pet/pets.css">
-    <script>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Pets Disponíveis</title>
+        <link rel="stylesheet" href="css/pet/pets.css">
+        <script>
         // Função para redirecionar para a página pet_selecionar.php com o brinco do pet
         function verDetalhesPet(brinco) {
             window.location.href = "pet_selecionar.php?brinco=" + brinco;
@@ -74,60 +66,60 @@ $pets = obterPets($pdo);
             window.location.href = "adocao_cadastrar.php?pet=" + brinco + "&adotante=" +
                 "<?php echo $_SESSION['cpf']; ?>";
         }
-    </script>
-</head>
+        </script>
+    </head>
 
-<body>
+    <body>
 
-    <?php include 'cabecalho.php'; ?>
+        <?php include 'cabecalho.php'; ?>
 
-    <section class="cabecalho">
-        <h3>Pets Disponíveis para Adoção</h3>
-        <br>
-        <p>Para ver mais detalhes clique na foto do pet.</p>
-        <?php if ($tipoUsuario === 'Administrador'): ?>
+        <section class="cabecalho">
+            <h3>Pets Disponíveis para Adoção</h3>
+            <br>
+            <p>Para ver mais detalhes clique na foto do pet.</p>
+            <?php if ($tipoUsuario === 'Administrador'): ?>
             <p>Você também poderá editar ou remover o pet clicando na foto dele.</p>
-        <?php endif; ?>
-    </section>
+            <?php endif; ?>
+        </section>
 
-    <div class="container">
+        <div class="container">
 
-        <?php if ($tipoUsuario === 'Administrador'): ?>
+            <?php if ($tipoUsuario === 'Administrador'): ?>
             <div class="btn-container">
                 <a href="pet_cadastrar.php" class="btn">Cadastrar Novo Pet</a>
             </div>
-        <?php endif; ?>
-
-        <div class="pets-list">
-            <?php if (count($pets) > 0): ?>
-                <?php foreach ($pets as $pet): ?>
-                    <!-- Adiciona a classe com base no sexo do pet (Macho ou Fêmea) -->
-                    <div class="pet-item <?= strtolower($pet['sexo']) === 'm' ? 'macho' : 'femea' ?>">
-                        <a href="pet_selecionar.php?brinco=<?= $pet['brinco'] ?>" class="pet-link"
-                            onclick="verDetalhesPet(<?= $pet['brinco'] ?>)">
-                            <img src="<?= htmlspecialchars($pet['url_imagem']) ?: 'imagens/pets/default.jpg' ?>"
-                                alt="Imagem de <?= htmlspecialchars($pet['nome']) ?>" class="pet-img">
-                        </a>
-                        <div class="pet-info">
-                            <h3><?= htmlspecialchars($pet['nome']) ?></h3>
-                            <p><strong>Idade:</strong> <?= htmlspecialchars($pet['idade']) ?: 'Não informado' ?></p>
-                            <p><strong>Sexo:</strong> <?= strtolower($pet['sexo']) === 'm' ? 'Macho' : 'Fêmea' ?></p>
-                            <p><strong>Raça:</strong> <?= htmlspecialchars($pet['raca']) ?: 'Não informado' ?></p>
-                            <p><strong>Informações:</strong>
-                                <?= htmlspecialchars($pet['informacoes']) ?: 'Não informado' ?></p>
-                        </div>
-                        <!-- Adiciona o botão para adoção -->
-                        <button onclick="adotarPet(<?= $pet['brinco'] ?>)" class="btn-adotar">Adotar Pet</button>
-                    </div>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <p>Não há pets cadastrados no momento.</p>
             <?php endif; ?>
+
+            <div class="pets-list">
+                <?php if (count($pets) > 0): ?>
+                <?php foreach ($pets as $pet): ?>
+                <!-- Adiciona a classe com base no sexo do pet (Macho ou Fêmea) -->
+                <div class="pet-item <?= strtolower($pet['sexo']) === 'm' ? 'macho' : 'femea' ?>">
+                    <a href="pet_selecionar.php?brinco=<?= $pet['brinco'] ?>" class="pet-link"
+                        onclick="verDetalhesPet(<?= $pet['brinco'] ?>)">
+                        <img src="<?= htmlspecialchars($pet['url_imagem']) ?: 'imagens/pets/default.jpg' ?>"
+                            alt="Imagem de <?= htmlspecialchars($pet['nome']) ?>" class="pet-img">
+                    </a>
+                    <div class="pet-info">
+                        <h3><?= htmlspecialchars($pet['nome']) ?></h3>
+                        <p><strong>Idade:</strong> <?= htmlspecialchars($pet['idade']) ?: 'Não informado' ?></p>
+                        <p><strong>Sexo:</strong> <?= strtolower($pet['sexo']) === 'm' ? 'Macho' : 'Fêmea' ?></p>
+                        <p><strong>Raça:</strong> <?= htmlspecialchars($pet['raca']) ?: 'Não informado' ?></p>
+                        <p><strong>Informações:</strong>
+                            <?= htmlspecialchars($pet['informacoes']) ?: 'Não informado' ?></p>
+                    </div>
+                    <!-- Adiciona o botão para adoção -->
+                    <button onclick="adotarPet(<?= $pet['brinco'] ?>)" class="btn-adotar">Adotar Pet</button>
+                </div>
+                <?php endforeach; ?>
+                <?php else: ?>
+                <p>Não há pets cadastrados no momento.</p>
+                <?php endif; ?>
+            </div>
         </div>
-    </div>
 
-    <?php include 'rodape.php'; ?>
+        <?php include 'rodape.php'; ?>
 
-</body>
+    </body>
 
 </html>

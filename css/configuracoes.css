@@ -170,8 +170,25 @@ input::placeholder {
     font-size: 1.1em;
 }
 
+form
+{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    margin: 20px;
+    border: 10px solid rgba(151, 151, 151, 0.219);
+    border-radius: 4%;
+    width: 80%;
+}
+
 /* Botões */
 button {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     padding: 14px;
     background-color: #3498db;
     color: white;
@@ -180,7 +197,7 @@ button {
     cursor: pointer;
     transition: background-color 0.3s ease;
     font-size: 1.1em;
-}
+    }
 
 button:hover {
     background-color: #4eb2f5;

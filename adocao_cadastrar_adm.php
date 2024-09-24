@@ -1,17 +1,5 @@
 <?php
-// Inclua o arquivo de conexão e utilidades
-include 'conexao_db.php';
-include 'utilidades.php';
-
-// Inicie a sessão para verificar o usuário logado
-session_start();
-
-// Verifica se o usuário está logado
-if (!isset($_SESSION['cpf']))
-{
-    header('Location: login.php');
-    exit();
-}
+include_once "start.php";
 
 // Obtenha a instância do PDO
 $pdo = conectar();
@@ -191,12 +179,12 @@ if (isset($_GET['action']))
 <!DOCTYPE html>
 <html lang="pt-br">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Cadastro de Adoção</title>
-        <link rel="stylesheet" href="css/adocao/adocao_cadastrar_adm.css">
-        <script>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Adoção</title>
+    <link rel="stylesheet" href="css/adocao/adocao_cadastrar_adm.css">
+    <script>
         // Função para atualizar a imagem do pet com AJAX
         function atualizarImagemPet() {
             const petSelecionado = document.getElementById('pet');
@@ -297,68 +285,68 @@ if (isset($_GET['action']))
                 document.getElementById('usuario_telefone').textContent = '-';
             }
         }
-        </script>
-    </head>
+    </script>
+</head>
 
-    <body>
+<body>
 
-        <?php include 'cabecalho.php'; ?>
+    <?php include 'cabecalho.php'; ?>
 
-        <section class="cabecalho">
-            <h3>Cadastro de Adoção</h3>
-        </section>
+    <section class="cabecalho">
+        <h3>Cadastro de Adoção</h3>
+    </section>
 
-        <section class="sessaoPrincipal">
+    <section class="sessaoPrincipal">
 
-            <div class="container">
-                <?php if ($mensagem): ?>
+        <div class="container">
+            <?php if ($mensagem): ?>
                 <div class="mensagem <?= $tipoMensagem ?>">
                     <?= $mensagem ?>
                 </div>
-                <?php endif; ?>
+            <?php endif; ?>
 
-                <form method="POST">
-                    <!-- Seleção de Usuário -->
-                    <label for="usuario">Adotante:</label>
-                    <select id="usuario" name="usuario" onchange="atualizarImagemUsuario(); atualizarDadosUsuario();">
-                        <option value="">Selecione um adotante</option>
-                        <?php foreach ($usuariosAtivos as $usuario): ?>
+            <form method="POST">
+                <!-- Seleção de Usuário -->
+                <label for="usuario">Adotante:</label>
+                <select id="usuario" name="usuario" onchange="atualizarImagemUsuario(); atualizarDadosUsuario();">
+                    <option value="">Selecione um adotante</option>
+                    <?php foreach ($usuariosAtivos as $usuario): ?>
                         <option value="<?= $usuario['cpf']; ?>"><?= $usuario['nome']; ?></option>
-                        <?php endforeach; ?>
-                    </select>
+                    <?php endforeach; ?>
+                </select>
 
-                    <!-- Exibição da Imagem e Dados do Adotante -->
-                    <img id="imagemUsuario" src="imagens/usuarios/default.jpg" alt="Imagem do Adotante" width="100">
-                    <p id="usuario_nome">-</p>
-                    <p id="usuario_telefone">-</p>
+                <!-- Exibição da Imagem e Dados do Adotante -->
+                <img id="imagemUsuario" src="imagens/usuarios/default.jpg" alt="Imagem do Adotante" width="100">
+                <p id="usuario_nome">-</p>
+                <p id="usuario_telefone">-</p>
 
-                    <!-- Seleção de Pet -->
-                    <label for="pet">Pet:</label>
-                    <select id="pet" name="pet" onchange="atualizarImagemPet(); atualizarDadosPet();">
-                        <option value="">Selecione um pet</option>
-                        <?php foreach ($petsDisponiveis as $pet): ?>
+                <!-- Seleção de Pet -->
+                <label for="pet">Pet:</label>
+                <select id="pet" name="pet" onchange="atualizarImagemPet(); atualizarDadosPet();">
+                    <option value="">Selecione um pet</option>
+                    <?php foreach ($petsDisponiveis as $pet): ?>
                         <option value="<?= $pet['brinco']; ?>"><?= $pet['nome']; ?></option>
-                        <?php endforeach; ?>
-                    </select>
+                    <?php endforeach; ?>
+                </select>
 
-                    <!-- Exibição da Imagem e Dados do Pet -->
-                    <img id="imagemPet" src="imagens/pets/default.jpg" alt="Imagem do Pet" width="100">
-                    <p id="pet_nome">-</p>
-                    <p id="pet_sexo">-</p>
+                <!-- Exibição da Imagem e Dados do Pet -->
+                <img id="imagemPet" src="imagens/pets/default.jpg" alt="Imagem do Pet" width="100">
+                <p id="pet_nome">-</p>
+                <p id="pet_sexo">-</p>
 
 
-                    <label for="observacoes">Observações:</label>
-                    <textarea name="observacoes" id="observacoes" rows="3"
-                        placeholder="Observações adicionais"></textarea>
+                <label for="observacoes">Observações:</label>
+                <textarea name="observacoes" id="observacoes" rows="3"
+                    placeholder="Observações adicionais"></textarea>
 
-                    <button type="submit">Cadastrar Adoção</button>
-                </form>
-            </div>
+                <button type="submit">Cadastrar Adoção</button>
+            </form>
+        </div>
 
-        </section>
+    </section>
 
-        <?php include 'rodape.php'; ?>
+    <?php include 'rodape.php'; ?>
 
-    </body>
+</body>
 
 </html>

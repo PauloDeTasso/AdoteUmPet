@@ -1,16 +1,5 @@
 <?php
-// Inclua o arquivo de conexão
-include 'conexao_db.php';
-
-// Inicie a sessão para verificar o usuário logado
-session_start();
-
-// Verifica se o usuário está logado
-if (!isset($_SESSION['cpf']))
-{
-    header('Location: login.php');
-    exit();
-}
+include_once "start.php";
 
 // Obtenha a instância do PDO
 $pdo = conectar();
@@ -35,7 +24,15 @@ function getAdotante($pdo, $cpf)
             WHERE u.cpf = :cpf AND u.status = :status';
     $stmt = $pdo->prepare($sql);
     $stmt->execute([':cpf' => $cpf, ':status' => 'ATIVO']);
-    return $stmt->fetch(PDO::FETCH_ASSOC);
+
+    $getAdotanteDb = $stmt->fetch(PDO::FETCH_ASSOC);
+
+
+    if (empty($getAdotanteDb['url_imagem']) || !file_exists($getAdotanteDb['url_imagem']))
+    {
+        $getAdotanteDb['url_imagem'] = 'imagens/usuarios/default.jpg';
+    }
+    return $getAdotanteDb;
 }
 
 
@@ -220,12 +217,12 @@ if ($idade < 18)
 <!DOCTYPE html>
 <html lang="pt-br">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adoção de Pet</title>
-    <link rel="stylesheet" href="css/adocao/adocao_cadastrar.css">
-    <script>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Adoção de Pet</title>
+        <link rel="stylesheet" href="css/adocao/adocao_cadastrar.css">
+        <script>
         // Função para atualizar a imagem do pet com AJAX
         function atualizarImagemPet() {
             const petSelecionado = document.getElementById('pet_brinco');
@@ -279,24 +276,24 @@ if ($idade < 18)
                 petSexo.textContent = 'Sexo: -';
             }
         }
-    </script>
-</head>
+        </script>
+    </head>
 
-<body>
+    <body>
 
-    <?php include_once 'cabecalho.php'; ?>
+        <?php include_once 'cabecalho.php'; ?>
 
-    <section class="cabecalho">
-        <h2>Adoção de Pet</h2>
-    </section>
+        <section class="cabecalho">
+            <h2>Adoção de Pet</h2>
+        </section>
 
-    <div class="container">
+        <div class="container">
 
-        <!-- Formulário de Adoção -->
-        <form method="POST">
+            <!-- Formulário de Adoção -->
+            <form method="POST">
 
-            <!-- Verifica se o adotante existe -->
-            <?php if ($adotante): ?>
+                <!-- Verifica se o adotante existe -->
+                <?php if ($adotante): ?>
                 <div class="form-row">
                     <!-- Informações do Adotante -->
                     <img id="imagem_adotante" src="<?php echo htmlspecialchars($adotante['url_imagem']); ?>"
@@ -307,51 +304,68 @@ if ($idade < 18)
                         <p>CPF: <?php echo htmlspecialchars($adotante['cpf']); ?></p>
                     </section>
                 </div>
-            <?php else: ?>
+                <?php else: ?>
                 <p>Adotante não encontrado.</p>
-            <?php endif; ?>
+                <?php endif; ?>
 
-            <div class="form-row">
-                <img id="imagem_pet" src="<?php echo htmlspecialchars($imagemPetUrl); ?>" alt="Imagem do Pet" />
-                <section class="info">
-                    <h4>Pet:</h4>
-                    <p id="pet_nome">Nome: <?php echo htmlspecialchars($pet['nome']); ?></p>
-                    <p id="pet_sexo">Sexo: <?php echo htmlspecialchars($pet['sexo'] === 'M' ? 'Macho' : 'Fêmea'); ?>
-                    </p>
-                </section>
-            </div>
+                <div class="form-row">
+                    <img id="imagem_pet" src="<?php echo htmlspecialchars($imagemPetUrl); ?>" alt="Imagem do Pet" />
+                    <section class="info">
+                        <h4>Pet:</h4>
+                        <p id="pet_nome">Nome:
+                            <?php
+                        // Exibe o nome do pet se o array $pet existir e contiver um nome
+                        echo isset($pet['nome']) ? htmlspecialchars($pet['nome']) : 'Nenhum pet selecionado';
+                        ?>
+                        </p>
+                        <p id="pet_sexo">Sexo:
+                            <?php
+                        // Exibe o sexo do pet se o array $pet existir e contiver o campo sexo
+                        if (isset($pet['sexo']))
+                        {
+                            echo htmlspecialchars($pet['sexo'] === 'M' ? 'Macho' : 'Fêmea');
+                        }
+                        else
+                        {
+                            echo 'Nenhum pet selecionado';
+                        }
+                        ?>
+                        </p>
+                    </section>
+                </div>
 
-            <div class="form-row">
-                <select id="pet_brinco" name="pet_brinco" onchange="atualizarImagemPet(); atualizarDadosPet()">
-                    <option value="">Selecione um Pet</option>
-                    <?php foreach ($petsAdotaveis as $pet): ?>
+
+                <div class="form-row">
+                    <select id="pet_brinco" name="pet_brinco" onchange="atualizarImagemPet(); atualizarDadosPet()">
+                        <option value="">Selecione um Pet</option>
+                        <?php foreach ($petsAdotaveis as $pet): ?>
                         <option value="<?php echo htmlspecialchars($pet['brinco']); ?>"
                             <?php if ($pet && $pet['brinco'] === (int)$brincoPet) echo 'selected'; ?>>
                             <?php echo htmlspecialchars($pet['nome']); ?>
                         </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
 
 
-            <div class="form-row">
-                <label for="observacoes">Observações:</label>
-                <textarea id="observacoes" name="observacoes" rows="4" cols="50"
-                    placeholder="Digite aqui suas observações..."><?php echo htmlspecialchars($observacoes ?? ''); ?></textarea>
-            </div>
+                <div class="form-row">
+                    <label for="observacoes">Observações:</label>
+                    <textarea id="observacoes" name="observacoes" rows="4" cols="50"
+                        placeholder="Digite aqui suas observações..."><?php echo htmlspecialchars($observacoes ?? ''); ?></textarea>
+                </div>
 
-            <button type="submit">Confirmar Adoção</button>
-        </form>
+                <button type="submit">Confirmar Adoção</button>
+            </form>
 
-        <!-- Exibe mensagens de erro ou sucesso -->
-        <?php if (isset($mensagem)): ?>
+            <!-- Exibe mensagens de erro ou sucesso -->
+            <?php if (isset($mensagem)): ?>
             <p class="mensagem"><?php echo htmlspecialchars($mensagem); ?></p>
-        <?php endif; ?>
+            <?php endif; ?>
 
-    </div>
+        </div>
 
-    <?php include 'rodape.php'; ?>
+        <?php include 'rodape.php'; ?>
 
-</body>
+    </body>
 
 </html>

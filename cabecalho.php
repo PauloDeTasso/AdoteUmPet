@@ -2,9 +2,18 @@
     style="display:flex; flex-direction: column; justify-content:center; align-items: center; text-align: center; background-color: #3498db; padding: 10px;">
     <!-- Navegação de links com efeito de transição suave -->
     <div style="display:flex; flex-direction: row; text-align: center; margin-bottom: 10px;">
-        <a href="javascript:history.back()" class="btn-header">Voltar</a>
-        <a href="home.php" class="btn-header">Início</a>
-        <a href="logout.php" class="btn-header">Sair</a>
+        <a href="javascript:history.back()" class="btn-header">
+            <img src="imagens/sistema/icones/voltar.webp" alt="Ícone Voltar" class="icon-header">
+            Voltar
+        </a>
+        <a href="home.php" class="btn-header">
+            <img src="imagens/sistema/icones/home.webp" alt="Ícone Menu" class="icon-header">
+            Menu
+        </a>
+        <a href="logout.php" class="btn-header">
+            <img src="imagens/sistema/icones/sair.png" alt="Ícone Sair" class="icon-header">
+            Sair
+        </a>
     </div>
 
     <!-- Logo e título do sistema -->
@@ -25,43 +34,53 @@
 <style>
 /* Estilo para os botões de navegação */
 .btn-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     text-decoration: none;
     background-color: #007bff;
     color: white;
-    padding: 5px 10px;
-    border-radius: 4%;
+    padding: 10px;
+    border-radius: 10px;
     margin: 0 5px;
     transition: background-color 0.4s ease, transform 0.4s ease;
-    /* Adiciona a transição suave */
+    width: 80px;
+    text-align: center;
+}
+
+/* Estilo para os ícones dos botões */
+.icon-header {
+    width: 24px;
+    height: 24px;
+    margin-bottom: 5px;
 }
 
 /* Efeito ao passar o mouse nos botões */
 .btn-header:hover {
     background-color: #0056b3;
     transform: translateY(-3px);
-    /* Adiciona um efeito deslizante para cima ao passar o mouse */
 }
 
-/* Estilo para o botão de submit e cadastrar-se */
-button[type="submit"],
-.btn_cadastre_se {
-    background-color: #3498db;
-    color: white;
-    padding: 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    margin-top: 10px;
-    width: 100%;
-    transition: background-color 0.4s ease, transform 0.4s ease;
+@media (max-width: 768px) {
+    .logoprefeitura {
+        width: 70%;
+    }
 }
 
-/* Efeito hover nos botões de submit e cadastrar-se */
-button[type="submit"]:hover,
-.btn_cadastre_se:hover {
-    background-color: #2980b9;
-    transform: translateY(-3px);
-    /* Efeito deslizante para cima */
+/* Responsividade para telas menores */
+@media (max-width: 600px) {
+
+    .logoprefeitura {
+        width: 50%;
+    }
+
+    .btn-header {
+        width: 100px;
+    }
+
+    .icon-header {
+        width: 20px;
+        height: 20px;
+    }
 }
 </style>

@@ -1,29 +1,24 @@
 <?php
-// Incluir a conexão com o banco de dados
-include 'conexao_db.php';
+include_once "start.php";
 
-// Iniciar a sessão
-session_start();
-
-// Verificar se o usuário está logado
-if (!isset($_SESSION['cpf']))
+if (isset($_GET['cpf']))
 {
-    header("Location: login.php");
-    exit();
+    $cpf_usuario_logado = $_GET['cpf'];
+}
+else
+{
+    $cpf_usuario_logado = $_SESSION['cpf'];
 }
 
 // Conectar ao banco de dados
 $conexao = conectar();
-
-// Obter CPF do usuário logado
-$cpf_usuario_logado = $_SESSION['cpf'];
 
 // Obtém a URL da imagem do usuário
 $queryImagem = $conexao->prepare('SELECT url_imagem FROM Imagem_Usuario WHERE fk_Usuario_cpf = :cpf');
 $queryImagem->execute([':cpf' => $cpf_usuario_logado]);
 $imagemUsuario = $queryImagem->fetch(PDO::FETCH_ASSOC);
 
-$imagemUrl = $imagemUsuario ? $imagemUsuario['url_imagem'] : 'imagens/usuarios/default.jpg';
+$imagemUrl = isset($imagemUsuario['url_imagem']) ? $imagemUsuario['url_imagem'] : 'imagens/usuarios/default.jpg';
 
 // Consultar os dados do usuário logado e seu endereço
 $query = "
@@ -76,14 +71,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
         else
         {
             // Atualizar imagem se um novo arquivo for enviado
-            $url_imagem_nova = $usuario['url_imagem']; // Manter a imagem atual
+            $url_imagem_nova = $imagemUrl; // Manter a imagem atual
 
             if (isset($_FILES['imagem']) && $_FILES['imagem']['error'] === UPLOAD_ERR_OK)
             {
                 $imagem_temp = $_FILES['imagem']['tmp_name'];
                 $extensao = pathinfo($_FILES['imagem']['name'], PATHINFO_EXTENSION);
                 $nome_imagem = "usuario_" . $cpf_usuario_logado . "." . $extensao;
-                $url_imagem_nova = "imagens/usuario/" . $nome_imagem;
+                $url_imagem_nova = "imagens/usuarios/" . $nome_imagem;
+
+                // Verificar e criar o diretório se não existir
+                if (!file_exists('imagens/usuarios/'))
+                {
+                    mkdir('imagens/usuarios/', 0777, true);
+                }
 
                 // Remover a imagem antiga do servidor
                 if (!empty($usuario['url_imagem']) && file_exists($usuario['url_imagem']))
@@ -170,18 +171,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
             echo "<script>showToast('Erro ao remover o usuário.');</script>";
         }
     }
+    // Redirecionar para pet_selecionar.php com o CPF
+    header("Location: usuario_selecionar.php?cpf=" . urlencode($cpf_usuario_logado));
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="pt-BR">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Editar Dados do Usuário</title>
-        <link rel="stylesheet" href="css/usuario/usuario_editar_dados.css">
-        <script>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Dados do Usuário</title>
+    <link rel="stylesheet" href="css/usuario/usuario_editar_dados.css">
+    <script>
         function showToast(message) {
             const toast = document.createElement('div');
             toast.className = 'toast';
@@ -196,69 +200,69 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
             // Aqui você pode adicionar validações adicionais se necessário
             return true;
         }
-        </script>
+    </script>
 
-    </head>
+</head>
 
-    <body>
-        <?php include_once 'cabecalho.php'; ?>
+<body>
+    <?php include_once 'cabecalho.php'; ?>
 
-        <section class="cabecalho">
+    <section class="cabecalho">
 
-            <h3>Atualizar meus Dados</h3>
-            <section class="usuario-imagem">
-                <img src="<?= htmlspecialchars($imagemUrl, ENT_QUOTES, 'UTF-8'); ?>" alt="Foto do usuário">
-            </section>
+        <h3>Atualizar meus Dados</h3>
+        <section class="usuario-imagem">
+            <img src="<?= htmlspecialchars($imagemUrl, ENT_QUOTES, 'UTF-8'); ?>" alt="Foto do usuário">
         </section>
-        <form method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
-            <label for="nome">Nome:</label>
-            <input type="text" id="nome" name="nome" value="<?php echo htmlspecialchars($usuario['nome']); ?>" required
-                placeholder="Digite seu nome">
+    </section>
+    <form method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
+        <label for="nome">Nome:</label>
+        <input type="text" id="nome" name="nome" value="<?php echo htmlspecialchars($usuario['nome']); ?>" required
+            placeholder="Digite seu nome">
 
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($usuario['email']); ?>"
-                required placeholder="exemplo@dominio.com">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($usuario['email']); ?>"
+            required placeholder="exemplo@dominio.com">
 
-            <label for="telefone">Telefone:</label>
-            <input type="text" id="telefone" name="telefone"
-                value="<?php echo htmlspecialchars($usuario['telefone']); ?>" required
-                placeholder="Digite seu telefone">
+        <label for="telefone">Telefone:</label>
+        <input type="text" id="telefone" name="telefone"
+            value="<?php echo htmlspecialchars($usuario['telefone']); ?>" required
+            placeholder="Digite seu telefone">
 
-            <label for="data_nascimento">Data de Nascimento:</label>
-            <input type="date" id="data_nascimento" name="data_nascimento"
-                value="<?php echo htmlspecialchars($usuario['data_nascimento']); ?>" required>
+        <label for="data_nascimento">Data de Nascimento:</label>
+        <input type="date" id="data_nascimento" name="data_nascimento"
+            value="<?php echo htmlspecialchars($usuario['data_nascimento']); ?>" required>
 
-            <label for="imagem">Imagem:</label>
-            <input type="file" id="imagem" name="imagem" accept="image/*">
+        <label for="imagem">Imagem:</label>
+        <input type="file" id="imagem" name="imagem" accept="image/*">
 
-            <h2>Endereço</h2>
-            <label for="rua">Rua:</label>
-            <input type="text" id="rua" name="rua" value="<?php echo htmlspecialchars($usuario['rua']); ?>" required>
+        <h2>Endereço</h2>
+        <label for="rua">Rua:</label>
+        <input type="text" id="rua" name="rua" value="<?php echo htmlspecialchars($usuario['rua']); ?>" required>
 
-            <label for="numero">Número:</label>
-            <input type="text" id="numero" name="numero" value="<?php echo htmlspecialchars($usuario['numero']); ?>"
-                required>
+        <label for="numero">Número:</label>
+        <input type="text" id="numero" name="numero" value="<?php echo htmlspecialchars($usuario['numero']); ?>"
+            required>
 
-            <label for="bairro">Bairro:</label>
-            <input type="text" id="bairro" name="bairro" value="<?php echo htmlspecialchars($usuario['bairro']); ?>"
-                required>
+        <label for="bairro">Bairro:</label>
+        <input type="text" id="bairro" name="bairro" value="<?php echo htmlspecialchars($usuario['bairro']); ?>"
+            required>
 
-            <label for="cep">CEP:</label>
-            <input type="text" id="cep" name="cep" value="<?php echo htmlspecialchars($usuario['cep']); ?>" required>
+        <label for="cep">CEP:</label>
+        <input type="text" id="cep" name="cep" value="<?php echo htmlspecialchars($usuario['cep']); ?>" required>
 
-            <label for="cidade">Cidade:</label>
-            <input type="text" id="cidade" name="cidade" value="<?php echo htmlspecialchars($usuario['cidade']); ?>"
-                required>
+        <label for="cidade">Cidade:</label>
+        <input type="text" id="cidade" name="cidade" value="<?php echo htmlspecialchars($usuario['cidade']); ?>"
+            required>
 
-            <label for="estado">Estado:</label>
-            <input type="text" id="estado" name="estado" value="<?php echo htmlspecialchars($usuario['estado']); ?>"
-                required>
+        <label for="estado">Estado:</label>
+        <input type="text" id="estado" name="estado" value="<?php echo htmlspecialchars($usuario['estado']); ?>"
+            required>
 
-            <section class="secaoBotoes">
-                <button type="submit" name="atualizar">Atualizar Dados</button>
-            </section>
+        <section class="secaoBotoes">
+            <button type="submit" name="atualizar">Atualizar Dados</button>
+        </section>
 
-        </form>
-    </body>
+    </form>
+</body>
 
 </html>

@@ -73,4 +73,10 @@
     transform: translateY(-3px);
     /* Desliza os títulos ao passar o mouse */
 }
+
+@media (max-width: 768px) {
+    .logoprefeitura {
+        width: 70%;
+    }
+}
 </style>

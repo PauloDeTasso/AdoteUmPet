@@ -1,6 +1,5 @@
 <?php
-// Incluir arquivo de conexão com o banco de dados
-require_once 'conexao_db.php';
+include_once "start.php";
 
 // Função para sanitizar e validar entradas (proteção contra XSS)
 function sanitizarEntrada($data)

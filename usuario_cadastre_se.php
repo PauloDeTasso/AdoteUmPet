@@ -1,119 +1,144 @@
 <?php
-
-include 'conexao_db.php';
+require_once 'conexao_db.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST')
 {
-    $conn = conectar();
-
-    $cpf = $_POST['cpf'];
-    $nome = $_POST['nome'];
-    $dataNascimento = $_POST['data_nascimento'];
-    $email = $_POST['email'];
-    $telefone = $_POST['telefone'];
-    $senha = $_POST['senha'];
-    $rua = $_POST['rua'];
-    $numero = $_POST['numero'];
-    $bairro = $_POST['bairro'];
-    $cep = $_POST['cep'];
-    $referencia = $_POST['referencia'];
-    $cidade = $_POST['cidade'];
-    $estado = $_POST['estado'];
-
-    // Verifica se o arquivo de imagem foi enviado
-    $imagemUrl = null;
-    if (isset($_FILES['imagem']) && $_FILES['imagem']['error'] === UPLOAD_ERR_OK)
+    try
     {
-        // Diretório para salvar a imagem
-        $diretorioImagens = 'imagens/usuarios/';
-        $nomeImagemOriginal = basename($_FILES['imagem']['name']);
-        $extensaoImagem = strtolower(pathinfo($nomeImagemOriginal, PATHINFO_EXTENSION));
+        $conn = conectar();
 
-        // Verifica se a extensão é permitida
-        $extensoesPermitidas = ['jpg', 'jpeg', 'png', 'gif'];
-        if (!in_array($extensaoImagem, $extensoesPermitidas))
+        $cpf = $_POST['cpf'];
+        $nome = $_POST['nome'];
+        $dataNascimento = $_POST['data_nascimento'];
+        $email = $_POST['email'];
+        $telefone = $_POST['telefone'];
+        $senha = $_POST['senha'];
+        $rua = $_POST['rua'];
+        $numero = $_POST['numero'];
+        $bairro = $_POST['bairro'];
+        $cep = $_POST['cep'];
+        $referencia = $_POST['referencia'];
+        $cidade = $_POST['cidade'];
+        $estado = $_POST['estado'];
+
+        // Lista de estados válidos
+        $estadosValidos = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'];
+
+        // Valida se o estado está na lista de estados válidos
+        if (!in_array($estado, $estadosValidos))
         {
-            echo "Tipo de imagem não permitido.";
+            echo "<script>alert('Estado inválido!'); window.location.href = 'usuario_cadastre_se.php';</script>";
             exit;
         }
 
-        // Cria um nome único para a imagem
-        $imagemNome = uniqid() . '-' . $nomeImagemOriginal;
-        $imagemPath = $diretorioImagens . $imagemNome;
-
-        // Verifica se já existe uma imagem com o mesmo nome
-        while (file_exists($imagemPath))
+        // Verifica se o arquivo de imagem foi enviado
+        $imagemUrl = null;
+        if (isset($_FILES['imagem']) && $_FILES['imagem']['error'] === UPLOAD_ERR_OK)
         {
-            $imagemNome = uniqid() . '-' . $nomeImagemOriginal; // Gera novo nome
+            $diretorioImagens = 'imagens/usuarios/';
+            $nomeImagemOriginal = basename($_FILES['imagem']['name']);
+            $extensaoImagem = strtolower(pathinfo($nomeImagemOriginal, PATHINFO_EXTENSION));
+
+            $extensoesPermitidas = ['jpg', 'jpeg', 'png', 'gif'];
+            if (!in_array($extensaoImagem, $extensoesPermitidas))
+            {
+                echo "Tipo de imagem não permitido.";
+                exit;
+            }
+
+            $imagemNome = uniqid() . '-' . $nomeImagemOriginal;
             $imagemPath = $diretorioImagens . $imagemNome;
-        }
 
-        // Move o arquivo para o diretório correto
-        if (move_uploaded_file($_FILES['imagem']['tmp_name'], $imagemPath))
-        {
-            $imagemUrl = $imagemPath;
+            while (file_exists($imagemPath))
+            {
+                $imagemNome = uniqid() . '-' . $nomeImagemOriginal;
+                $imagemPath = $diretorioImagens . $imagemNome;
+            }
+
+            if (move_uploaded_file($_FILES['imagem']['tmp_name'], $imagemPath))
+            {
+                $imagemUrl = $imagemPath;
+            }
+            else
+            {
+                echo "Erro ao mover o arquivo para o diretório.";
+            }
         }
         else
         {
-            echo "Erro ao mover o arquivo para o diretório.";
+            echo "Erro no envio do arquivo de imagem.";
+        }
+
+        // Tenta inserir o usuário
+        $sql = "INSERT INTO Usuario (cpf, nome, data_nascimento, email, telefone, status, senha, fk_Permissao_id) 
+                VALUES (:cpf, :nome, :data_nascimento, :email, :telefone, 'ATIVO', :senha, 2)";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([
+            ':cpf' => $cpf,
+            ':nome' => $nome,
+            ':data_nascimento' => $dataNascimento,
+            ':email' => $email,
+            ':telefone' => $telefone,
+            ':senha' => $senha
+        ]);
+
+        // Insere o endereço se fornecido
+        if ($rua && $bairro && $cep && $cidade && $estado)
+        {
+            $sqlEndereco = "INSERT INTO Endereco (rua, numero, bairro, cep, referencia, cidade, estado) 
+                            VALUES (:rua, :numero, :bairro, :cep, :referencia, :cidade, :estado)";
+            $stmtEndereco = $conn->prepare($sqlEndereco);
+            $stmtEndereco->execute([
+                ':rua' => $rua,
+                ':numero' => $numero,
+                ':bairro' => $bairro,
+                ':cep' => $cep,
+                ':referencia' => $referencia,
+                ':cidade' => $cidade,
+                ':estado' => $estado
+            ]);
+
+            $enderecoId = $conn->lastInsertId();
+
+            $sqlEnderecosUsuarios = "INSERT INTO Enderecos_Usuarios (fk_Usuario_cpf, fk_Endereco_id) 
+                                     VALUES (:cpf, :endereco_id)";
+            $stmtEnderecosUsuarios = $conn->prepare($sqlEnderecosUsuarios);
+            $stmtEnderecosUsuarios->execute([
+                ':cpf' => $cpf,
+                ':endereco_id' => $enderecoId
+            ]);
+        }
+
+        // Insere a imagem do usuário, se houver
+        if ($imagemUrl)
+        {
+            $sqlImagem = "INSERT INTO Imagem_Usuario (url_imagem, fk_Usuario_cpf) 
+                          VALUES (:imagem_url, :cpf)";
+            $stmtImagem = $conn->prepare($sqlImagem);
+            $stmtImagem->execute([
+                ':imagem_url' => $imagemUrl,
+                ':cpf' => $cpf
+            ]);
+        }
+
+        echo "<script>alert('Cadastro realizado com sucesso!'); window.location.href = 'login.php';</script>";
+    }
+    catch (PDOException $e)
+    {
+        // Verifica se o erro é de chave duplicada
+        if ($e->getCode() == 23505)
+        {
+            echo "<script>alert('CPF já cadastrado!'); window.location.href = 'usuario_cadastre_se.php';</script>";
+        }
+        else
+        {
+            echo "Erro ao cadastrar usuário: " . $e->getMessage();
         }
     }
-    else
+    finally
     {
-        echo "Erro no envio do arquivo de imagem.";
+        $conn = null;
     }
-
-    // Insere o usuário com o ID da permissão fixo como 2
-    $sql = "INSERT INTO Usuario (cpf, nome, data_nascimento, email, telefone, status, senha, fk_Permissao_id) VALUES (:cpf, :nome, :data_nascimento, :email, :telefone, 'ATIVO', :senha, 2)";
-    $stmt = $conn->prepare($sql);
-    $stmt->execute([
-        ':cpf' => $cpf,
-        ':nome' => $nome,
-        ':data_nascimento' => $dataNascimento,
-        ':email' => $email,
-        ':telefone' => $telefone,
-        ':senha' => $senha
-    ]);
-
-    // Insere o endereço se fornecido
-    if ($rua && $bairro && $cep && $cidade && $estado)
-    {
-        $sqlEndereco = "INSERT INTO Endereco (rua, numero, bairro, cep, referencia, cidade, estado) VALUES (:rua, :numero, :bairro, :cep, :referencia, :cidade, :estado)";
-        $stmtEndereco = $conn->prepare($sqlEndereco);
-        $stmtEndereco->execute([
-            ':rua' => $rua,
-            ':numero' => $numero,
-            ':bairro' => $bairro,
-            ':cep' => $cep,
-            ':referencia' => $referencia,
-            ':cidade' => $cidade,
-            ':estado' => $estado
-        ]);
-
-        $enderecoId = $conn->lastInsertId();
-
-        $sqlEnderecosUsuarios = "INSERT INTO Enderecos_Usuarios (fk_Usuario_cpf, fk_Endereco_id) VALUES (:cpf, :endereco_id)";
-        $stmtEnderecosUsuarios = $conn->prepare($sqlEnderecosUsuarios);
-        $stmtEnderecosUsuarios->execute([
-            ':cpf' => $cpf,
-            ':endereco_id' => $enderecoId
-        ]);
-    }
-
-    // Insere a imagem do usuário, se houver
-    if ($imagemUrl)
-    {
-        $sqlImagem = "INSERT INTO Imagem_Usuario (url_imagem, fk_Usuario_cpf) VALUES (:imagem_url, :cpf)";
-        $stmtImagem = $conn->prepare($sqlImagem);
-        $stmtImagem->execute([
-            ':imagem_url' => $imagemUrl,
-            ':cpf' => $cpf
-        ]);
-    }
-
-    $conn = null;
-
-    echo "<script>alert('Cadastro realizado com sucesso!'); window.location.href = 'login.php';</script>";
 }
 ?>
 
@@ -124,7 +149,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Cadastro de Novo Usuário</title>
-        <link rel="stylesheet" href="css/usuario/usuario_cadastrar_se.css">
+        <link rel="stylesheet" href="css/usuario/usuario_cadastre_se.css">
     </head>
 
     <body>
@@ -153,8 +178,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
                 <input type="tel" id="telefone" name="telefone" required pattern="\d{11}" maxlength="11"
                     placeholder="Digite apenas números">
 
+                <!-- Campo de Senha -->
                 <label for="senha" class="required">Senha:</label>
-                <input type="password" id="senha" name="senha" required maxlength="255">
+                <div class="password-wrapper">
+                    <input type="password" id="senha" name="senha" required maxlength="255">
+                    <span class="toggle-visibility" onclick="toggleSenhaVisibilidade('senha', 'olhoSenha')">
+                        <img id="olhoSenha" src="imagens/sistema/icones/olho_aberto_senha.webp" alt="Mostrar senha"
+                            width="20px">
+                    </span>
+                </div>
+
+                <!-- Campo de Confirmar Senha -->
+                <label for="confirmar_senha" class="required">Confirmar Senha:</label>
+                <div class="password-wrapper">
+                    <input type="password" id="confirmar_senha" name="confirmar_senha" required maxlength="255">
+                    <span class="toggle-visibility"
+                        onclick="toggleSenhaVisibilidade('confirmar_senha', 'olhoConfirmarSenha')">
+                        <img id="olhoConfirmarSenha" src="imagens/sistema/icones/olho_aberto_senha.webp"
+                            alt="Mostrar senha" width="20px">
+                    </span>
+                </div>
 
                 <label for="imagem">Foto do Perfil:</label>
                 <input type="file" id="imagem" name="imagem" accept="image/*">
@@ -176,7 +219,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
                     <label for="cidade" class="required">Cidade:</label>
                     <input type="text" id="cidade" name="cidade" maxlength="255">
                     <label for="estado" class="required">Estado:</label>
-                    <input type="text" id="estado" name="estado" maxlength="2">
+                    <select id="estado" name="estado" required>
+                        <option value="">Selecione o estado</option>
+                        <option value="AC">Acre</option>
+                        <option value="AL">Alagoas</option>
+                        <option value="AP">Amapá</option>
+                        <option value="AM">Amazonas</option>
+                        <option value="BA">Bahia</option>
+                        <option value="CE">Ceará</option>
+                        <option value="DF">Distrito Federal</option>
+                        <option value="ES">Espírito Santo</option>
+                        <option value="GO">Goiás</option>
+                        <option value="MA">Maranhão</option>
+                        <option value="MT">Mato Grosso</option>
+                        <option value="MS">Mato Grosso do Sul</option>
+                        <option value="MG">Minas Gerais</option>
+                        <option value="PA">Pará</option>
+                        <option value="PB">Paraíba</option>
+                        <option value="PR">Paraná</option>
+                        <option value="PE">Pernambuco</option>
+                        <option value="PI">Piauí</option>
+                        <option value="RJ">Rio de Janeiro</option>
+                        <option value="RN">Rio Grande do Norte</option>
+                        <option value="RS">Rio Grande do Sul</option>
+                        <option value="RO">Rondônia</option>
+                        <option value="RR">Roraima</option>
+                        <option value="SC">Santa Catarina</option>
+                        <option value="SP">São Paulo</option>
+                        <option value="SE">Sergipe</option>
+                        <option value="TO">Tocantins</option>
+                    </select>
                 </div>
 
                 <hr>
@@ -186,6 +258,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
         </main>
 
         <script>
+        // Função para alternar a visibilidade da senha
+        function toggleSenhaVisibilidade(campoId, iconeId) {
+            const campoSenha = document.getElementById(campoId);
+            const olhoSenha = document.getElementById(iconeId);
+
+            if (campoSenha.type === 'password') {
+                campoSenha.type = 'text';
+                olhoSenha.src = 'imagens/sistema/icones/olho_aberto_senha.webp';
+            } else {
+                campoSenha.type = 'password';
+                olhoSenha.src = 'imagens/sistema/icones/olho_fechado_senha.png';
+            }
+        }
+
         // Função para validar o formulário
         function validarFormulario() {
             const cpf = document.getElementById('cpf').value;
@@ -223,6 +309,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
                 }
             }
 
+            if (senha !== confirmarSenha) {
+                alert("As senhas não coincidem!");
+                return false;
+            }
+
             return true;
         }
 
@@ -232,6 +323,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
             endereco.classList.toggle('hidden');
         }
         </script>
+
+        <?php include 'rodape.php'; ?>
+
     </body>
 
 </html>

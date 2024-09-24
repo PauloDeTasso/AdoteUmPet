@@ -1,6 +1,9 @@
 <header class="header-pet">
     <div class="header-back">
-        <a href="javascript:history.back()">Voltar</a>
+        <a href="javascript:history.back()">
+            <img src="imagens/sistema/icones/voltar.webp" alt="Voltar" class="icon">
+            Voltar
+        </a>
     </div>
 
     <div class="header-content">
@@ -40,13 +43,23 @@
 }
 
 .header-back a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     text-decoration: none;
     background-color: #007bff;
     color: white;
     padding: 5px 10px;
-    border-radius: 4%;
+    border-radius: 20%;
     margin: 0 5px;
     transition: background-color 0.4s ease, transform 0.4s ease;
+}
+
+/* Estilo para o ícone dentro do botão */
+.header-back .icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 5px;
 }
 
 /* Efeito hover no botão de voltar */
@@ -104,5 +117,11 @@
 /* Efeito hover nos títulos */
 .header-titles:hover {
     transform: translateY(-3px);
+}
+
+@media (max-width: 768px) {
+    .logoprefeitura {
+        width: 70%;
+    }
 }
 </style>

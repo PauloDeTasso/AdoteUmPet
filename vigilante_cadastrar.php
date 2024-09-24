@@ -1,5 +1,5 @@
 <?php
-include 'conexao_db.php';
+include_once "start.php";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST')
 {
@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
     }
 
     $cep = filter_input(INPUT_POST, 'cep', FILTER_SANITIZE_STRING);
-    if (!preg_match('/^\d{8}$/', $cep))
+    if (!empty($cep) && !preg_match('/^\d{8}$/', $cep))
     {
         echo "<script>alert('O CEP deve estar no formato correto.');</script>";
         exit;
@@ -29,12 +29,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
         $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
         $telefone = filter_input(INPUT_POST, 'telefone', FILTER_SANITIZE_STRING);
         $senha = filter_input(INPUT_POST, 'senha', FILTER_SANITIZE_STRING);
-        $rua = filter_input(INPUT_POST, 'rua', FILTER_SANITIZE_STRING);
-        $numero = filter_input(INPUT_POST, 'numero', FILTER_SANITIZE_STRING);
-        $bairro = filter_input(INPUT_POST, 'bairro', FILTER_SANITIZE_STRING);
-        $referencia = filter_input(INPUT_POST, 'referencia', FILTER_SANITIZE_STRING);
-        $cidade = filter_input(INPUT_POST, 'cidade', FILTER_SANITIZE_STRING);
-        $estado = filter_input(INPUT_POST, 'estado', FILTER_SANITIZE_STRING);
 
         // Verifica se o arquivo de imagem foi enviado
         if (isset($_FILES['imagem']) && $_FILES['imagem']['error'] === UPLOAD_ERR_OK)
@@ -71,9 +65,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
             ':senha' => $senha
         ]);
 
-        // Insere o endereço se fornecido
-        if ($rua && $bairro && $cep && $cidade && $estado)
+        // Insere o endereço se fornecido e visível
+        if (!empty($_POST['rua']) && !empty($_POST['bairro']) && !empty($cep) && !empty($_POST['cidade']) && !empty($_POST['estado']))
         {
+            $rua = filter_input(INPUT_POST, 'rua', FILTER_SANITIZE_STRING);
+            $numero = filter_input(INPUT_POST, 'numero', FILTER_SANITIZE_STRING);
+            $bairro = filter_input(INPUT_POST, 'bairro', FILTER_SANITIZE_STRING);
+            $referencia = filter_input(INPUT_POST, 'referencia', FILTER_SANITIZE_STRING);
+            $cidade = filter_input(INPUT_POST, 'cidade', FILTER_SANITIZE_STRING);
+            $estado = filter_input(INPUT_POST, 'estado', FILTER_SANITIZE_STRING);
+
             $sqlEndereco = "INSERT INTO Endereco (rua, numero, bairro, cep, referencia, cidade, estado) 
                             VALUES (:rua, :numero, :bairro, :cep, :referencia, :cidade, :estado)";
             $stmtEndereco = $conn->prepare($sqlEndereco);
@@ -109,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
         }
 
         $conn->commit();
-        echo "<script>alert('Cadastro realizado com sucesso!'); window.location.href = 'home.php';</script>";
+        echo "<script>alert('Cadastro realizado com sucesso!'); window.location.href = 'usuarios.php?tipo=vigilante';</script>";
     }
     catch (PDOException $e)
     {
@@ -176,11 +177,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
                 return false;
             }
 
-            // Validação de CEP
-            let regexCep = /^\d{8}$/;
-            if (!regexCep.test(cep)) {
-                alert('Insira um CEP válido no formato 12345678.');
-                return false;
+            // Validação de CEP se endereço estiver visível
+            let enderecoDiv = document.getElementById('endereco');
+            if (!enderecoDiv.classList.contains('hidden')) {
+                let regexCep = /^\d{8}$/;
+                if (!regexCep.test(cep)) {
+                    alert('Insira um CEP válido no formato 12345678.');
+                    return false;
+                }
             }
 
             return true;
@@ -191,6 +195,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
             enderecoDiv.classList.toggle('hidden');
         }
     </script>
+
+    <style>
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
 
 <body>

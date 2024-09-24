@@ -1,0 +1,174 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+    text-align: center;
+    width: 100%;
+}
+
+.cabecalho {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #3498db;
+    color: white;
+    padding: 20px;
+    margin-top: 2px;
+}
+
+main {
+    width: 100%;
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+form
+{
+    text-align: left;
+}
+
+
+
+
+label {
+    display: block;
+    margin-top: 10px;
+    position: relative;
+    padding-right: 20px;
+}
+label.required::after {
+    content: "*";
+    color: red;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+input[type="text"],
+input[type="date"],
+input[type="email"],
+input[type="tel"],
+input[type="password"],
+input[type="file"],
+button {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+button {
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+button:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+}
+button:hover {
+    background-color: #407091;
+    transform: scale(1.05);
+}
+button[type='reset'] {
+    background-color: #8a8a8a;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+.btn:hover,
+button[type='reset']:hover {
+    background-color: rgb(179, 179, 179);
+    transform: scale(1.05);
+}
+.btn:focus,
+button[type='reset']:focus {
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+}
+.endereco {
+    margin-top: 20px;
+}
+.endereco.hidden {
+    display: none;
+}
+.optional {
+    color: #666;
+    font-style: italic;
+}
+.required {
+    color: red;
+    font-weight: bold;
+}
+
+
+ /* Estilos para os campos de senha e ícones */
+        .password-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .password-wrapper input[type="password"],
+        .password-wrapper input[type="text"] {
+            width: 100%;
+            padding-right: 40px; /* Espaço para o ícone */
+        }
+
+        .password-wrapper .toggle-visibility {
+            position: absolute;
+            right: 10px;
+            cursor: pointer;
+        }
+
+
+/* Estiliza o campo de seleção */
+select {
+        font-size: 16px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    color: #333;
+    transition: border-color 0.3s ease, background-color 0.3s ease;    
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/* Altera a borda e fundo ao focar no campo */
+select:focus {
+    border-color: #007bff;
+    background-color: #fff;
+    outline: none; /* Remove o contorno padrão */
+}
+
+/* Estiliza as opções */
+option {
+    font-size: 16px;
+}
+
+/* Adiciona uma animação suave ao hover */
+select:hover {
+    border-color: #0056b3;
+}
+
+/* Layout do container, caso precise ajustar o espaçamento */
+.container {
+    max-width: 400px;
+    margin: 20px auto;
+}

@@ -1,6 +1,7 @@
 <?php
 session_start();
 require 'conexao_db.php';
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST')
 {
     // Pega os valores do formulário
@@ -82,46 +83,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
 <!DOCTYPE html>
 <html lang="pt-BR">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Login</title>
-        <link rel="stylesheet" href="css/login/login.css">
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="css/login/login.css">
+</head>
 
-    <body>
+<body>
 
-        <?php include 'cabecalho3.php'; ?>
+    <?php include 'cabecalho3.php'; ?>
 
-        <section class="cabecalho">
-            <h3>Login</h3>
-        </section>
+    <section class="cabecalho">
+        <h3>Login</h3>
+    </section>
 
-        <div class="container">
-            <div class="container2">
+    <div class="container">
+        <div class="container2">
 
-                <!-- Exibe mensagem de erro se houver -->
-                <?php if (isset($erro)): ?>
+            <!-- Exibe mensagem de erro se houver -->
+            <?php if (isset($erro)): ?>
                 <p class="error"><?= htmlspecialchars($erro) ?></p>
-                <?php endif; ?>
+            <?php endif; ?>
 
-                <form method="POST">
-                    <label for="cpf">CPF:</label>
-                    <input type="text" name="cpf" id="cpf" required maxlength="11" pattern="\d{11}"
-                        title="Digite apenas números, 11 dígitos no total">
+            <form method="POST">
+                <label for="cpf">CPF:</label>
+                <input type="text" name="cpf" id="cpf" required maxlength="11" pattern="\d{11}"
+                    title="Digite apenas números, 11 dígitos no total">
 
-                    <label for="senha">Senha:</label>
-                    <input type="password" name="senha" id="senha" required maxlength="255">
+                <label for="senha">Senha:</label>
+                <input type="password" name="senha" id="senha" required maxlength="255">
 
-                    <button type="submit">Entrar</button>
-                </form>
+                <button type="submit">Entrar</button>
 
-                <p><a class="btn_cadastre_se" href="usuario_cadastre_se.php">Cadastre-se</a></p>
-            </div>
+            </form>
+
+            <section class="sessoBotao">
+                <a href="usuario_cadastre_se.php"><button class="btn_cadastre_se">Cadastre-se</button></a>
+            </section>
+
         </div>
+    </div>
 
-        <?php include 'rodape.php'; ?>
+    <?php include 'rodape.php'; ?>
 
-    </body>
+</body>
 
 </html>

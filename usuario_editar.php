@@ -1,12 +1,5 @@
 <?php
-session_start();
-require 'conexao_db.php';
-
-if (!isset($_SESSION['cpf']) || $_SESSION['tipo'] !== 'ADMINISTRADOR')
-{
-    header('Location: login.php');
-    exit;
-}
+include_once "start.php";
 
 $cpf = $_GET['cpf'] ?? '';
 
@@ -66,7 +59,8 @@ $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
         <label for="email">Email:</label>
         <input type="email" id="email" name="email" value="<?= htmlspecialchars($usuario['email']) ?>" required>
         <label for="telefone">Telefone:</label>
-        <input type="text" id="telefone" name="telefone" value="<?= htmlspecialchars($usuario['telefone']) ?>" required>
+        <input type="text" id="telefone" name="telefone" value="<?= htmlspecialchars($usuario['telefone']) ?>"
+            required>
         <label for="status">Status:</label>
         <input type="text" id="status" name="status" value="<?= htmlspecialchars($usuario['status']) ?>" required>
         <label for="senha">Senha:</label>
@@ -79,7 +73,7 @@ $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
         <button type="submit">Salvar</button>
     </form>
     <p><a href="usuarios.php">Voltar</a></p>
-    
+
     <?php include 'rodape.php'; ?>
 
 </body>

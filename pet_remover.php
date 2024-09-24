@@ -1,12 +1,5 @@
 <?php
-session_start();
-require 'conexao_db.php';
-
-if (!isset($_SESSION['cpf']) || $_SESSION['tipo'] !== 'Administrador')
-{
-    header('Location: login.php');
-    exit;
-}
+include_once "start.php";
 
 $brinco = $_GET['brinco'] ?? '';
 

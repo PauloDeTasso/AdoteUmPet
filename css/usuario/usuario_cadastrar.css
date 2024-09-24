@@ -31,6 +31,12 @@ main {
     background-color: #fff;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
+
+form
+{
+    text-align: left;
+}
+
 label {
     display: block;
     margin-top: 10px;
@@ -92,6 +98,11 @@ button[type='reset']:focus {
 }
 .endereco {
     margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: left;
+    align-items: flex-start;
 }
 .endereco.hidden {
     display: none;
@@ -104,3 +115,80 @@ button[type='reset']:focus {
     color: red;
     font-weight: bold;
 }
+
+ /* Estilos para os campos de senha e ícones */
+        .password-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .password-wrapper input[type="password"],
+        .password-wrapper input[type="text"] {
+            width: 100%;
+            padding-right: 40px; /* Espaço para o ícone */
+        }
+
+        .password-wrapper .toggle-visibility {
+            position: absolute;
+            right: 10px;
+            cursor: pointer;
+        }
+
+        /* Estiliza o rótulo com a classe 'required' */
+label.required {
+    font-weight: bold;
+    font-size: 16px;
+    color: #333;
+    display: block;
+    margin-top: 10px;
+    position: relative;
+}
+
+/* Adiciona um asterisco vermelho para campos obrigatórios */
+label.required::after {
+    content: " *";
+    color: red;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+/* Estiliza o campo de seleção */
+select {
+        font-size: 16px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    color: #333;
+    transition: border-color 0.3s ease, background-color 0.3s ease;    
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/* Altera a borda e fundo ao focar no campo */
+select:focus {
+    border-color: #007bff;
+    background-color: #fff;
+    outline: none; /* Remove o contorno padrão */
+}
+
+/* Estiliza as opções */
+option {
+    font-size: 16px;
+}
+
+/* Adiciona uma animação suave ao hover */
+select:hover {
+    border-color: #0056b3;
+}
+
+/* Layout do container, caso precise ajustar o espaçamento */
+.container {
+    max-width: 400px;
+    margin: 20px auto;
+}
+

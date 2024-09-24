@@ -16,7 +16,7 @@ body {
 
 .cabecalho {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: center;
     align-items: center;   
     text-align: center;
@@ -26,12 +26,10 @@ body {
     margin-top: 2px;
 }
 
-h1 {
-    text-align: center;
-    margin-bottom: 20px;
-    color: #444;
+p
+{
+    margin: 5px 0;
 }
-
 /* Container principal para os usuários */
 .usuarios-container {
     display: grid;
