@@ -30,6 +30,15 @@ p
 {
     margin: 5px 0;
 }
+
+.sessaoPrincipal{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;   
+    text-align: center;
+}
+
 /* Container principal para os usuários */
 .usuarios-container {
     display: grid;

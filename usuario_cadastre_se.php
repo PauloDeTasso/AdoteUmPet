@@ -145,119 +145,119 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
 <!DOCTYPE html>
 <html lang="pt-BR">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Cadastro de Novo Usuário</title>
-        <link rel="stylesheet" href="css/usuario/usuario_cadastre_se.css">
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Novo Usuário</title>
+    <link rel="stylesheet" href="css/usuario/usuario_cadastre_se.css">
+</head>
 
-    <body>
-        <?php include 'cabecalho3.php'; ?>
+<body>
+    <?php include 'cabecalho3.php'; ?>
 
-        <section class="cabecalho">
-            <h3>Cadastre-se</h3>
-        </section>
+    <section class="cabecalho">
+        <h3>Cadastre-se</h3>
+    </section>
 
-        <main>
-            <form method="post" enctype="multipart/form-data" onsubmit="return validarFormulario()">
-                <label for="cpf" class="required">CPF:</label>
-                <input type="text" id="cpf" name="cpf" required pattern="\d{11}" maxlength="11"
-                    placeholder="Digite apenas números">
+    <main>
+        <form method="post" enctype="multipart/form-data" onsubmit="return validarFormulario()">
+            <label for="cpf" class="required">CPF:</label>
+            <input type="text" id="cpf" name="cpf" required pattern="\d{11}" maxlength="11"
+                placeholder="Digite apenas números">
 
-                <label for="nome" class="required">Nome:</label>
-                <input type="text" id="nome" name="nome" required maxlength="255">
+            <label for="nome" class="required">Nome:</label>
+            <input type="text" id="nome" name="nome" required maxlength="255">
 
-                <label for="data_nascimento" class="required">Data de Nascimento:</label>
-                <input type="date" id="data_nascimento" name="data_nascimento" required>
+            <label for="data_nascimento" class="required">Data de Nascimento:</label>
+            <input type="date" id="data_nascimento" name="data_nascimento" required>
 
-                <label for="email" class="optional">Email:</label>
-                <input type="email" id="email" name="email" maxlength="255">
+            <label for="email" class="optional">Email:</label>
+            <input type="email" id="email" name="email" maxlength="255">
 
-                <label for="telefone" class="required">Telefone:</label>
-                <input type="tel" id="telefone" name="telefone" required pattern="\d{11}" maxlength="11"
-                    placeholder="Digite apenas números">
+            <label for="telefone" class="required">Telefone:</label>
+            <input type="tel" id="telefone" name="telefone" required pattern="\d{11}" maxlength="11"
+                placeholder="Digite apenas números">
 
-                <!-- Campo de Senha -->
-                <label for="senha" class="required">Senha:</label>
-                <div class="password-wrapper">
-                    <input type="password" id="senha" name="senha" required maxlength="255">
-                    <span class="toggle-visibility" onclick="toggleSenhaVisibilidade('senha', 'olhoSenha')">
-                        <img id="olhoSenha" src="imagens/sistema/icones/olho_aberto_senha.webp" alt="Mostrar senha"
-                            width="20px">
-                    </span>
-                </div>
+            <!-- Campo de Senha -->
+            <label for="senha" class="required">Senha:</label>
+            <div class="password-wrapper">
+                <input type="password" id="senha" name="senha" required maxlength="255">
+                <span class="toggle-visibility" onclick="toggleSenhaVisibilidade('senha', 'olhoSenha')">
+                    <img id="olhoSenha" src="imagens/sistema/icones/olho_aberto_senha.webp" alt="Mostrar senha"
+                        width="20px">
+                </span>
+            </div>
 
-                <!-- Campo de Confirmar Senha -->
-                <label for="confirmar_senha" class="required">Confirmar Senha:</label>
-                <div class="password-wrapper">
-                    <input type="password" id="confirmar_senha" name="confirmar_senha" required maxlength="255">
-                    <span class="toggle-visibility"
-                        onclick="toggleSenhaVisibilidade('confirmar_senha', 'olhoConfirmarSenha')">
-                        <img id="olhoConfirmarSenha" src="imagens/sistema/icones/olho_aberto_senha.webp"
-                            alt="Mostrar senha" width="20px">
-                    </span>
-                </div>
+            <!-- Campo de Confirmar Senha -->
+            <label for="confirmar_senha" class="required">Confirmar Senha:</label>
+            <div class="password-wrapper">
+                <input type="password" id="confirmar_senha" name="confirmar_senha" required maxlength="255">
+                <span class="toggle-visibility"
+                    onclick="toggleSenhaVisibilidade('confirmar_senha', 'olhoConfirmarSenha')">
+                    <img id="olhoConfirmarSenha" src="imagens/sistema/icones/olho_aberto_senha.webp"
+                        alt="Mostrar senha" width="20px">
+                </span>
+            </div>
 
-                <label for="imagem">Foto do Perfil:</label>
-                <input type="file" id="imagem" name="imagem" accept="image/*">
+            <label for="imagem">Foto do Perfil:</label>
+            <input type="file" id="imagem" name="imagem" accept="image/*">
 
-                <button type="button" onclick="toggleEndereco()">Adicionar Endereço</button>
+            <button type="button" onclick="toggleEndereco()">Adicionar Endereço</button>
 
-                <div class="endereco hidden" id="endereco">
-                    <h2>Endereço</h2>
-                    <label for="rua" class="required">Rua:</label>
-                    <input type="text" id="rua" name="rua" maxlength="255">
-                    <label for="numero">Número:</label>
-                    <input type="text" id="numero" name="numero" maxlength="10">
-                    <label for="bairro" class="required">Bairro:</label>
-                    <input type="text" id="bairro" name="bairro" maxlength="255">
-                    <label for="cep" class="required">CEP:</label>
-                    <input type="text" id="cep" name="cep" maxlength="10">
-                    <label for="referencia">Referência:</label>
-                    <input type="text" id="referencia" name="referencia" maxlength="255">
-                    <label for="cidade" class="required">Cidade:</label>
-                    <input type="text" id="cidade" name="cidade" maxlength="255">
-                    <label for="estado" class="required">Estado:</label>
-                    <select id="estado" name="estado" required>
-                        <option value="">Selecione o estado</option>
-                        <option value="AC">Acre</option>
-                        <option value="AL">Alagoas</option>
-                        <option value="AP">Amapá</option>
-                        <option value="AM">Amazonas</option>
-                        <option value="BA">Bahia</option>
-                        <option value="CE">Ceará</option>
-                        <option value="DF">Distrito Federal</option>
-                        <option value="ES">Espírito Santo</option>
-                        <option value="GO">Goiás</option>
-                        <option value="MA">Maranhão</option>
-                        <option value="MT">Mato Grosso</option>
-                        <option value="MS">Mato Grosso do Sul</option>
-                        <option value="MG">Minas Gerais</option>
-                        <option value="PA">Pará</option>
-                        <option value="PB">Paraíba</option>
-                        <option value="PR">Paraná</option>
-                        <option value="PE">Pernambuco</option>
-                        <option value="PI">Piauí</option>
-                        <option value="RJ">Rio de Janeiro</option>
-                        <option value="RN">Rio Grande do Norte</option>
-                        <option value="RS">Rio Grande do Sul</option>
-                        <option value="RO">Rondônia</option>
-                        <option value="RR">Roraima</option>
-                        <option value="SC">Santa Catarina</option>
-                        <option value="SP">São Paulo</option>
-                        <option value="SE">Sergipe</option>
-                        <option value="TO">Tocantins</option>
-                    </select>
-                </div>
+            <div class="endereco hidden" id="endereco">
+                <h2>Endereço</h2>
+                <label for="rua" class="required">Rua:</label>
+                <input type="text" id="rua" name="rua" maxlength="255">
+                <label for="numero">Número:</label>
+                <input type="text" id="numero" name="numero" maxlength="10">
+                <label for="bairro" class="required">Bairro:</label>
+                <input type="text" id="bairro" name="bairro" maxlength="255">
+                <label for="cep">CEP:</label>
+                <input type="text" id="cep" name="cep" maxlength="10">
+                <label for="referencia">Referência:</label>
+                <input type="text" id="referencia" name="referencia" maxlength="255">
+                <label for="cidade" class="required">Cidade:</label>
+                <input type="text" id="cidade" name="cidade" maxlength="255">
+                <label for="estado" class="required">Estado:</label>
+                <select id="estado" name="estado" required>
+                    <option value="">Selecione o estado</option>
+                    <option value="AC">Acre</option>
+                    <option value="AL">Alagoas</option>
+                    <option value="AP">Amapá</option>
+                    <option value="AM">Amazonas</option>
+                    <option value="BA">Bahia</option>
+                    <option value="CE">Ceará</option>
+                    <option value="DF">Distrito Federal</option>
+                    <option value="ES">Espírito Santo</option>
+                    <option value="GO">Goiás</option>
+                    <option value="MA">Maranhão</option>
+                    <option value="MT">Mato Grosso</option>
+                    <option value="MS">Mato Grosso do Sul</option>
+                    <option value="MG">Minas Gerais</option>
+                    <option value="PA">Pará</option>
+                    <option value="PB">Paraíba</option>
+                    <option value="PR">Paraná</option>
+                    <option value="PE">Pernambuco</option>
+                    <option value="PI">Piauí</option>
+                    <option value="RJ">Rio de Janeiro</option>
+                    <option value="RN">Rio Grande do Norte</option>
+                    <option value="RS">Rio Grande do Sul</option>
+                    <option value="RO">Rondônia</option>
+                    <option value="RR">Roraima</option>
+                    <option value="SC">Santa Catarina</option>
+                    <option value="SP">São Paulo</option>
+                    <option value="SE">Sergipe</option>
+                    <option value="TO">Tocantins</option>
+                </select>
+            </div>
 
-                <hr>
-                <button type="reset">Limpar Formulário</button>
-                <button type="submit">Cadastrar</button>
-            </form>
-        </main>
+            <hr>
+            <button type="reset">Limpar Formulário</button>
+            <button type="submit">Cadastrar</button>
+        </form>
+    </main>
 
-        <script>
+    <script>
         // Função para alternar a visibilidade da senha
         function toggleSenhaVisibilidade(campoId, iconeId) {
             const campoSenha = document.getElementById(campoId);
@@ -322,10 +322,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
             const endereco = document.getElementById('endereco');
             endereco.classList.toggle('hidden');
         }
-        </script>
+    </script>
 
-        <?php include 'rodape.php'; ?>
+    <?php include 'rodape.php'; ?>
 
-    </body>
+</body>
 
 </html>

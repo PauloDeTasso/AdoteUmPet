@@ -67,28 +67,31 @@ catch (PDOException $e)
         <p>Interessados em adoções</p>
     </section>
 
-    <div class="usuarios-container">
-        <?php if (count($usuarios) > 0): ?>
-            <?php foreach ($usuarios as $usuario): ?>
-                <div class="usuario-card">
-                    <a href="usuario_selecionar.php?cpf=<?= htmlspecialchars($usuario['cpf']); ?>">
-                        <!-- Verifica se há imagem associada ao usuário -->
-                        <?php if (!empty($usuario['url_imagem'])): ?>
-                            <img src="<?= htmlspecialchars($usuario['url_imagem']); ?>"
-                                alt="Foto de <?= htmlspecialchars($usuario['nome']); ?>" class="usuario-foto">
-                        <?php else: ?>
-                            <img src="imagens/usuarios/default.jpg" alt="Foto padrão" class="usuario-foto">
-                        <?php endif; ?>
-                    </a>
-                    <p><?= htmlspecialchars($usuario['nome']); ?></p>
-                    <a href="usuario_selecionar.php?cpf=<?= htmlspecialchars($usuario['cpf']); ?>"
-                        class="btn-ver-usuario">Ver Detalhes</a>
-                </div>
-            <?php endforeach; ?>
-        <?php else: ?>
-            <p>Nenhum usuário cadastrado no momento.</p>
-        <?php endif; ?>
-    </div>
+    <section class="sessaoPrincipal">
+        <div class="usuarios-container">
+            <?php if (count($usuarios) > 0): ?>
+                <?php foreach ($usuarios as $usuario): ?>
+                    <div class="usuario-card">
+                        <a href="usuario_selecionar.php?cpf=<?= htmlspecialchars($usuario['cpf']); ?>">
+                            <!-- Verifica se há imagem associada ao usuário -->
+                            <?php if (!empty($usuario['url_imagem'])): ?>
+                                <img src="<?= htmlspecialchars($usuario['url_imagem']); ?>"
+                                    alt="Foto de <?= htmlspecialchars($usuario['nome']); ?>" class="usuario-foto">
+                            <?php else: ?>
+                                <img src="imagens/usuarios/default.jpg" alt="Foto padrão" class="usuario-foto">
+                            <?php endif; ?>
+                        </a>
+                        <p><?= htmlspecialchars($usuario['nome']); ?></p>
+                        <a href="usuario_selecionar.php?cpf=<?= htmlspecialchars($usuario['cpf']); ?>"
+                            class="btn-ver-usuario">Ver Detalhes</a>
+                    </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <p>Nenhum usuário cadastrado no momento.</p>
+            <?php endif; ?>
+        </div>
+    </section>
+
 
     <?php include 'rodape.php'; ?>
 
